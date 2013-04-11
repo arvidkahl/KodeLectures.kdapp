@@ -49,6 +49,7 @@ class KodeLectures.Views.MainView extends JView
     @listenWindowResize()
     
     @autoScroll = yes
+    @currentLecture = 0
     
   delegateElements:->
 
@@ -83,12 +84,12 @@ class KodeLectures.Views.MainView extends JView
   
 
     @editor = new Editor
-        defaultValue: Settings.exampleCodes[0].code
+        defaultValue: Settings.lectures[0].code
         callback: =>
           #@liveViewer.previewCode do @editor.getValue
     @editor.getView().hide()
       
-    @taskView = new TaskView {},KodeLectures.Settings.exampleCodes[0]
+    @taskView = new TaskView {},KodeLectures.Settings.lectures[0]
       
     @aceView = new KDView
         cssClass: 'editor code-editor'
@@ -219,18 +220,48 @@ class KodeLectures.Views.MainView extends JView
         title : 'Run your code'
       callback    : (event)=>
         @liveViewer.previewCode do @editor.getValue       
+    
+    @controlButtons.addSubView nextButton = new KDButtonView
+      cssClass    : "clean-gray editor-button control-button next"
+      title       : 'Next lecture'
+      tooltip:
+        title : 'Go to the next lecture'
+      callback    : (event)=> @emit 'NextLectureRequested'
+      
+    @controlButtons.addSubView previousButton = new KDButtonView
+      cssClass    : "clean-gray editor-button control-button previous"
+      title       : 'Previous lecture'
+      tooltip:
+        title : 'Go to the previous lecture'
+      callback    : (event)=> @emit 'PreviousLectureRequested'
+    
+    @on 'NextLectureRequested', =>
+        unless @currentLecture is KodeLectures.Settings.lectures.length-1       
+          previousButton.unsetClass 'disabled'
+          @exampleCode.setValue ++@currentLecture 
+          @exampleCode.getOptions().callback()
+        else nextButton.setClass 'disabled'
+
+    @on 'PreviousLectureRequested', =>
+        unless @currentLecture is 0       
+          nextButton.unsetClass 'disabled'
+          @exampleCode.setValue --@currentLecture 
+          @exampleCode.getOptions().callback()
+        else previousButton.setClass 'disabled'
+      
       
     @exampleCode = new KDSelectBox
       label: new KDLabelView
-        title: 'Code Examples: '
+        title: 'Lecture: '
         
       defaultValue: @lastSelectedItem or "0"
       cssClass: 'control-button code-examples'
-      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.exampleCodes)
+      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
       callback: =>
         @lastSelectedItem = @exampleCode.getValue()        
-        {code} = KodeLectures.Settings.exampleCodes[@lastSelectedItem]
+        {code} = KodeLectures.Settings.lectures[@lastSelectedItem]
         @ace.getSession().setValue code
+        @taskView.emit 'LectureChanged',KodeLectures.Settings.lectures[@lastSelectedItem]
         
 
     codeButton = new KDButtonViewWithMenu
@@ -255,6 +286,9 @@ class KodeLectures.Views.MainView extends JView
         
     
     @languageSelect = new KDSelectBox
+      label: new KDLabelView
+        title: 'Language: '
+        
       selectOptions : [
         {value:'javascript',title:'JavaScript'}
         {value:'coffee',title:'CoffeeScript'}
@@ -263,13 +297,17 @@ class KodeLectures.Views.MainView extends JView
         ]
       title : 'Language Selection'
       defaultValue : 'javascript'
+      cssClass: 'control-button language'
       callback:(item)=>
         @currentLang = item
         @ace.getSession().setMode "ace/mode/#{item}"
-    @currentLang = 'javascript'
+        
+    @currentLang = KodeLectures.Settings.lectures[0].language
     
     #@controlView.addSubView codeButton
+    @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
+    
     
     @controlView.addSubView @exampleCode.options.label
     @controlView.addSubView @exampleCode
@@ -277,6 +315,8 @@ class KodeLectures.Views.MainView extends JView
     
     @liveViewer.setSplitView @splitView
     @liveViewer.setMainView @
+    
+    @taskView.setMainView @
     
     @liveViewer.previewCode do @editor.getValue
     @utils.defer => ($ window).resize()

@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Thu Apr 11 2013 13:44:37 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Thu Apr 11 2013 16:04:16 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -26,32 +26,35 @@ KodeLectures = {
   }
 };
 
-KodeLectures.Settings.exampleCodes = [];
+KodeLectures.Settings.lectures = [];
 
 /*
 # Sample Example
 */
 
 
-KodeLectures.Settings.exampleCodes.push({
-  title: "Test",
+KodeLectures.Settings.lectures.push({
+  title: "Console.log and Boolean values",
   expectedResults: 'true',
-  submitSuccess: 'Well done!',
+  submitSuccess: 'Well done! You can procedd to the next part, where you will learn all about infinite loops.',
   submitFailure: 'This is not the statement we are looking for.',
-  code: '',
-  codeHint: "console.log(true)",
+  language: 'javascript',
+  code: "",
+  codeHint: "\nThere are two Boolean values, `true` and `false`. The easiest way of logging a true value to the console is:\n\n```js\nconsole.log(true)\n```\n\nBut any truthy expression would do the trick, such as\n\n```js\nconsole.log(1==1)\n```\n\nor\n\n```js\nconsole.log(!(false && (1+2!==Infinity)))\n```\n\nBoth evaluate to `true` before being logged to the console.\n",
   codeHintText: '`Console.log()` prints to the console. Javascript knows only one truly true statement. That would be `true`.',
-  taskText: 'Print a true statement to the console.'
+  taskText: "#Hello\n\nWelcome to the Lecture. Today we'll be learning about Boolean values. Named after [George Boole](http://en.wikipedia.org/wiki/George_Boole), these values are logical representations of Truth of Falsehood. Since there is nothing in between, only two mutually exclusive values exist in JavaScript, `true` and `false`.\n\nTry printing a true statement to the console."
 });
 
-KodeLectures.Settings.exampleCodes.push({
-  title: "JavaScript Sample",
-  code: "// This is a sample JavaScript code snippet\n// It's running on the Node.js platform\n\nconsole.log(\"Nodejs!\");\nconsole.log(\"Version: \" + process.version);\n\n// Let's do some basic math:\n\nvar a = 1, b = 2;\n\nconsole.log(a + b === 3);"
-});
-
-KodeLectures.Settings.exampleCodes.push({
-  title: "CoffeeScript Sample",
-  code: "console.log word for word in ['Hello', 'World']"
+KodeLectures.Settings.lectures.push({
+  title: "While loops",
+  expectedResults: '1\n2\n3\n4\n5',
+  submitSuccess: 'Well done! You can procedd to the next part, where you will learn all more things.',
+  submitFailure: 'This is not the statement we are looking for.',
+  language: 'javascript',
+  code: "",
+  codeHint: "\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
+  codeHintText: 'Do a flip!',
+  taskText: "# While loops\n\nPrint the numbers `1` to `5` to the console, using a while loop."
 });
 
 
@@ -143,9 +146,11 @@ KodeLectures.Core.LiveViewer = (function() {
       return kiteController.run(command, function(err, res) {
         var error, text;
 
-        console.log(err, res);
         if (!err) {
           _this.mainView.taskView.emit('ResultReceived', res);
+        }
+        if (res === '') {
+          res = 'KodeLectures received an empty response but no error.';
         }
         text = err ? "<div class='error'><pre>" + err.message + "</pre></div>" : "<div class='success'><pre>" + res + "</pre></div>";
         window.appView = _this.previewView;
@@ -289,24 +294,13 @@ KodeLectures.Views.HelpView = (function(_super) {
   __extends(HelpView, _super);
 
   function HelpView() {
-    var _this = this;
-
     HelpView.__super__.constructor.apply(this, arguments);
-    this.text = new KDView({
-      partial: 'I am a help view'
-    });
-    this.on('bold', function() {
-      return _this.text.updatePartial('Bold text uses ** text **');
-    });
-    this.on('italic', function() {
-      return _this.text.updatePartial('Italic text uses * text *');
-    });
   }
 
   HelpView.prototype.setDefault = function() {};
 
   HelpView.prototype.pistachio = function() {
-    return "{{> this.text}}";
+    return "";
   };
 
   return HelpView;
@@ -316,37 +310,63 @@ KodeLectures.Views.HelpView = (function(_super) {
 KodeLectures.Views.TaskView = (function(_super) {
   __extends(TaskView, _super);
 
+  TaskView.prototype.setMainView = function(mainView) {
+    this.mainView = mainView;
+  };
+
   function TaskView() {
     var _this = this;
 
     TaskView.__super__.constructor.apply(this, arguments);
     this.setClass('task-view');
+    this.nextLectureButton = new KDButtonView({
+      title: 'Next Lecture',
+      cssClass: 'cupid-green hidden fr',
+      callback: function() {
+        return _this.mainView.emit('NextLectureRequested');
+      }
+    });
     this.taskTextView = new KDView({
       cssClass: 'task-text-view has-markdown',
-      partial: "<span class='data'>" + (this.getData().taskText) + "</span>"
+      partial: "<span class='text'>Assignment</span><span class='data'>" + (marked(this.getData().taskText)) + "</span>"
     });
     this.resultView = new KDView({
       cssClass: 'result-view hidden'
     });
     this.hintView = new KDView({
       cssClass: 'hint-view has-markdown',
-      partial: 'Show hint',
+      partial: '<span class="text">Show hint</span>',
       click: function() {
-        return _this.hintView.updatePartial("<span class='data'>" + (marked(_this.getData().codeHintText)) + "</span>");
+        return _this.hintView.updatePartial("<span class='text'>Hint</span><span class='data'>" + (marked(_this.getData().codeHintText)) + "</span>");
       }
     });
     this.hintCodeView = new KDView({
       cssClass: 'hint-code-view has-markdown',
-      partial: 'Show solution',
+      partial: '<span class="text">Show solution</span>',
       click: function() {
-        return _this.hintCodeView.updatePartial("<span class='data'>" + (marked("```\n" + _this.getData().codeHint + '\n```')) + "</span>");
+        return _this.hintCodeView.updatePartial("<span class='text'>Solution</span><span class='data'>" + (marked(_this.getData().codeHint)) + "</span>");
       }
+    });
+    this.on('LectureChanged', function(lecture) {
+      var _ref;
+
+      _this.setData(lecture);
+      _this.resultView.hide();
+      _this.nextLectureButton.hide();
+      if ((_ref = _this.mainView.liveViewer.mdPreview) != null) {
+        _ref.updatePartial('');
+      }
+      _this.taskTextView.updatePartial("<span class='text'>Assignment</span><span class='data'>" + (marked(_this.getData().taskText)) + "</span>");
+      _this.hintView.updatePartial('<span class="text">Show hint</span>');
+      _this.hintCodeView.updatePartial('<span class="text">Show solution</span>');
+      return _this.render();
     });
     this.on('ResultReceived', function(result) {
       _this.resultView.show();
       if (result.trim() === _this.getData().expectedResults) {
         _this.resultView.updatePartial(_this.getData().submitSuccess);
-        return _this.resultView.setClass('success');
+        _this.resultView.setClass('success');
+        return _this.nextLectureButton.show();
       } else {
         _this.resultView.updatePartial(_this.getData().submitFailure);
         return _this.resultView.unsetClass('success');
@@ -355,7 +375,7 @@ KodeLectures.Views.TaskView = (function(_super) {
   }
 
   TaskView.prototype.pistachio = function() {
-    return "{{> this.resultView}}\n{{> this.taskTextView}}\n{{> this.hintView}}\n{{> this.hintCodeView}}\n\n";
+    return "{{> this.resultView}}    \n\n{{> this.taskTextView}}\n{{> this.nextLectureButton}}\n\n{{> this.hintView}}\n{{> this.hintCodeView}}";
   };
 
   return TaskView;
@@ -462,10 +482,11 @@ KodeLectures.Views.MainView = (function(_super) {
     this.liveViewer = LiveViewer.getSingleton();
     this.listenWindowResize();
     this.autoScroll = true;
+    this.currentLecture = 0;
   }
 
   MainView.prototype.delegateElements = function() {
-    var codeButton, item, key, overflowFix,
+    var codeButton, item, key, nextButton, overflowFix, previousButton,
       _this = this;
 
     this.splitViewWrapper = new KDView;
@@ -498,11 +519,11 @@ KodeLectures.Views.MainView = (function(_super) {
     });
     this.liveViewer.setPreviewView(this.preview);
     this.editor = new Editor({
-      defaultValue: Settings.exampleCodes[0].code,
+      defaultValue: Settings.lectures[0].code,
       callback: function() {}
     });
     this.editor.getView().hide();
-    this.taskView = new TaskView({}, KodeLectures.Settings.exampleCodes[0]);
+    this.taskView = new TaskView({}, KodeLectures.Settings.lectures[0]);
     this.aceView = new KDView({
       cssClass: 'editor code-editor'
     });
@@ -550,16 +571,54 @@ KodeLectures.Views.MainView = (function(_super) {
         return _this.liveViewer.previewCode(_this.editor.getValue());
       }
     }));
+    this.controlButtons.addSubView(nextButton = new KDButtonView({
+      cssClass: "clean-gray editor-button control-button next",
+      title: 'Next lecture',
+      tooltip: {
+        title: 'Go to the next lecture'
+      },
+      callback: function(event) {
+        return _this.emit('NextLectureRequested');
+      }
+    }));
+    this.controlButtons.addSubView(previousButton = new KDButtonView({
+      cssClass: "clean-gray editor-button control-button previous",
+      title: 'Previous lecture',
+      tooltip: {
+        title: 'Go to the previous lecture'
+      },
+      callback: function(event) {
+        return _this.emit('PreviousLectureRequested');
+      }
+    }));
+    this.on('NextLectureRequested', function() {
+      if (_this.currentLecture !== KodeLectures.Settings.lectures.length - 1) {
+        previousButton.unsetClass('disabled');
+        _this.exampleCode.setValue(++_this.currentLecture);
+        return _this.exampleCode.getOptions().callback();
+      } else {
+        return nextButton.setClass('disabled');
+      }
+    });
+    this.on('PreviousLectureRequested', function() {
+      if (_this.currentLecture !== 0) {
+        nextButton.unsetClass('disabled');
+        _this.exampleCode.setValue(--_this.currentLecture);
+        return _this.exampleCode.getOptions().callback();
+      } else {
+        return previousButton.setClass('disabled');
+      }
+    });
     this.exampleCode = new KDSelectBox({
       label: new KDLabelView({
-        title: 'Code Examples: '
+        title: 'Lecture: '
       }),
       defaultValue: this.lastSelectedItem || "0",
       cssClass: 'control-button code-examples',
       selectOptions: (function() {
         var _i, _len, _ref2, _results;
 
-        _ref2 = KodeLectures.Settings.exampleCodes;
+        _ref2 = KodeLectures.Settings.lectures;
         _results = [];
         for (key = _i = 0, _len = _ref2.length; _i < _len; key = ++_i) {
           item = _ref2[key];
@@ -574,8 +633,9 @@ KodeLectures.Views.MainView = (function(_super) {
         var code;
 
         _this.lastSelectedItem = _this.exampleCode.getValue();
-        code = KodeLectures.Settings.exampleCodes[_this.lastSelectedItem].code;
-        return _this.ace.getSession().setValue(code);
+        code = KodeLectures.Settings.lectures[_this.lastSelectedItem].code;
+        _this.ace.getSession().setValue(code);
+        return _this.taskView.emit('LectureChanged', KodeLectures.Settings.lectures[_this.lastSelectedItem]);
       }
     });
     codeButton = new KDButtonViewWithMenu({
@@ -603,6 +663,9 @@ KodeLectures.Views.MainView = (function(_super) {
       callback: function() {}
     });
     this.languageSelect = new KDSelectBox({
+      label: new KDLabelView({
+        title: 'Language: '
+      }),
       selectOptions: [
         {
           value: 'javascript',
@@ -620,18 +683,21 @@ KodeLectures.Views.MainView = (function(_super) {
       ],
       title: 'Language Selection',
       defaultValue: 'javascript',
+      cssClass: 'control-button language',
       callback: function(item) {
         _this.currentLang = item;
         return _this.ace.getSession().setMode("ace/mode/" + item);
       }
     });
-    this.currentLang = 'javascript';
+    this.currentLang = KodeLectures.Settings.lectures[0].language;
+    this.controlView.addSubView(this.languageSelect.options.label);
     this.controlView.addSubView(this.languageSelect);
     this.controlView.addSubView(this.exampleCode.options.label);
     this.controlView.addSubView(this.exampleCode);
     this.controlView.addSubView(this.controlButtons);
     this.liveViewer.setSplitView(this.splitView);
     this.liveViewer.setMainView(this);
+    this.taskView.setMainView(this);
     this.liveViewer.previewCode(this.editor.getValue());
     this.utils.defer(function() {
       return ($(window)).resize();

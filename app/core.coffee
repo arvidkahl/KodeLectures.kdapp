@@ -41,9 +41,9 @@ class KodeLectures.Core.LiveViewer
                       
       kiteController.run command, (err, res)=>
       
-        console.log err,res
         @mainView.taskView.emit 'ResultReceived',res unless err
-        
+
+        if res is '' then res = 'KodeLectures received an empty response but no error.'
         text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{res}</pre></div>"
       
         window.appView = @previewView
@@ -193,46 +193,56 @@ class KodeLectures.Views.HelpView extends JView
 
     constructor:->
         super
-        @text = new KDView
-          partial : 'I am a help view'
-        
-        @on 'bold', =>
-            @text.updatePartial 'Bold text uses ** text **'      
-        @on 'italic', =>
-            @text.updatePartial 'Italic text uses * text *'
-    
+  
     setDefault :->
-        #@text.updatePartial 'Help.'
-
+  
     pistachio:->
         """
-        {{> @text }}
         """
+
 class KodeLectures.Views.TaskView extends JView
+
+  setMainView: (@mainView)->
 
   constructor:->
     super
     @setClass 'task-view'
   
+    @nextLectureButton = new KDButtonView
+      title : 'Next Lecture'
+      cssClass : 'cupid-green hidden fr'
+      callback :=>
+        @mainView.emit 'NextLectureRequested'
+  
     @taskTextView = new KDView
       cssClass : 'task-text-view has-markdown'
-      partial : "<span class='data'>#{@getData().taskText}</span>"
+      partial : "<span class='text'>Assignment</span><span class='data'>#{marked @getData().taskText}</span>"
   
     @resultView = new KDView
       cssClass : 'result-view hidden'
       
     @hintView = new KDView
       cssClass : 'hint-view has-markdown'
-      partial : 'Show hint'
+      partial : '<span class="text">Show hint</span>'
       click :=>
-        @hintView.updatePartial "<span class='data'>#{marked @getData().codeHintText}</span>"
+        @hintView.updatePartial "<span class='text'>Hint</span><span class='data'>#{marked @getData().codeHintText}</span>"
   
     @hintCodeView = new KDView
       cssClass : 'hint-code-view has-markdown'
-      partial : 'Show solution'
+      partial : '<span class="text">Show solution</span>'
       click :=>
-        @hintCodeView.updatePartial "<span class='data'>#{marked "```\n"+@getData().codeHint+'\n```'}</span>"
-      
+        @hintCodeView.updatePartial "<span class='text'>Solution</span><span class='data'>#{marked @getData().codeHint}</span>"
+    
+    @on 'LectureChanged',(lecture)=>
+      @setData lecture
+      @resultView.hide()
+      @nextLectureButton.hide()
+      @mainView.liveViewer.mdPreview?.updatePartial ''
+      @taskTextView.updatePartial "<span class='text'>Assignment</span><span class='data'>#{marked @getData().taskText}</span>"
+      @hintView.updatePartial '<span class="text">Show hint</span>'
+      @hintCodeView.updatePartial '<span class="text">Show solution</span>'
+      @render()
+    
     @on 'ResultReceived', (result)=>
       
       @resultView.show()
@@ -240,18 +250,20 @@ class KodeLectures.Views.TaskView extends JView
       if result.trim() is @getData().expectedResults
         @resultView.updatePartial @getData().submitSuccess
         @resultView.setClass 'success'
+        @nextLectureButton.show()
       else 
         @resultView.updatePartial @getData().submitFailure
         @resultView.unsetClass 'success'  
   
   pistachio:->
     """
-    {{> @resultView }}
+    {{> @resultView }}    
+    
     {{> @taskTextView }}
+    {{> @nextLectureButton}}
+    
     {{> @hintView}}
     {{> @hintCodeView}}
-    
-
     """
     
   

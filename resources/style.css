@@ -164,6 +164,9 @@
 .marKDown .control-pane .control-button.code-examples {
   margin-top: -1px;
 }
+.marKDown .control-pane .control-button.language {
+  margin-top: -1px;
+}
 .marKDown .control-pane .code {
   margin-top: 5px;
   vertical-align:top;
@@ -219,38 +222,75 @@
   background-color : white;
   padding:40px;
   box-sizing:border-box;
+  overflow-y : auto;
 }
 
 .marKDown .result-view {
   height : auto;
-  background-color : #c00;
-  margin : 10px;
+  border:1px solid #c00;
+  background-color : rgba(200,0,0,0.5);
+  margin-bottom : 10px;
   padding : 10px;
   box-sizing:border-box;
+  border-radius:4px;
 }
 
 .marKDown .result-view.success {
-  background-color : #0c0;
+  border-color: #0c0;
+  background-color : rgba(0,200,0,0.5);
 }
 
-
 .marKDown .hint-view {
-  border : 1px dashed rgba(255,255,255,0.5);
-  //background-color : rgba(0,0,0,0.1);
+  border-radius : 4px;
+  border : 1px solid #e8e8e8;
+  background-color : #f5f5f5;
   height : auto;
-  padding :10px;
-  margin : 5px;
+  padding :10px 10px 0 10px;
+  margin-bottom : 10px;
   cursor : pointer;
   width : auto;
 }
+
+.marKDown .text{
+  display:block;
+  //border-bottom:1px solid #e3e3e3;
+  color : #444;
+  font-weight :400;
+  margin-bottom: 10px;
+}
+
+.marKDown .hint-view span.data, .marKDown .hint-code-view span.data, .marKDown .task-text-view span.data{
+  display : block;
+  padding: 10px 20px 0 20px;
+}
+
+/*.marKDown .hint-view .text{
+  display:block;
+  border-bottom:1px solid #aaa;
+  margin-bottom : 10px;
+  font-weight : bold;
+}*/
 .marKDown .hint-code-view {
-  border : 1px dashed rgba(255,255,255,0.5);
-  //background-color : rgba(0,0,0,0.1);
+  border-radius : 4px;
+  border : 1px solid #e8e8e8;
+  background-color : #f5f5f5;
   height : auto;
-  padding : 10px;
-  margin : 5px;
+  padding : 10px 10px 0 10px;
   cursor: pointer;
   width : auto;
+  margin-bottom : 10px;
+}
+
+.marKDown .task-text-view {
+  height : auto;
+  padding : 10px 10px 0 10px;
+  margin-bottom:10px;
+  border-radius:4px;
+  border:1px solid #e8e8e8;
+  background-color:#fbfbfb;
+  width:auto;
+  
+  
 }
 
 body.dragInAction .marKDown .md-help-view {

@@ -16,42 +16,68 @@ KodeLectures =
     MainView   : null
 
 
-KodeLectures.Settings.exampleCodes = []
+KodeLectures.Settings.lectures = []
 
 ###
 # Sample Example
 ###
-KodeLectures.Settings.exampleCodes.push 
-  title    : "Test"
+KodeLectures.Settings.lectures.push 
+  title    : "Console.log and Boolean values"
   expectedResults : 'true'
-  submitSuccess : 'Well done!'
+  submitSuccess : 'Well done! You can procedd to the next part, where you will learn all about infinite loops.'
   submitFailure : 'This is not the statement we are looking for.'
-  code     : ''
-  codeHint : "console.log(true)"
+  language : 'javascript'
+  code     : ""
+  codeHint : """
+
+There are two Boolean values, `true` and `false`. The easiest way of logging a true value to the console is:
+
+```js
+console.log(true)
+```
+
+But any truthy expression would do the trick, such as
+
+```js
+console.log(1==1)
+```
+
+or
+
+```js
+console.log(!(false && (1+2!==Infinity)))
+```
+
+Both evaluate to `true` before being logged to the console.
+
+"""
   codeHintText : '`Console.log()` prints to the console. Javascript knows only one truly true statement. That would be `true`.'
-  taskText : 'Print a true statement to the console.'
+  taskText : """
+ #Hello
+
+Welcome to the Lecture. Today we'll be learning about Boolean values. Named after [George Boole](http://en.wikipedia.org/wiki/George_Boole), these values are logical representations of Truth of Falsehood. Since there is nothing in between, only two mutually exclusive values exist in JavaScript, `true` and `false`.
+
+Try printing a true statement to the console."""
   
   
-KodeLectures.Settings.exampleCodes.push 
-  title: "JavaScript Sample"
-  code: 
-    """
-// This is a sample JavaScript code snippet
-// It's running on the Node.js platform
+KodeLectures.Settings.lectures.push 
+  title    : "While loops"
+  expectedResults : '1\n2\n3\n4\n5'
+  submitSuccess : 'Well done! You can procedd to the next part, where you will learn all more things.'
+  submitFailure : 'This is not the statement we are looking for.'
+  language : 'javascript'
+  code     : ""
+  codeHint : """
 
-console.log("Nodejs!");
-console.log("Version: " + process.version);
+```js
+var i = 1;\nwhile(i<6){
+  console.log(i++);
+}
+```
+"""
+  codeHintText : 'Do a flip!'
+  taskText : """
+# While loops
 
-// Let's do some basic math:
-
-var a = 1, b = 2;
-
-console.log(a + b === 3);
-  """
-
-KodeLectures.Settings.exampleCodes.push 
-  title: "CoffeeScript Sample"
-  code: 
-    """
-console.log word for word in ['Hello', 'World']
+Print the numbers `1` to `5` to the console, using a while loop.
 """
