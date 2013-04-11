@@ -1,0 +1,40 @@
+{
+  "devMode": true,
+  "version": "0.0.2",
+  "name": "KodeLectures",
+  "identifier": "com.koding.apps.kodelectures",
+  "path": "~/Applications/kodelectures.kdapp",
+  "homepage": "arvidkahl.koding.com/kodelectures",
+  "author": "Arvid Kahl",
+  "repository": "git@github.com:arvidkahl/kodelectures.git",
+  "description": "KodeLectures. Learning to code, one command at a time.",
+  "category": "web-app",
+  "source": {
+    "blocks": {
+      "app": {
+        "files": [
+          "./app/settings.coffee",
+          "./app/core.coffee",
+          "./app/views.coffee",
+          "./index.coffee"
+        ]
+      }
+    },
+    "stylesheets": [
+      "./resources/style.css"
+    ]
+  },
+  "options": {
+    "_type": "tab"
+  },
+  "icns": {
+    "128": "./resources/icon.128.md.png"
+  },
+  "screenshots": [
+    "./resources/screenshots/kodepad1.png",
+    "./resources/screenshots/kodepad2.png",
+    "./resources/screenshots/kodepad3.png",
+    "./resources/screenshots/kodepad4.png"
+  ],
+  "authorNick": "arvidkahl"
+}
