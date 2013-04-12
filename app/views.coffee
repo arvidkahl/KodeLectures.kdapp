@@ -50,7 +50,8 @@ class KodeLectures.Views.MainView extends JView
     
     @autoScroll = yes
     @currentLecture = 0
-    
+    @lastSelectedCourse = 0
+        
   delegateElements:->
 
     @splitViewWrapper = new KDView
@@ -60,22 +61,22 @@ class KodeLectures.Views.MainView extends JView
     overflowFix = ->
       height = ($ ".kdview.marKDown").height() - 39
       ($ ".kodepad-editors").height height
-      #
+      
     ($ window).on "resize", overflowFix
     # window.ace = [@ace, @cssAce]
     # SHOULD REPLACE WITH LEGAL RESIZE LISTENER
-    do =>
-      lastAceHeight = 0
-      lastAceWidth = 0
-      setInterval =>
-        aceHeight = @aceView.getHeight()
-        aceWidth = @aceView.getWidth()
-        
-        if aceHeight isnt lastAceHeight or aceWidth isnt lastAceWidth
-          @ace.resize()
-          lastAceHeight = @aceView.getHeight()
-          lastAceWidth = @aceView.getWidth()
-      , 20
+    #do =>
+      #lastAceHeight = 0
+      #lastAceWidth = 0
+      #setInterval =>
+        #aceHeight = @aceView.getHeight()
+        #aceWidth = @aceView.getWidth()
+        #
+        #if aceHeight isnt lastAceHeight or aceWidth isnt lastAceWidth
+          #@ace.resize()
+          #lastAceHeight = @aceView.getHeight()
+          #lastAceWidth = @aceView.getWidth()
+      #, 20
     
     @preview = new KDView
         cssClass: "preview-pane"
@@ -84,13 +85,13 @@ class KodeLectures.Views.MainView extends JView
   
 
     @editor = new Editor
-        defaultValue: Settings.lectures[0].code
+        defaultValue: Settings.lectures[@lastSelectedCourse].lectures[0].code
         callback: =>
 
     @editor.getView().hide()
       
-    @taskView = new TaskView {},KodeLectures.Settings.lectures[0]
-    @taskOverview = new TaskOverview {}, KodeLectures.Settings.lectures
+    @taskView = new TaskView {},KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures[0]
+    @taskOverview = new TaskOverview {}, KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures
       
     @aceView = new KDView
         cssClass: 'editor code-editor'
@@ -126,8 +127,6 @@ class KodeLectures.Views.MainView extends JView
         views     : [@editorSplitView, @taskSplitView]
 
     @splitViewWrapper.addSubView @splitView
-      
-
     
     @buildAce()
     
@@ -164,7 +163,7 @@ class KodeLectures.Views.MainView extends JView
       callback    : (event)=> @emit 'PreviousLectureRequested'
     
     @on 'NextLectureRequested', =>
-        unless @currentLecture is KodeLectures.Settings.lectures.length-1       
+        unless @currentLecture is KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures.length-1       
           previousButton.unsetClass 'disabled'
           @exampleCode.setValue ++@currentLecture 
           @exampleCode.getOptions().callback()
@@ -176,23 +175,40 @@ class KodeLectures.Views.MainView extends JView
           @exampleCode.setValue --@currentLecture 
           @exampleCode.getOptions().callback()
         else previousButton.setClass 'disabled'
-      
+
+
+    @courseSelect = new KDSelectBox
+      label: new KDLabelView
+        title: 'Course: '
+        
+      defaultValue: @lastSelectedCourse or "0"
+      cssClass: 'control-button code-examples'
+      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
+      callback: =>
+        @lastSelectedCourse = @courseSelect.getValue()
+        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
+        @exampleCode.setValue 0
+        @emit 'LectureChanged'
+
     @exampleCode = new KDSelectBox
       label: new KDLabelView
         title: 'Lecture: '
         
       defaultValue: @lastSelectedItem or "0"
       cssClass: 'control-button code-examples'
-      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
+      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
       callback: =>
         @emit 'LectureChanged'
 
     @on 'LectureChanged', =>
+        #@lastSelectedCourse = @courseSelect.getValue()
         @lastSelectedItem = @exampleCode.getValue()        
-        {code,language} = KodeLectures.Settings.lectures[@lastSelectedItem]
+        {code,language} = KodeLectures.Settings.lectures[@lastSelectedCourse].lectures[@lastSelectedItem]
         @ace.getSession().setValue code
-        @taskView.emit 'LectureChanged',KodeLectures.Settings.lectures[@lastSelectedItem]
-        @taskOverview.emit 'LectureChanged',@lastSelectedItem   
+        @taskView.emit 'LectureChanged',KodeLectures.Settings.lectures[@lastSelectedCourse].lectures[@lastSelectedItem]
+       
+        console.log 'emitting'
+        @taskOverview.emit 'LectureChanged',{course:KodeLectures.Settings.lectures[@lastSelectedCourse],index:@lastSelectedItem}   
         @ace.getSession().setMode "ace/mode/#{language}"
         @currentLang = language
         @languageSelect.setValue language
@@ -215,12 +231,15 @@ class KodeLectures.Views.MainView extends JView
         @currentLang = item
         @ace.getSession().setMode "ace/mode/#{item}"
         
-    @currentLang = KodeLectures.Settings.lectures[0].language
+    @currentLang = KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures[0].language
     
     #@controlView.addSubView codeButton
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
     
+    
+    @controlView.addSubView @courseSelect.options.label
+    @controlView.addSubView @courseSelect    
     
     @controlView.addSubView @exampleCode.options.label
     @controlView.addSubView @exampleCode
@@ -249,20 +268,7 @@ class KodeLectures.Views.MainView extends JView
 
   getEditScrollPercentage:->
 
-      scrollPosition    = @ace.renderer.scrollTop
-      scrollHeight      = @aceView.getHeight()
-      scrollMaxHeight   =  @ace.getSession().getDocument().getLength() *@ace.renderer.lineHeight
-
-      scrollPosition / (scrollMaxHeight- scrollHeight) * 100
-
   setPreviewScrollPercentage:(percentage)->
-  
-    s = @liveViewer.mdPreview.$()
-      
-    s.animate
-     scrollTop : ((s[0].scrollHeight - s.height())*percentage/100)
-    , 50, "linear"
-    
   
   pistachio: -> 
     """

@@ -314,7 +314,7 @@
 }
 
 .marKDown .task-splitview .panel-1 {
-  box-shadow:10px 0px 20px 18px rgba(0,0,0,0.3);
+  box-shadow:10px 0px 20px 18px rgba(0,0,0,0.15);
 }
 
 .marKDown .task-overview {
@@ -333,6 +333,12 @@
   font-weight : bold;
   background-color:rgba(0,255,0,0.15);
 }
+
+.marKDown .task-overview-item .title-text{
+  padding:10px;
+  //background-color:rgba(255,255,255,0.05);
+  box-sizing:border-box;
+}
 .marKDown .task-overview-item .summary{
   display:none;
   // transition: all 0.2s linear;
@@ -345,7 +351,7 @@
 .marKDown .task-overview-item {
   cursor:pointer;
   //border:1px solid red;
-  padding: 5px 10px;
+  //padding: 5px 10px;
   //border-top: 1px solid #e8e8e8;
   border-bottom: 1px solid #ccc!important;
   margin: 0px 0px 0px 0px;

@@ -279,6 +279,7 @@ class KodeLectures.Views.TaskOverviewListItemView extends KDListItemView
     {title,summary} = @getData()
     
     @titleText = new KDView
+      cssClass : 'title-text'
       partial : marked title
       
     @summaryText = new KDView
@@ -327,13 +328,17 @@ class KodeLectures.Views.TaskOverview extends JView
       @mainView.exampleCode.setValue @lectureListController.itemsOrdered.indexOf item 
       @mainView.emit 'LectureChanged',@lectureListController.itemsOrdered.indexOf item 
     
-    @on 'LectureChanged', (index)=>
+    @on 'LectureChanged', ({course,index})=>
+      
+      @lectureListController.removeAllItems()
+      @lectureListController.instantiateListItems course.lectures
+      
       item.unsetClass 'active' for item in @lectureListController.itemsOrdered 
       @lectureListController.itemsOrdered[index].setClass 'active'
   
   setMainView:(@mainView)->
-    KD.utils.defer => @emit 'LectureChanged',0
-    
+    KD.utils.defer => @lectureListController.itemsOrdered[0].setClass 'active' 
+
   pistachio:->
     """
     {{> @lectureList}}
