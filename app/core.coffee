@@ -12,7 +12,7 @@ class KodeLectures.Core.LiveViewer
 
   @getSingleton: ()=> @instance ?= new @
   
-  active: yes
+  active: no
   
   pistachios: /\{(\w*)?(\#\w*)?((?:\.\w*)*)(\[(?:\b\w*\b)(?:\=[\"|\']?.*[\"|\']?)\])*\{([^{}]*)\}\s*\}/g
   
@@ -20,6 +20,10 @@ class KodeLectures.Core.LiveViewer
     @sessionId = KD.utils.uniqueId "kodepadSession"
   
   setPreviewView: (@previewView)->
+     unless @mdPreview
+        @previewView.addSubView @mdPreview = new KDView
+          cssClass : 'has-markdown markdown-preview'
+          partial : '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
     
   setSplitView: (@splitView)->
     
@@ -210,7 +214,7 @@ class KodeLectures.Views.TaskView extends JView
   
     @nextLectureButton = new KDButtonView
       title : 'Next Lecture'
-      cssClass : 'cupid-green hidden fr'
+      cssClass : 'cupid-green hidden fr task-next-button'
       callback :=>
         @mainView.emit 'NextLectureRequested'
   
@@ -237,7 +241,8 @@ class KodeLectures.Views.TaskView extends JView
       @setData lecture
       @resultView.hide()
       @nextLectureButton.hide()
-      @mainView.liveViewer.mdPreview?.updatePartial ''
+      @mainView.liveViewer.active = no
+      @mainView.liveViewer.mdPreview?.updatePartial '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
       @taskTextView.updatePartial "<span class='text'>Assignment</span><span class='data'>#{marked @getData().taskText}</span>"
       @hintView.updatePartial '<span class="text">Show hint</span>'
       @hintCodeView.updatePartial '<span class="text">Show solution</span>'
@@ -257,10 +262,10 @@ class KodeLectures.Views.TaskView extends JView
   
   pistachio:->
     """
+    {{> @nextLectureButton}}
     {{> @resultView }}    
     
     {{> @taskTextView }}
-    {{> @nextLectureButton}}
     
     {{> @hintView}}
     {{> @hintCodeView}}

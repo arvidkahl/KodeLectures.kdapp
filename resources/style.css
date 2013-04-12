@@ -20,8 +20,11 @@
 
 .marKDown .preview-pane {
   overflow-y: auto;
-  background: #fff;
+  background: #444;
   -webkit-transition-duration: 200ms;
+  background-image : -webkit-radial-gradient(50% 50%,ellipse cover,#444 0%,#272822 100%);
+  background-image : radial-gradient(50% 50%,ellipse cover,#444 0%,#272822 100%);
+  border-top : 5px solid #ccc;
 }
 
 .marKDown .preview-pane.transparented {
@@ -188,7 +191,7 @@
 }
 
 .marKDown .editor {
-  background-color: red;
+  background-color: #272822;
 }
 
 .marKDown .css-editor {
@@ -203,13 +206,17 @@
   
   
 .marKDown .markdown-preview > div > pre {
-  background-color: rgba(255,255,255,0.5);  
+  background-color: rgba(255,255,255,0.5);
+  color: #444;
 }
 .marKDown .markdown-preview > .error {
   background-color: #cc0000;  
 }
 .marKDown .markdown-preview > .success {
   background-color: #00cc00;
+}
+.marKDown .markdown-preview > .info {
+  background-color: #00cccc;
 }
 .marKDown .md-help-view {
   background-color : #e8e8e8;
@@ -233,11 +240,17 @@
   padding : 10px;
   box-sizing:border-box;
   border-radius:4px;
+  margin-bottom: 40px;
 }
 
 .marKDown .result-view.success {
   border-color: #0c0;
   background-color : rgba(0,200,0,0.5);
+  width : auto;
+}
+
+.marKDown .task-next-button {
+  margin-left : 15px;
 }
 
 .marKDown .hint-view {
@@ -249,6 +262,10 @@
   margin-bottom : 10px;
   cursor : pointer;
   width : auto;
+}
+
+.marKDown button.run {
+  margin : 5px auto auto 20px;
 }
 
 .marKDown .text{

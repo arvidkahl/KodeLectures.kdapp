@@ -86,7 +86,7 @@ class KodeLectures.Views.MainView extends JView
     @editor = new Editor
         defaultValue: Settings.lectures[0].code
         callback: =>
-          #@liveViewer.previewCode do @editor.getValue
+
     @editor.getView().hide()
       
     @taskView = new TaskView {},KodeLectures.Settings.lectures[0]
@@ -105,16 +105,15 @@ class KodeLectures.Views.MainView extends JView
     @editorSplitView = new KDSplitView
         type      : "horizontal"
         resizable : yes
-        sizes     : ["50%","50%"]
-        views     : [@aceWrapperView,@taskView]    
+        sizes     : ["62%","38%"]
+        views     : [@aceWrapperView,@preview]    
 
     @splitView = new KDSplitView
         cssClass  : "kodepad-editors"
         type      : "vertical"
         resizable : yes
         sizes     : ["50%","50%"]
-        views     : [@editorSplitView, @preview]
-        bind      : 'drop dragenter dragover dragleave'
+        views     : [@editorSplitView, @taskView]
 
     @splitViewWrapper.addSubView @splitView
       
@@ -125,100 +124,17 @@ class KodeLectures.Views.MainView extends JView
 
     @controlButtons = new KDView
       cssClass    : 'header-buttons'
-   
-    #@controlButtons.addSubView @orientationButtons = new KDButtonGroupView
-      #cssClass : 'orientation-buttons fr'
-      #buttons : 
-        #'FullEditor' :
-          #title : 'full-editor'
-          #cssClass : 'clean-gray  full-editor'
-          #icon : yes
-          #iconOnly : yes
-          #tooltip :
-            #title : 'Full Editor'
-          #callback :=>
-            #addSplitView 'vertical', @ace.getSession().getValue(), @ace.getSession().getSelection(), '100%', '0%'
-            #@utils.wait 200, => @ace.resize()
-                            #
-        #'FullPreview' :
-          #title : 'full-preview'
-          #cssClass : 'clean-gray  full-preview'
-          #icon : yes
-          #iconOnly : yes
-          #tooltip :
-            #title : 'Full Preview'
-          #callback :=>
-            #addSplitView 'vertical', @ace.getSession().getValue(), @ace.getSession().getSelection(), '0%', '100%'
-            #@utils.wait 200, => @ace.resize()
-                    #
-        #'V5' :
-          #title : 'v5'
-          #cssClass : 'clean-gray  v5'
-          #icon : yes
-          #iconOnly : yes
-          #tooltip :
-            #title : 'Split vertically'
-          #callback :=>
-            #addSplitView 'vertical', @ace.getSession().getValue(), @ace.getSession().getSelection(), '50%', '50%'
-            #@utils.wait 200, => @ace.resize()
-            #
-        #'V3' :
-          #title:'v3'
-          #cssClass : 'clean-gray  v3'
-          #icon : yes
-          #iconOnly : yes
-          #tooltip :
-            #title : 'Split vertically, with a larger Preview'
-          #callback :=>
-            #addSplitView 'vertical', @ace.getSession().getValue(), @ace.getSession().getSelection(), '30%', '70%'
-            #@utils.wait 200, => @ace.resize()
-#
-        #'H5' :
-          #title : 'h5'
-          #cssClass : 'clean-gray  h5'
-          #icon : yes
-          #iconOnly : yes
-          #tooltip :
-            #title : 'Split horizontally'
-          #callback :=>
-            #addSplitView 'horizontal', @ace.getSession().getValue(), @ace.getSession().getSelection(), '50%', '50%'   
-            #@utils.wait 200, => @ace.resize()
-        #'H3' :
-          #title : 'h3'
-          #cssClass : 'clean-gray  h3'
-          #icon : yes
-          #iconOnly : yes
-          #tooltip :
-            #title : 'Split horizontally, with a larger Preview'
-          #callback :=>
-            #addSplitView 'horizontal', @ace.getSession().getValue(), @ace.getSession().getSelection(), '30%', '70%'
-            #@utils.wait 200, => @ace.resize()
-
-   
-    #@controlButtons.addSubView new KDButtonView
-      #cssClass    : 'clean-gray editor-button control-button full-preview'
-      #title       : ""
-      #icon        : yes
-      #iconOnly    : yes
-      #iconClass   : "preview"
-      #callback    : =>
-        #newType = if @splitView.isVertical() then 'horizontal' else 'vertical'
-        #addSplitView newType, @ace.getSession().getValue(), @ace.getSession().getSelection()#, '20%', '80%'
-#
-        #@utils.wait 200, => @ace.resize()
-
 
     @controlView = new KDView
-      cssClass: 'control-pane editor-header'
-      
-
+      cssClass: 'control-pane editor-header'  
         
-    @controlButtons.addSubView new KDButtonView
+    runButton = new KDButtonView
       cssClass    : "cupid-green control-button run"
       title       : 'Run this code'
       tooltip:
         title : 'Run your code'
       callback    : (event)=>
+        @liveViewer.active = yes
         @liveViewer.previewCode do @editor.getValue       
     
     @controlButtons.addSubView nextButton = new KDButtonView
@@ -249,7 +165,6 @@ class KodeLectures.Views.MainView extends JView
           @exampleCode.getOptions().callback()
         else previousButton.setClass 'disabled'
       
-      
     @exampleCode = new KDSelectBox
       label: new KDLabelView
         title: 'Lecture: '
@@ -259,31 +174,12 @@ class KodeLectures.Views.MainView extends JView
       selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
       callback: =>
         @lastSelectedItem = @exampleCode.getValue()        
-        {code} = KodeLectures.Settings.lectures[@lastSelectedItem]
+        {code,language} = KodeLectures.Settings.lectures[@lastSelectedItem]
         @ace.getSession().setValue code
         @taskView.emit 'LectureChanged',KodeLectures.Settings.lectures[@lastSelectedItem]
-        
-
-    codeButton = new KDButtonViewWithMenu
-      cssClass    : "clean-gray  code"
-      title       : "Code Block"
-      icon        : yes
-      iconOnly    : yes
-      tooltip     :
-        title     : 'Code Block    ```language-name   Code  ```'     
-      bind        : 'mouseenter mouseleave'
-      menu :=>
-        'JavaScript' :  
-          callback: => 
-        
-        'Ruby' :  
-          callback: => 
-             
-        'Python' :  
-          callback: => 
-        
-      callback : =>
-        
+        @ace.getSession().setMode "ace/mode/#{language}"
+        @currentLang = language
+        @languageSelect.setValue language
     
     @languageSelect = new KDSelectBox
       label: new KDLabelView
@@ -311,6 +207,7 @@ class KodeLectures.Views.MainView extends JView
     
     @controlView.addSubView @exampleCode.options.label
     @controlView.addSubView @exampleCode
+    @controlView.addSubView runButton 
     @controlView.addSubView @controlButtons
     
     @liveViewer.setSplitView @splitView
@@ -328,6 +225,7 @@ class KodeLectures.Views.MainView extends JView
       @ace.renderer.scrollBar.on 'scroll', =>
           if @autoScroll is yes
             @setPreviewScrollPercentage @getEditScrollPercentage()
+
 
 
 
