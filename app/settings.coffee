@@ -23,6 +23,7 @@ KodeLectures.Settings.lectures = []
 ###
 KodeLectures.Settings.lectures.push 
   title    : "Lecture 1: Console.log and Boolean values"
+  summary : 'In this lecture, you will learn about Console and Booleans.'
   expectedResults : 'true'
   submitSuccess : 'Well done! You can procedd to the next part, where you will learn all about infinite loops.'
   submitFailure : 'This is not the statement we are looking for.'
@@ -62,6 +63,7 @@ Try printing a true statement to the console."""
   
 KodeLectures.Settings.lectures.push 
   title    : "Lecture 2: While loops"
+  summary  : 'This lecture is about loops'
   expectedResults : '1\n2\n3\n4\n5'
   submitSuccess : 'Well done! You can procedd to the next part, where you will learn all more things.'
   submitFailure : 'This is not the statement we are looking for.'
@@ -84,6 +86,7 @@ Print the numbers `1` to `5` to the console, using a while loop.
   
 KodeLectures.Settings.lectures.push 
   title    : "Lecture 3: A glimpse of CoffeeScript"
+  summary : 'Here comes CoffeeScript'
   expectedResults : 'This is CoffeeScript'
   submitSuccess : 'Well done! You can procedd to the next part, where you will learn all more things.'
   submitFailure : 'This is not the statement we are looking for.'

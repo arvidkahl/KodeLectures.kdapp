@@ -41,7 +41,7 @@ class KodeLectures.Views.Editor
 
 class KodeLectures.Views.MainView extends JView
 
-  {Editor,HelpView,TaskView} = KodeLectures.Views
+  {Editor,HelpView,TaskView,TaskOverview} = KodeLectures.Views
   
   constructor: ()->
     super
@@ -90,6 +90,7 @@ class KodeLectures.Views.MainView extends JView
     @editor.getView().hide()
       
     @taskView = new TaskView {},KodeLectures.Settings.lectures[0]
+    @taskOverview = new TaskOverview {}, KodeLectures.Settings.lectures
       
     @aceView = new KDView
         cssClass: 'editor code-editor'
@@ -107,16 +108,26 @@ class KodeLectures.Views.MainView extends JView
         resizable : yes
         sizes     : ["62%","38%"]
         views     : [@aceWrapperView,@preview]    
-
+    
+    @taskSplitViewWrapper = new KDView
+    
+    @taskSplitView = new KDSplitView
+      type : 'vertical'
+      resizable : no
+      sizes : ['62%','38%']
+      views : [@taskView,@taskOverview]
+      
     @splitView = new KDSplitView
         cssClass  : "kodepad-editors"
         type      : "vertical"
         resizable : yes
         sizes     : ["50%","50%"]
-        views     : [@editorSplitView, @taskView]
+        views     : [@editorSplitView, @taskSplitView]
 
     @splitViewWrapper.addSubView @splitView
       
+
+    
     @buildAce()
     
     @splitView.on 'ResizeDidStop', =>
@@ -173,13 +184,18 @@ class KodeLectures.Views.MainView extends JView
       cssClass: 'control-button code-examples'
       selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
       callback: =>
+        @emit 'LectureChanged'
+
+    @on 'LectureChanged', =>
         @lastSelectedItem = @exampleCode.getValue()        
         {code,language} = KodeLectures.Settings.lectures[@lastSelectedItem]
         @ace.getSession().setValue code
         @taskView.emit 'LectureChanged',KodeLectures.Settings.lectures[@lastSelectedItem]
+        @taskOverview.emit 'LectureChanged',@lastSelectedItem   
         @ace.getSession().setMode "ace/mode/#{language}"
         @currentLang = language
         @languageSelect.setValue language
+        @currentLecture = @lastSelectedItem
     
     @languageSelect = new KDSelectBox
       label: new KDLabelView
@@ -207,13 +223,14 @@ class KodeLectures.Views.MainView extends JView
     
     @controlView.addSubView @exampleCode.options.label
     @controlView.addSubView @exampleCode
-    @controlView.addSubView runButton 
+    @aceWrapperView.addSubView runButton 
     @controlView.addSubView @controlButtons
     
     @liveViewer.setSplitView @splitView
     @liveViewer.setMainView @
     
     @taskView.setMainView @
+    @taskOverview.setMainView @
     
     @liveViewer.previewCode do @editor.getValue
     @utils.defer => ($ window).resize()

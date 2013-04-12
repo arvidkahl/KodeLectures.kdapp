@@ -270,5 +270,72 @@ class KodeLectures.Views.TaskView extends JView
     {{> @hintView}}
     {{> @hintCodeView}}
     """
+class KodeLectures.Views.TaskOverviewListItemView extends KDListItemView
     
+  constructor:->
+    super
+    @setClass 'task-overview-item has-markdown'
+    
+    {title,summary} = @getData()
+    
+    @titleText = new KDView
+      partial : marked title
+      
+    @summaryText = new KDView
+      partial : marked summary
+    
+  pistachio:->
+    """
+    <span class='data'>
+    {{> @titleText}}
+    </span>
+    <div class='summary'>
+      <span class='data'>
+      {{> @summaryText}}
+      </span>
+    </div>
+    """
+  click:->
+    @getDelegate().emit 'OverviewLectureClicked',@
+    
+  viewAppended :->
+    @setTemplate @pistachio()
+    @template.update()
+    
+class KodeLectures.Views.TaskOverview extends JView
+  {TaskOverviewListItemView} = KodeLectures.Views
+  constructor:->
+    super
+    @setClass 'task-overview'
+    
+    @lectureListController = new KDListViewController
+      itemClass : TaskOverviewListItemView
+      delegate : @
+      #wrapper     : no
+      #scrollView  : yes
+      #keyNav      : yes
+      #view        : new KDListView
+        #keyNav    : yes
+        #delegate  : @
+        #cssClass  : "task-overview-item"
+        #itemClass : TaskOverviewListItemView
+    , items       : @getData()
+ 
+    @lectureList = @lectureListController.getView()
+    
+    @lectureListController.listView.on 'OverviewLectureClicked', (item)=>
+      @mainView.exampleCode.setValue @lectureListController.itemsOrdered.indexOf item 
+      @mainView.emit 'LectureChanged',@lectureListController.itemsOrdered.indexOf item 
+    
+    @on 'LectureChanged', (index)=>
+      item.unsetClass 'active' for item in @lectureListController.itemsOrdered 
+      @lectureListController.itemsOrdered[index].setClass 'active'
+  
+  setMainView:(@mainView)->
+    KD.utils.defer => @emit 'LectureChanged',0
+    
+  pistachio:->
+    """
+    {{> @lectureList}}
+    """
   
