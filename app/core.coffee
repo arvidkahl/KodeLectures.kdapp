@@ -47,8 +47,8 @@ class KodeLectures.Core.LiveViewer
       
         @mainView.taskView.emit 'ResultReceived',res unless err
 
-        if res is '' then res = 'KodeLectures received an empty response but no error.'
-        text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{res}</pre></div>"
+        if res is '' then text = '<div class="info"><pre>KodeLectures received an empty response but no error.</pre></div>'
+        else text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{res}</pre></div>"
       
         window.appView = @previewView
         try

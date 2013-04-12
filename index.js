@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Thu Apr 11 2013 20:26:58 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Thu Apr 11 2013 23:30:36 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -127,9 +127,10 @@ KodeLectures.Core.LiveViewer = (function() {
           _this.mainView.taskView.emit('ResultReceived', res);
         }
         if (res === '') {
-          res = 'KodeLectures received an empty response but no error.';
+          text = '<div class="info"><pre>KodeLectures received an empty response but no error.</pre></div>';
+        } else {
+          text = err ? "<div class='error'><pre>" + err.message + "</pre></div>" : "<div class='success'><pre>" + res + "</pre></div>";
         }
-        text = err ? "<div class='error'><pre>" + err.message + "</pre></div>" : "<div class='success'><pre>" + res + "</pre></div>";
         window.appView = _this.previewView;
         try {
           if (!_this.mdPreview) {
@@ -609,6 +610,7 @@ KodeLectures.Views.MainView = (function(_super) {
     this.taskSplitView = new KDSplitView({
       type: 'vertical',
       resizable: false,
+      cssClass: 'task-splitview',
       sizes: ['62%', '38%'],
       views: [this.taskView, this.taskOverview]
     });

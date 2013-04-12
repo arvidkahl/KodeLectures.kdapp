@@ -313,12 +313,17 @@
   width:auto;
 }
 
+.marKDown .task-splitview .panel-1 {
+  box-shadow:10px 0px 20px 18px rgba(0,0,0,0.3);
+}
+
 .marKDown .task-overview {
   background-color: white;
   //padding:40px 40px 40px 0;
   border-left:1px solid #e8e8e8;
   padding:0;
-  box-sizing:border-box
+  box-sizing:border-box;
+  //box-shadow:inset 10px 0px 20px -10px rgba(0,0,0,0.3);
 }
 
 .marKDown .task-overview-item.active .summary{
@@ -342,10 +347,10 @@
   //border:1px solid red;
   padding: 5px 10px;
   //border-top: 1px solid #e8e8e8;
-  border-bottom: 1px solid #e8e8e8!important;
+  border-bottom: 1px solid #ccc!important;
   margin: 0px 0px 0px 0px;
   //border-radius: 4px;
-  background-color: #fbfbfb;
+  background-color: rgba(0,0,0,0.1);
   box-sizing: border-box; 
   width: auto;
   line-height: 20px;

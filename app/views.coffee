@@ -114,6 +114,7 @@ class KodeLectures.Views.MainView extends JView
     @taskSplitView = new KDSplitView
       type : 'vertical'
       resizable : no
+      cssClass  : 'task-splitview'
       sizes : ['62%','38%']
       views : [@taskView,@taskOverview]
       
