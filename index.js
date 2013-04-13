@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Fri Apr 12 2013 16:59:37 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Fri Apr 12 2013 17:24:15 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -1069,76 +1069,32 @@ KodeLectures.Views.MainView = (function(_super) {
 
 /* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/index.coffee */
 
-var MainView;
+var MainView, loader,
+  _this = this;
 
 MainView = KodeLectures.Views.MainView;
 
-(function() {
-  var loader, mainView, markdownModal,
-    _this = this;
+KD.enableLogs();
 
-  KD.enableLogs();
-  console.log('Development version of KodeLectures starting...');
-  loader = new KDView({
-    cssClass: "KodeLectures loading",
-    partial: "Loading KodeLectures..."
-  });
-  mainView = {};
-  markdownModal = new KDModalView({
-    width: window.innerWidth - 100,
-    height: window.innerHeight - 100,
-    overlay: false,
-    title: 'KodeLectures',
-    buttons: {
-      Yes: {
-        loader: {
-          color: "#ffffff",
-          diameter: 16
-        },
-        style: "modal-clean-gray",
-        callback: function() {
-          var value;
+console.log('Development version of KodeLectures starting...');
 
-          new KDNotificationView({
-            title: "Clicked yes!"
-          });
-          value = mainView.ace.getSession().getValue();
-          console.log(value);
-          markdownModal.destroy();
-          return value;
-        }
-      },
-      No: {
-        loader: {
-          color: "#ffffff",
-          diameter: 16
-        },
-        style: "modal-clean-gray",
-        callback: function() {
-          var value;
+loader = new KDView({
+  cssClass: "KodeLectures loading",
+  partial: "Loading KodeLectures..."
+});
 
-          new KDNotificationView({
-            title: "Clicked no!"
-          });
-          value = mainView.ace.getSession().getValue();
-          console.log(value);
-          markdownModal.destroy();
-          return value;
-        }
-      }
-    }
+appView.addSubView(loader);
+
+require(["ace/ace"], function(Ace) {
+  var mainView;
+
+  mainView = new MainView({
+    cssClass: "marKDown",
+    ace: Ace
   });
-  markdownModal.addSubView(loader);
-  return require(["ace/ace"], function(Ace) {
-    mainView = new MainView({
-      cssClass: "marKDown",
-      ace: Ace
-    });
-    markdownModal.removeSubView(loader);
-    markdownModal.addSubView(mainView);
-    return markdownModal.$('.kdmodal-content').height(window.innerHeight - 95);
-  });
-})();
+  appView.removeSubView(loader);
+  return appView.addSubView(mainView);
+});
 
 
 /* BLOCK ENDS */
