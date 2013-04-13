@@ -220,11 +220,11 @@ class KodeLectures.Views.TaskView extends JView
   
     console.log 'taskview'
   
-    {videoUrl,codeHintText,codeHint,embedType,taskText} = @getData()
+    {videoUrl,@codeHintText,@codeHint,embedType,@taskText} = @getData()
     
-    codeHint ?= ''
-    codeHintText ?= ''
-    taskText ?= ''
+    @codeHint ?= ''
+    @codeHintText ?= ''
+    @taskText ?= ''
     
     @embed = new KDView
       cssClass : 'embed'
@@ -244,7 +244,7 @@ class KodeLectures.Views.TaskView extends JView
   
     @taskTextView = new KDView
       cssClass : 'task-text-view has-markdown'
-      partial : "<span class='text'>Assignment</span><span class='data'>#{marked taskText}</span>"
+      partial : "<span class='text'>Assignment</span><span class='data'>#{marked @taskText}</span>"
   
     @resultView = new KDView
       cssClass : 'result-view hidden'
@@ -253,15 +253,16 @@ class KodeLectures.Views.TaskView extends JView
       cssClass : 'hint-view has-markdown'
       partial : '<span class="text">Show hint</span>'
       click :=>
-        @hintView.updatePartial "<span class='text'>Hint</span><span class='data'>#{marked codeHintText}</span>"
+        @hintView.updatePartial "<span class='text'>Hint</span><span class='data'>#{marked @codeHintText}</span>"
   
     @hintCodeView = new KDView
       cssClass : 'hint-code-view has-markdown'
       partial : '<span class="text">Show solution</span>'
       click :=>
-        @hintCodeView.updatePartial "<span class='text'>Solution</span><span class='data'>#{marked codeHint}</span>"
+        @hintCodeView.updatePartial "<span class='text'>Solution</span><span class='data'>#{marked @codeHint}</span>"
     
     @on 'LectureChanged',(lecture)=>
+      {@codeHint,@codeHintText,@taskText}=lecture
       @setData lecture
       @resultView.hide()
       @nextLectureButton.hide()

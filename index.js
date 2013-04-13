@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Fri Apr 12 2013 22:02:49 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Sat Apr 13 2013 01:01:52 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -294,21 +294,21 @@ KodeLectures.Views.TaskView = (function(_super) {
   };
 
   function TaskView() {
-    var codeHint, codeHintText, embedType, taskText, videoUrl, _ref,
+    var embedType, videoUrl, _ref, _ref1, _ref2, _ref3,
       _this = this;
 
     TaskView.__super__.constructor.apply(this, arguments);
     this.setClass('task-view');
     console.log('taskview');
-    _ref = this.getData(), videoUrl = _ref.videoUrl, codeHintText = _ref.codeHintText, codeHint = _ref.codeHint, embedType = _ref.embedType, taskText = _ref.taskText;
-    if (codeHint == null) {
-      codeHint = '';
+    _ref = this.getData(), videoUrl = _ref.videoUrl, this.codeHintText = _ref.codeHintText, this.codeHint = _ref.codeHint, embedType = _ref.embedType, this.taskText = _ref.taskText;
+    if ((_ref1 = this.codeHint) == null) {
+      this.codeHint = '';
     }
-    if (codeHintText == null) {
-      codeHintText = '';
+    if ((_ref2 = this.codeHintText) == null) {
+      this.codeHintText = '';
     }
-    if (taskText == null) {
-      taskText = '';
+    if ((_ref3 = this.taskText) == null) {
+      this.taskText = '';
     }
     this.embed = new KDView({
       cssClass: 'embed',
@@ -326,7 +326,7 @@ KodeLectures.Views.TaskView = (function(_super) {
     });
     this.taskTextView = new KDView({
       cssClass: 'task-text-view has-markdown',
-      partial: "<span class='text'>Assignment</span><span class='data'>" + (marked(taskText)) + "</span>"
+      partial: "<span class='text'>Assignment</span><span class='data'>" + (marked(this.taskText)) + "</span>"
     });
     this.resultView = new KDView({
       cssClass: 'result-view hidden'
@@ -335,25 +335,26 @@ KodeLectures.Views.TaskView = (function(_super) {
       cssClass: 'hint-view has-markdown',
       partial: '<span class="text">Show hint</span>',
       click: function() {
-        return _this.hintView.updatePartial("<span class='text'>Hint</span><span class='data'>" + (marked(codeHintText)) + "</span>");
+        return _this.hintView.updatePartial("<span class='text'>Hint</span><span class='data'>" + (marked(_this.codeHintText)) + "</span>");
       }
     });
     this.hintCodeView = new KDView({
       cssClass: 'hint-code-view has-markdown',
       partial: '<span class="text">Show solution</span>',
       click: function() {
-        return _this.hintCodeView.updatePartial("<span class='text'>Solution</span><span class='data'>" + (marked(codeHint)) + "</span>");
+        return _this.hintCodeView.updatePartial("<span class='text'>Solution</span><span class='data'>" + (marked(_this.codeHint)) + "</span>");
       }
     });
     this.on('LectureChanged', function(lecture) {
-      var _ref1;
+      var _ref4;
 
+      _this.codeHint = lecture.codeHint, _this.codeHintText = lecture.codeHintText, _this.taskText = lecture.taskText;
       _this.setData(lecture);
       _this.resultView.hide();
       _this.nextLectureButton.hide();
       _this.mainView.liveViewer.active = false;
-      if ((_ref1 = _this.mainView.liveViewer.mdPreview) != null) {
-        _ref1.updatePartial('<div class="info"><pre>When you run your code, you will see the results here</pre></div>');
+      if ((_ref4 = _this.mainView.liveViewer.mdPreview) != null) {
+        _ref4.updatePartial('<div class="info"><pre>When you run your code, you will see the results here</pre></div>');
       }
       _this.taskTextView.updatePartial("<span class='text'>Assignment</span><span class='data'>" + (marked(_this.getData().taskText)) + "</span>");
       _this.hintView.updatePartial('<span class="text">Show hint</span>');
