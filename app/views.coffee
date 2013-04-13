@@ -51,13 +51,21 @@ class KodeLectures.Views.MainView extends JView
     @autoScroll = yes
     @currentLecture = 0
     @lastSelectedCourse = 0
-        
+    
+    @ioController = new KodeLectures.Controllers.FileIOController
+    @ioController.emit 'CourseImportRequested'
+    
+    @ioController.on 'NewCourseImported', (course)=>
+      console.log 'Forwarding new Course to view'
+      @selectionView.emit 'NewCourseImported', course
+      @courses.push course
+    
+    @courses = []
+    
   delegateElements:->
 
     @splitViewWrapper = new KDView
     
-    
-
     # OVERFLOW FIX
     overflowFix = ->
       height = ($ ".kdview.marKDown").height() - 39
@@ -86,13 +94,13 @@ class KodeLectures.Views.MainView extends JView
   
 
     @editor = new Editor
-        defaultValue: Settings.lectures[@lastSelectedCourse].lectures[0].code
+        defaultValue: Settings.lectures[@lastSelectedCourse]?.lectures?[0]?.code or ''
         callback: =>
 
     @editor.getView().hide()
       
-    @taskView = new TaskView {},KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures[0]
-    @taskOverview = new TaskOverview {}, KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures
+    @taskView = new TaskView {},@courses[@lastSelectedCourse or 0]?.lectures?[0] or {}
+    @taskOverview = new TaskOverview {}, @courses[@lastSelectedCourse or 0]?.lectures or []
       
     @aceView = new KDView
         cssClass: 'editor code-editor'
@@ -151,7 +159,7 @@ class KodeLectures.Views.MainView extends JView
         title : 'Run your code'
       callback    : (event)=>
         @liveViewer.active = yes
-        @liveViewer.previewCode do @editor.getValue       
+        @liveViewer.previewCode @editor.getValue(), @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute     
     
     @controlButtons.addSubView nextButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button next hidden"
@@ -181,7 +189,7 @@ class KodeLectures.Views.MainView extends JView
         previousButton.hide()
 
     @on 'NextLectureRequested', =>
-        unless @currentLecture is KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures.length-1       
+        unless @currentLecture is @courses[@lastSelectedCourse or 0]?.lectures?.length-1       
           @exampleCode.setValue ++@currentLecture 
           @exampleCode.getOptions().callback()
         
@@ -197,7 +205,7 @@ class KodeLectures.Views.MainView extends JView
         
       defaultValue: @lastSelectedCourse or "0"
       cssClass: 'control-button code-examples'
-      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
+      selectOptions: ({title: item.title, value: key} for item, key in @courses)
       callback: =>
         @emit 'CourseChanged',@courseSelect.getValue()
         
@@ -207,7 +215,7 @@ class KodeLectures.Views.MainView extends JView
         
       defaultValue: @lastSelectedItem or "0"
       cssClass: 'control-button code-examples'
-      selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
+      selectOptions: ({title: item.title, value: key} for item, key in @courses[@lastSelectedCourse or 0]?.lectures or [])
       callback: =>
         @emit 'LectureChanged'
     
@@ -218,19 +226,28 @@ class KodeLectures.Views.MainView extends JView
         
         @lastSelectedCourse = course
         @exampleCode._$select.find("option").remove() # replace with .removeSelectOptions()
-        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
+        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in @courses[@lastSelectedCourse or 0]?.lectures or [])
         @exampleCode.setValue 0
         @emit 'LectureChanged'
         @emit 'LectureRequested'
     
     @on 'LectureChanged', =>
         @lastSelectedItem = @exampleCode.getValue()        
-        {code,language} = KodeLectures.Settings.lectures[@lastSelectedCourse].lectures[@lastSelectedItem]
-        @ace.getSession().setValue code
-        @taskView.emit 'LectureChanged',KodeLectures.Settings.lectures[@lastSelectedCourse].lectures[@lastSelectedItem]
+        {code,codeFile,language} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+        
+        #@ace.getSession().setValue code
+        
+        @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, "codeFile", (err,contents)=>
+          unless err
+            console.log contents
+            @ace.getSession().setValue contents 
+          else 
+            console.log err
+        
+        @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
        
         console.log 'emitting'
-        @taskOverview.emit 'LectureChanged',{course:KodeLectures.Settings.lectures[@lastSelectedCourse],index:@lastSelectedItem}   
+        @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
         @ace.getSession().setMode "ace/mode/#{language}"
         @currentLang = language
         @languageSelect.setValue language
@@ -253,11 +270,10 @@ class KodeLectures.Views.MainView extends JView
         @currentLang = item
         @ace.getSession().setMode "ace/mode/#{item}"
         
-    @currentLang = KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures[0].language
+    @currentLang = @courses[@lastSelectedCourse or 0]?.lectures?[0]?.language or 'javascript'
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
-    
     
     @controlView.addSubView @courseSelect.options.label
     @controlView.addSubView @courseSelect    
@@ -274,7 +290,7 @@ class KodeLectures.Views.MainView extends JView
     @taskOverview.setMainView @
     @selectionView.setMainView @
    
-    @liveViewer.previewCode do @editor.getValue
+    #@liveViewer.previewCode do @editor.getValue
     @utils.defer => ($ window).resize()
     @utils.wait 50, => 
         ($ window).resize()
@@ -321,8 +337,10 @@ class KodeLectures.Views.MainView extends JView
         bindKey :
           win   : 'Ctrl-S'
           mac   : 'Command-S'
-        exec    : => 
+        exec    : (event)=>
+          console.log event
           @editor.setValue @ace.getSession().getValue()
+          @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @ace.getSession().getValue()
       
   viewAppended:->
     @delegateElements()

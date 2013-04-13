@@ -342,7 +342,8 @@ background-color: rgba(0,0,0,0.25);
 }
 .marKDown .task-overview-item.active {
   font-weight : bold;
-  background-color:rgba(0,255,0,0.15);
+  background-color:#fff;
+  color:#444;
 }
 
 .marKDown .task-overview-item .title-text{
@@ -361,13 +362,15 @@ background-color: rgba(0,0,0,0.25);
 
 .marKDown .task-overview-item {
   cursor:pointer;
+  color:#ccc;
+  font-weight:bold;
   //border:1px solid red;
   //padding: 5px 10px;
   //border-top: 1px solid #e8e8e8;
-  border-bottom: 1px solid #ccc!important;
+  border-bottom: 1px solid #e8e8e8!important;
   margin: 0px 0px 0px 0px;
   //border-radius: 4px;
-  background-color: rgba(0,0,0,0.1);
+  background-color: #f5f5f5;
   box-sizing: border-box; 
   width: auto;
   line-height: 20px;
@@ -407,7 +410,7 @@ background-color: rgba(0,0,0,0.25);
   margin : 10px;
   //padding : 10px;
   border: 1px solid #e8e8e8!important;
-  background-color : #fbfbfb;
+  background-color:rgba(255,255,255,0.75);
   border-radius:4px;
   vertical-align:top;
   cursor : pointer;
@@ -417,7 +420,7 @@ background-color: rgba(0,0,0,0.25);
 
 .marKDown .selection-listitem:hover {
   box-shadow:0 5px 15px -10px black, 0 0px 20px -5px rgba(0,0,0,0.25);
-  background-color:rgba(0,255,0,0.15);
+  background-color:rgba(255,255,255,0.9);
 }
 
 
@@ -442,6 +445,12 @@ background-color: rgba(0,0,0,0.25);
   box-sizing:border-box;
   text-align : left;
   color: #5f5f5f;
+}
+
+.marKDown .lecture-listitem {
+  height:auto;
+  cursor:pointer;
+  
 }
 
 .marKDown .course-header {

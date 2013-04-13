@@ -1,0 +1,18 @@
+{
+   "title":"How to ride a cow",
+   "description":"An instructive tutorial",
+   "lectures":[
+      {
+         "title":"A cow and how to tip it",
+         "summary":"Cow handling procedures",
+         "expectedResults":"Cow",
+         "submitSuccess":"Well done! You can procedd to the next part, where you will learn all more things.",
+         "submitFailure":"This is not the statement we are looking for.",
+         "language":"coffee",
+         "code":"cow",
+         "codeHint":"\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
+         "codeHintText":"Do something with the cow",
+         "taskText":"When fighting cows, take care.\n ![cow](http://1.media.collegehumor.cvcdn.com/50/64/4c98cc8cf252b327823784e870864ab6-cow-on-a-scooter.jpg)\nSeriously."
+      }
+   ]
+}

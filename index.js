@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Fri Apr 12 2013 17:24:15 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Fri Apr 12 2013 22:02:49 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -6,7 +6,7 @@
 
 /* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/settings.coffee */
 
-var KodeLectures, cowExamples, example, examples, _i, _len;
+var KodeLectures;
 
 KodeLectures = {
   Settings: {
@@ -23,82 +23,13 @@ KodeLectures = {
   Views: {
     Editor: null,
     MainView: null
+  },
+  Controllers: {
+    FileIOController: null
   }
 };
 
 KodeLectures.Settings.lectures = [];
-
-examples = [
-  {
-    "title": "Lecture 1: Console.log and Boolean values",
-    'videoUrl': "http://www.youtube.com/embed/v2ifWcnQs6M",
-    "summary": "In this lecture, you will learn about Console and Booleans.",
-    "expectedResults": "true",
-    "submitSuccess": "Well done! You can procedd to the next part, where you will learn all about infinite loops.",
-    "submitFailure": "This is not the statement we are looking for.",
-    "language": "javascript",
-    "code": "// Hey there! enter your code here, please.\n\n// To log something to the console, you can use the properties of the console object\n// e.g. console.warn, console.error and so on...",
-    "codeHint": "\nThere are two Boolean values, `true` and `false`. The easiest way of logging a true value to the console is:\n\n```js\nconsole.log(true)\n```\n\nBut any truthy expression would do the trick, such as\n\n```js\nconsole.log(1==1)\n```\n\nor\n\n```js\nconsole.log(!(false && (1+2!==Infinity)))\n```\n\nBoth evaluate to `true` before being logged to the console.\n",
-    "codeHintText": "`Console.log()` prints to the console. Javascript knows only one truly true statement. That would be `true`.",
-    "taskText": "#Hello\n\nWelcome to the Lecture. Today we'll be learning about Boolean values. Named after [George Boole](http://en.wikipedia.org/wiki/George_Boole), these values are logical representations of Truth of Falsehood. Since there is nothing in between, only two mutually exclusive values exist in JavaScript, `true` and `false`.\n\nThere is also an  Object type called Boolean, which can take these values. It also supplies a few methods. But more on that later!\n\nTry printing a true statement to the console."
-  }, {
-    "title": "Lecture 2: While loops",
-    "summary": "This lecture is about loops",
-    "expectedResults": "1\n2\n3\n4\n5",
-    "submitSuccess": "Well done! You can procedd to the next part, where you will learn all more things.",
-    "submitFailure": "This is not the statement we are looking for.",
-    "language": "javascript",
-    "code": "// There are many ways to loop in JavaScript.\n//Try using while() in this assignment. We'll get to the other ones later.",
-    "codeHint": "\nOne way to use a while loop would be:\n\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
-    "codeHintText": "You might want to instantiate a variable, and increase its value one by one. And make sure to stop at some point. Maybe with a comparison?",
-    "taskText": "# What does it do?\n\nCreates a loop that executes a specified statement as long as the test condition evaluates to true. The condition is evaluated before executing the statement.\n\n##How do I use it?\n\n```js\nwhile (condition) {\n  statement\n}\n```\n\n- `condition`\n  - An expression evaluated before each pass through the loop. If this condition evaluates to true, statement is executed. When condition evaluates to false, execution continues with the statement after the while loop.\n- `statement`\n  - A statement that is executed as long as the condition evaluates to true. To execute multiple statements within the loop, use a block statement ({ ... }) to group those statements.\n\n##What you should do\nPrint the numbers `1` to `5` to the console, using a while loop."
-  }, {
-    "title": "Lecture 3: A glimpse of CoffeeScript",
-    "summary": "Here comes CoffeeScript",
-    "expectedResults": "This is CoffeeScript",
-    "submitSuccess": "Well done! You can procedd to the next part, where you will learn all more things.",
-    "submitFailure": "This is not the statement we are looking for.",
-    "language": "coffee",
-    "code": "# Woah, what is this?\n# Well it's CoffeeScript, a language that compiles to JavaScript but is so much easier to write.\n\n# Don't believe me? Check this out:\n\n\nconsole.log name.toUpperCase() for name in ['Alice','Bob','Malice']",
-    "codeHint": "\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
-    "codeHintText": "Do something with console.log",
-    "taskText": "# CoffeeScript\n\n**CoffeeScript is a little language that compiles into JavaScript**. Underneath that awkward Java-esque patina, JavaScript has always had a gorgeous heart. CoffeeScript is an attempt to expose the good parts of JavaScript in a simple way.\n\n\nThe golden rule of CoffeeScript is: \"It's just JavaScript\". The code compiles one-to-one into the equivalent JS, and there is no interpretation at runtime. You can use any existing JavaScript library seamlessly from CoffeeScript (and vice-versa). The compiled output is readable and pretty-printed, passes through JavaScript Lint without warnings, will work in every JavaScript runtime, and tends to run as fast or faster than the equivalent handwritten JavaScript.\n\n\nLatest Version: 1.6.2"
-  }
-];
-
-cowExamples = [
-  {
-    "title": "A cow and how to tip it",
-    "summary": "Cow handling procedures",
-    "expectedResults": "Cow",
-    "submitSuccess": "Well done! You can procedd to the next part, where you will learn all more things.",
-    "submitFailure": "This is not the statement we are looking for.",
-    "language": "coffee",
-    "code": "cow",
-    "codeHint": "\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
-    "codeHintText": "Do something with the cow",
-    "taskText": "When fighting cows, take care.\n ![cow](http://1.media.collegehumor.cvcdn.com/50/64/4c98cc8cf252b327823784e870864ab6-cow-on-a-scooter.jpg)\nSeriously."
-  }
-];
-
-KodeLectures.Settings.lectures.push({
-  title: 'JavaScript 101',
-  description: 'This course will introduce JavaScript fundamentals. It will teach loops, logs and how to write small applications.',
-  lectures: []
-});
-
-for (_i = 0, _len = examples.length; _i < _len; _i++) {
-  example = examples[_i];
-  KodeLectures.Settings.lectures[0].lectures.push(example);
-}
-
-KodeLectures.Settings.lectures.push({
-  title: 'How to ride a cow',
-  description: 'An instructive tutorial',
-  lectures: []
-});
-
-KodeLectures.Settings.lectures[1].lectures.push(cowExamples[0]);
 
 
 /* BLOCK ENDS */
@@ -168,13 +99,10 @@ KodeLectures.Core.LiveViewer = (function() {
     this.mainView = mainView;
   };
 
-  LiveViewer.prototype.previewCode = function(code, options) {
-    var command, kiteController,
+  LiveViewer.prototype.previewCode = function(code, execute) {
+    var command, course, courses, ioController, kiteController, lecture, _ref,
       _this = this;
 
-    if (options == null) {
-      options = {};
-    }
     if (!this.active) {
       return;
     }
@@ -192,7 +120,8 @@ KodeLectures.Core.LiveViewer = (function() {
             return "echo '" + (window.btoa(code)) + "' | base64 -d > temp.py; python temp.py;";
         }
       }).call(this);
-      return kiteController.run(command, function(err, res) {
+      _ref = this.mainView, ioController = _ref.ioController, courses = _ref.courses, course = _ref.lastSelectedCourse, lecture = _ref.lastSelectedItem;
+      return ioController.runFile(courses, course, lecture, execute, function(err, res) {
         var error, text;
 
         if (!err) {
@@ -365,15 +294,25 @@ KodeLectures.Views.TaskView = (function(_super) {
   };
 
   function TaskView() {
-    var videoUrl,
+    var codeHint, codeHintText, embedType, taskText, videoUrl, _ref,
       _this = this;
 
     TaskView.__super__.constructor.apply(this, arguments);
     this.setClass('task-view');
-    videoUrl = this.getData().videoUrl;
+    console.log('taskview');
+    _ref = this.getData(), videoUrl = _ref.videoUrl, codeHintText = _ref.codeHintText, codeHint = _ref.codeHint, embedType = _ref.embedType, taskText = _ref.taskText;
+    if (codeHint == null) {
+      codeHint = '';
+    }
+    if (codeHintText == null) {
+      codeHintText = '';
+    }
+    if (taskText == null) {
+      taskText = '';
+    }
     this.embed = new KDView({
       cssClass: 'embed',
-      partial: videoUrl ? "<iframe src=\"" + videoUrl + "\" frameborder=\"0\" allowfullscreen></iframe>" : ''
+      partial: videoUrl && embedType === 'youtube' ? "<iframe src=\"" + videoUrl + "\" frameborder=\"0\" allowfullscreen></iframe>" : ''
     });
     if (!videoUrl) {
       this.embed.hide();
@@ -387,7 +326,7 @@ KodeLectures.Views.TaskView = (function(_super) {
     });
     this.taskTextView = new KDView({
       cssClass: 'task-text-view has-markdown',
-      partial: "<span class='text'>Assignment</span><span class='data'>" + (marked(this.getData().taskText)) + "</span>"
+      partial: "<span class='text'>Assignment</span><span class='data'>" + (marked(taskText)) + "</span>"
     });
     this.resultView = new KDView({
       cssClass: 'result-view hidden'
@@ -396,25 +335,25 @@ KodeLectures.Views.TaskView = (function(_super) {
       cssClass: 'hint-view has-markdown',
       partial: '<span class="text">Show hint</span>',
       click: function() {
-        return _this.hintView.updatePartial("<span class='text'>Hint</span><span class='data'>" + (marked(_this.getData().codeHintText)) + "</span>");
+        return _this.hintView.updatePartial("<span class='text'>Hint</span><span class='data'>" + (marked(codeHintText)) + "</span>");
       }
     });
     this.hintCodeView = new KDView({
       cssClass: 'hint-code-view has-markdown',
       partial: '<span class="text">Show solution</span>',
       click: function() {
-        return _this.hintCodeView.updatePartial("<span class='text'>Solution</span><span class='data'>" + (marked(_this.getData().codeHint)) + "</span>");
+        return _this.hintCodeView.updatePartial("<span class='text'>Solution</span><span class='data'>" + (marked(codeHint)) + "</span>");
       }
     });
     this.on('LectureChanged', function(lecture) {
-      var _ref;
+      var _ref1;
 
       _this.setData(lecture);
       _this.resultView.hide();
       _this.nextLectureButton.hide();
       _this.mainView.liveViewer.active = false;
-      if ((_ref = _this.mainView.liveViewer.mdPreview) != null) {
-        _ref.updatePartial('<div class="info"><pre>When you run your code, you will see the results here</pre></div>');
+      if ((_ref1 = _this.mainView.liveViewer.mdPreview) != null) {
+        _ref1.updatePartial('<div class="info"><pre>When you run your code, you will see the results here</pre></div>');
       }
       _this.taskTextView.updatePartial("<span class='text'>Assignment</span><span class='data'>" + (marked(_this.getData().taskText)) + "</span>");
       _this.hintView.updatePartial('<span class="text">Show hint</span>');
@@ -456,6 +395,7 @@ KodeLectures.Views.TaskOverviewListItemView = (function(_super) {
     var summary, title, _ref;
 
     TaskOverviewListItemView.__super__.constructor.apply(this, arguments);
+    console.log('taskoverviewlistitem');
     this.setClass('task-overview-item has-markdown');
     _ref = this.getData(), title = _ref.title, summary = _ref.summary;
     this.titleText = new KDView({
@@ -495,6 +435,7 @@ KodeLectures.Views.TaskOverview = (function(_super) {
     var _this = this;
 
     TaskOverview.__super__.constructor.apply(this, arguments);
+    console.log('taskoverview');
     this.setClass('task-overview');
     this.lectureListController = new KDListViewController({
       itemClass: TaskOverviewListItemView,
@@ -539,13 +480,48 @@ KodeLectures.Views.TaskOverview = (function(_super) {
 
 })(JView);
 
+KodeLectures.Views.CourseLectureListItemView = (function(_super) {
+  __extends(CourseLectureListItemView, _super);
+
+  function CourseLectureListItemView() {
+    CourseLectureListItemView.__super__.constructor.apply(this, arguments);
+    console.log('courselecturelistitemview');
+    log(this.getData());
+    this.lectureTitle = new KDView({
+      cssClass: 'lecture-listitem',
+      partial: this.getData().title
+    });
+  }
+
+  CourseLectureListItemView.prototype.viewAppended = function() {
+    this.setTemplate(this.pistachio());
+    return this.template.update();
+  };
+
+  CourseLectureListItemView.prototype.pistachio = function() {
+    return "{{> this.lectureTitle}}";
+  };
+
+  CourseLectureListItemView.prototype.click = function() {
+    return this.getDelegate().emit('LectureSelected', this.getData());
+  };
+
+  return CourseLectureListItemView;
+
+})(KDListItemView);
+
 KodeLectures.Views.CourseSelectionItemView = (function(_super) {
+  var CourseLectureListItemView;
+
   __extends(CourseSelectionItemView, _super);
+
+  CourseLectureListItemView = KodeLectures.Views.CourseLectureListItemView;
 
   function CourseSelectionItemView() {
     var lectureCount;
 
     CourseSelectionItemView.__super__.constructor.apply(this, arguments);
+    console.log('courseselectionitemview');
     this.setClass('selection-listitem');
     lectureCount = this.getData().lectures.length;
     this.titleText = new KDView({
@@ -556,6 +532,13 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
       partial: this.getData().description,
       cssClass: 'description'
     });
+    this.lectureController = new KDListViewController({
+      itemClass: CourseLectureListItemView,
+      delegate: this
+    }, {
+      items: this.getData().lectures
+    });
+    this.lectureList = this.lectureController.getView();
   }
 
   CourseSelectionItemView.prototype.viewAppended = function() {
@@ -568,7 +551,7 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
   };
 
   CourseSelectionItemView.prototype.pistachio = function() {
-    return "{{> this.titleText}}\n{{> this.descriptionText}}";
+    return "{{> this.titleText}}\n{{> this.descriptionText}}\n{{> this.lectureList}}";
   };
 
   return CourseSelectionItemView;
@@ -587,6 +570,7 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
       _this = this;
 
     CourseSelectionView.__super__.constructor.apply(this, arguments);
+    console.log('courseselectionview');
     courses = this.getData();
     this.courseController = new KDListViewController({
       itemClass: CourseSelectionItemView,
@@ -595,6 +579,10 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
       items: courses
     });
     this.courseView = this.courseController.getView();
+    this.on('NewCourseImported', function(course) {
+      _this.courseController.addItem(course);
+      return courses.push(course);
+    });
     this.courseController.listView.on('CourseSelected', function(course) {
       return _this.mainView.emit('CourseChanged', courses.indexOf(course));
     });
@@ -712,16 +700,26 @@ KodeLectures.Views.MainView = (function(_super) {
   _ref1 = KodeLectures.Views, Editor = _ref1.Editor, HelpView = _ref1.HelpView, TaskView = _ref1.TaskView, TaskOverview = _ref1.TaskOverview, CourseSelectionView = _ref1.CourseSelectionView;
 
   function MainView() {
+    var _this = this;
+
     MainView.__super__.constructor.apply(this, arguments);
     this.liveViewer = LiveViewer.getSingleton();
     this.listenWindowResize();
     this.autoScroll = true;
     this.currentLecture = 0;
     this.lastSelectedCourse = 0;
+    this.ioController = new KodeLectures.Controllers.FileIOController;
+    this.ioController.emit('CourseImportRequested');
+    this.ioController.on('NewCourseImported', function(course) {
+      console.log('Forwarding new Course to view');
+      _this.selectionView.emit('NewCourseImported', course);
+      return _this.courses.push(course);
+    });
+    this.courses = [];
   }
 
   MainView.prototype.delegateElements = function() {
-    var item, key, nextButton, overflowFix, previousButton, runButton,
+    var item, key, nextButton, overflowFix, previousButton, runButton, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
       _this = this;
 
     this.splitViewWrapper = new KDView;
@@ -754,12 +752,12 @@ KodeLectures.Views.MainView = (function(_super) {
     });
     this.liveViewer.setPreviewView(this.preview);
     this.editor = new Editor({
-      defaultValue: Settings.lectures[this.lastSelectedCourse].lectures[0].code,
+      defaultValue: ((_ref2 = Settings.lectures[this.lastSelectedCourse]) != null ? (_ref3 = _ref2.lectures) != null ? (_ref4 = _ref3[0]) != null ? _ref4.code : void 0 : void 0 : void 0) || '',
       callback: function() {}
     });
     this.editor.getView().hide();
-    this.taskView = new TaskView({}, KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures[0]);
-    this.taskOverview = new TaskOverview({}, KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures);
+    this.taskView = new TaskView({}, ((_ref5 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref6 = _ref5.lectures) != null ? _ref6[0] : void 0 : void 0) || {});
+    this.taskOverview = new TaskOverview({}, ((_ref7 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref7.lectures : void 0) || []);
     this.aceView = new KDView({
       cssClass: 'editor code-editor'
     });
@@ -797,9 +795,9 @@ KodeLectures.Views.MainView = (function(_super) {
     }, Settings.lectures));
     this.buildAce();
     this.splitView.on('ResizeDidStop', function() {
-      var _ref2;
+      var _ref8;
 
-      return (_ref2 = _this.ace) != null ? _ref2.resize() : void 0;
+      return (_ref8 = _this.ace) != null ? _ref8.resize() : void 0;
     });
     this.controlButtons = new KDView({
       cssClass: 'header-buttons'
@@ -815,7 +813,7 @@ KodeLectures.Views.MainView = (function(_super) {
       },
       callback: function(event) {
         _this.liveViewer.active = true;
-        return _this.liveViewer.previewCode(_this.editor.getValue());
+        return _this.liveViewer.previewCode(_this.editor.getValue(), _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem].execute);
       }
     });
     this.controlButtons.addSubView(nextButton = new KDButtonView({
@@ -851,7 +849,9 @@ KodeLectures.Views.MainView = (function(_super) {
       return previousButton.hide();
     });
     this.on('NextLectureRequested', function() {
-      if (_this.currentLecture !== KodeLectures.Settings.lectures[_this.lastSelectedCourse || 0].lectures.length - 1) {
+      var _ref8, _ref9;
+
+      if (_this.currentLecture !== ((_ref8 = _this.courses[_this.lastSelectedCourse || 0]) != null ? (_ref9 = _ref8.lectures) != null ? _ref9.length : void 0 : void 0) - 1) {
         _this.exampleCode.setValue(++_this.currentLecture);
         return _this.exampleCode.getOptions().callback();
       }
@@ -869,19 +869,19 @@ KodeLectures.Views.MainView = (function(_super) {
       defaultValue: this.lastSelectedCourse || "0",
       cssClass: 'control-button code-examples',
       selectOptions: (function() {
-        var _i, _len, _ref2, _results;
+        var _i, _len, _ref8, _results;
 
-        _ref2 = KodeLectures.Settings.lectures;
+        _ref8 = this.courses;
         _results = [];
-        for (key = _i = 0, _len = _ref2.length; _i < _len; key = ++_i) {
-          item = _ref2[key];
+        for (key = _i = 0, _len = _ref8.length; _i < _len; key = ++_i) {
+          item = _ref8[key];
           _results.push({
             title: item.title,
             value: key
           });
         }
         return _results;
-      })(),
+      }).call(this),
       callback: function() {
         return _this.emit('CourseChanged', _this.courseSelect.getValue());
       }
@@ -893,12 +893,12 @@ KodeLectures.Views.MainView = (function(_super) {
       defaultValue: this.lastSelectedItem || "0",
       cssClass: 'control-button code-examples',
       selectOptions: (function() {
-        var _i, _len, _ref2, _results;
+        var _i, _len, _ref8, _ref9, _results;
 
-        _ref2 = KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures;
+        _ref9 = ((_ref8 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref8.lectures : void 0) || [];
         _results = [];
-        for (key = _i = 0, _len = _ref2.length; _i < _len; key = ++_i) {
-          item = _ref2[key];
+        for (key = _i = 0, _len = _ref9.length; _i < _len; key = ++_i) {
+          item = _ref9[key];
           _results.push({
             title: item.title,
             value: key
@@ -917,12 +917,12 @@ KodeLectures.Views.MainView = (function(_super) {
       _this.lastSelectedCourse = course;
       _this.exampleCode._$select.find("option").remove();
       _this.exampleCode.setSelectOptions((function() {
-        var _i, _len, _ref2, _results;
+        var _i, _len, _ref8, _ref9, _results;
 
-        _ref2 = KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures;
+        _ref9 = ((_ref8 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref8.lectures : void 0) || [];
         _results = [];
-        for (key = _i = 0, _len = _ref2.length; _i < _len; key = ++_i) {
-          item = _ref2[key];
+        for (key = _i = 0, _len = _ref9.length; _i < _len; key = ++_i) {
+          item = _ref9[key];
           _results.push({
             title: item.title,
             value: key
@@ -935,15 +935,22 @@ KodeLectures.Views.MainView = (function(_super) {
       return _this.emit('LectureRequested');
     });
     this.on('LectureChanged', function() {
-      var code, language, _ref2;
+      var code, codeFile, language, _ref8;
 
       _this.lastSelectedItem = _this.exampleCode.getValue();
-      _ref2 = KodeLectures.Settings.lectures[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, language = _ref2.language;
-      _this.ace.getSession().setValue(code);
-      _this.taskView.emit('LectureChanged', KodeLectures.Settings.lectures[_this.lastSelectedCourse].lectures[_this.lastSelectedItem]);
+      _ref8 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref8.code, codeFile = _ref8.codeFile, language = _ref8.language;
+      _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, "codeFile", function(err, contents) {
+        if (!err) {
+          console.log(contents);
+          return _this.ace.getSession().setValue(contents);
+        } else {
+          return console.log(err);
+        }
+      });
+      _this.taskView.emit('LectureChanged', _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem]);
       console.log('emitting');
       _this.taskOverview.emit('LectureChanged', {
-        course: KodeLectures.Settings.lectures[_this.lastSelectedCourse],
+        course: _this.courses[_this.lastSelectedCourse],
         index: _this.lastSelectedItem
       });
       _this.ace.getSession().setMode("ace/mode/" + language);
@@ -978,7 +985,7 @@ KodeLectures.Views.MainView = (function(_super) {
         return _this.ace.getSession().setMode("ace/mode/" + item);
       }
     });
-    this.currentLang = KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures[0].language;
+    this.currentLang = ((_ref8 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref9 = _ref8.lectures) != null ? (_ref10 = _ref9[0]) != null ? _ref10.language : void 0 : void 0 : void 0) || 'javascript';
     this.controlView.addSubView(this.languageSelect.options.label);
     this.controlView.addSubView(this.languageSelect);
     this.controlView.addSubView(this.courseSelect.options.label);
@@ -992,15 +999,14 @@ KodeLectures.Views.MainView = (function(_super) {
     this.taskView.setMainView(this);
     this.taskOverview.setMainView(this);
     this.selectionView.setMainView(this);
-    this.liveViewer.previewCode(this.editor.getValue());
     this.utils.defer(function() {
       return ($(window)).resize();
     });
     this.utils.wait(50, function() {
-      var _ref2;
+      var _ref11;
 
       ($(window)).resize();
-      return (_ref2 = _this.ace) != null ? _ref2.resize() : void 0;
+      return (_ref11 = _this.ace) != null ? _ref11.resize() : void 0;
     });
     return this.utils.wait(1000, function() {
       return _this.ace.renderer.scrollBar.on('scroll', function() {
@@ -1045,8 +1051,10 @@ KodeLectures.Views.MainView = (function(_super) {
           win: 'Ctrl-S',
           mac: 'Command-S'
         },
-        exec: function() {
-          return _this.editor.setValue(_this.ace.getSession().getValue());
+        exec: function(event) {
+          console.log(event);
+          _this.editor.setValue(_this.ace.getSession().getValue());
+          return _this.ioController.saveFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.ace.getSession().getValue());
         }
       });
     } catch (_error) {}
@@ -1061,6 +1069,94 @@ KodeLectures.Views.MainView = (function(_super) {
   return MainView;
 
 })(JView);
+
+
+/* BLOCK ENDS */
+
+
+
+/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/io.coffee */
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+KodeLectures.Controllers.FileIOController = (function(_super) {
+  __extends(FileIOController, _super);
+
+  function FileIOController() {
+    FileIOController.__super__.constructor.apply(this, arguments);
+    this.kiteController = KD.getSingleton("kiteController");
+    this.nickname = KD.whoami().profile.nickname;
+    this.name = 'kodelectures';
+    this.appPath = "/Users/" + this.nickname + "/Applications";
+    this.basePath = "" + this.appPath + "/" + this.name + ".kdapp";
+    this.attachListeners();
+  }
+
+  FileIOController.prototype.readFile = function(courses, course, lecture, key, callback) {
+    var codeFileInstance, currentFile;
+
+    currentFile = "" + this.basePath + "/courses/" + courses[course].path + "/" + courses[course].lectures[lecture][key];
+    codeFileInstance = FSHelper.createFileFromPath(currentFile);
+    return codeFileInstance.fetchContents(callback);
+  };
+
+  FileIOController.prototype.saveFile = function(courses, course, lecture, value, callback) {
+    var codeFileInstance, currentFile;
+
+    if (callback == null) {
+      callback = function() {};
+    }
+    currentFile = "" + this.basePath + "/courses/" + courses[course].path + "/" + courses[course].lectures[lecture].codeFile;
+    codeFileInstance = FSHelper.createFileFromPath(currentFile);
+    return codeFileInstance.save(value, callback);
+  };
+
+  FileIOController.prototype.runFile = function(courses, course, lecture, execute, callback) {
+    return this.kiteController.run("cd " + this.basePath + "/courses/" + courses[course].path + ";" + execute, callback);
+  };
+
+  FileIOController.prototype.attachListeners = function() {
+    var coursePath, path, root,
+      _this = this;
+
+    this.name = this.name.replace(/.kdapp$/, '');
+    root = "/Users/" + this.nickname + "/Applications";
+    path = "" + root + "/" + this.name + ".kdapp";
+    coursePath = "" + path + "/courses";
+    return this.on('CourseImportRequested', function() {
+      var command;
+
+      command = "ls " + coursePath;
+      return _this.kiteController.run(command, function(err, res) {
+        var course, courses, _i, _len, _results;
+
+        if (!err) {
+          courses = res.trim().split("\n");
+          _results = [];
+          for (_i = 0, _len = courses.length; _i < _len; _i++) {
+            course = courses[_i];
+            _results.push(_this.kiteController.run("cat " + coursePath + "/" + course + "/manifest.json", function(err, manifest) {
+              var e, newCourse;
+
+              try {
+                newCourse = JSON.parse(manifest);
+                return _this.emit('NewCourseImported', newCourse);
+              } catch (_error) {
+                e = _error;
+                return console.log(e);
+              }
+            }));
+          }
+          return _results;
+        }
+      });
+    });
+  };
+
+  return FileIOController;
+
+})(KDController);
 
 
 /* BLOCK ENDS */

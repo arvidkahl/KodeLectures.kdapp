@@ -16,6 +16,7 @@
           "./app/settings.coffee",
           "./app/core.coffee",
           "./app/views.coffee",
+          "./app/io.coffee",
           "./index.coffee"
         ]
       }
