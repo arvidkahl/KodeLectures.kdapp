@@ -212,6 +212,18 @@ class KodeLectures.Views.TaskView extends JView
     super
     @setClass 'task-view'
   
+    {videoUrl} = @getData()
+    
+    @embed = new KDView
+      cssClass : 'embed'
+      partial : if videoUrl
+        """
+        <iframe src="#{videoUrl}" frameborder="0" allowfullscreen></iframe>
+        """
+      else ''
+      
+    @embed.hide() unless videoUrl  
+  
     @nextLectureButton = new KDButtonView
       title : 'Next Lecture'
       cssClass : 'cupid-green hidden fr task-next-button'
@@ -246,6 +258,11 @@ class KodeLectures.Views.TaskView extends JView
       @taskTextView.updatePartial "<span class='text'>Assignment</span><span class='data'>#{marked @getData().taskText}</span>"
       @hintView.updatePartial '<span class="text">Show hint</span>'
       @hintCodeView.updatePartial '<span class="text">Show solution</span>'
+      {videoUrl} = lecture
+      if videoUrl
+        @embed.show()
+        @embed.updatePartial """<iframe src="#{videoUrl}" frameborder="0" allowfullscreen></iframe>"""
+      else @embed.hide()
       @render()
     
     @on 'ResultReceived', (result)=>
@@ -265,6 +282,7 @@ class KodeLectures.Views.TaskView extends JView
     {{> @nextLectureButton}}
     {{> @resultView }}    
     
+    {{> @embed }}
     {{> @taskTextView }}
     
     {{> @hintView}}
@@ -343,4 +361,63 @@ class KodeLectures.Views.TaskOverview extends JView
     """
     {{> @lectureList}}
     """
+    
+    
+class KodeLectures.Views.CourseSelectionItemView extends KDListItemView  
   
+  constructor:->
+    super
+    @setClass 'selection-listitem'
+
+    lectureCount = @getData().lectures.length
+    
+    @titleText = new KDView
+      partial : "<span>#{@getData().title}</span><span class='lectures'>#{lectureCount} lecture#{if lectureCount is 1 then '' else 's'}</span>"
+      cssClass : 'title'
+      
+    @descriptionText = new KDView
+      partial : @getData().description
+      cssClass : 'description'
+  
+  viewAppended :->
+    @setTemplate @pistachio()
+    @template.update()
+  
+  click:->
+    @getDelegate().emit 'CourseSelected', @getData()
+  
+  pistachio:->
+    """
+    {{> @titleText}}
+    {{> @descriptionText}}
+    """
+  
+  
+class KodeLectures.Views.CourseSelectionView extends JView
+  {CourseSelectionItemView} = KodeLectures.Views
+  
+  constructor:->
+    super
+    courses = @getData()
+    
+    @courseController = new KDListViewController
+      itemClass : CourseSelectionItemView
+      delegate : @
+    , items : courses
+  
+    @courseView = @courseController.getView()
+    
+    @courseController.listView.on 'CourseSelected', (course)=>
+      @mainView.emit 'CourseChanged', courses.indexOf course
+
+    @courseHeader = new KDView
+      cssClass : 'course-header'
+      partial : '<h1>Select a  course:</h1>'
+
+  setMainView:(@mainView)->
+
+  pistachio:->
+    """
+    {{> @courseHeader}}
+    {{> @courseView}}
+    """

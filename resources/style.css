@@ -302,6 +302,17 @@
   width : auto;
 }
 
+.marKDown .embed {
+  height:25%;
+padding: 10px;
+box-sizing: border-box;
+background-color: rgba(0,0,0,0.25);
+}
+
+.marKDown .embed iframe {
+  height:100%;
+  width:100%;
+}
 .marKDown .task-text-view {
   height : auto;
   //padding : 10px 10px 0 10px;
@@ -362,7 +373,92 @@
   line-height: 20px;
 }
 
+.marKDown .selection-view {
+  left: 100%;
+  //display: inline-block;
+  top: 0;
+  position: absolute;
+  background-color: white;
+  border-left: 1px solid #e8e8e8;
+  transition: left 0.5s ease;
+  text-align : center;
+  
+  background-image:url(http://ford3.com/portfolio/ford3img.php?i=image_1363900487.jpg&vsize=768);
+  background-repeat:norepeat;
+  background-position:center center;
+  background-size:cover;
+  
+}
+.marKDown .selection-view.in {
+  left : 0;
+}
 
+.marKDown .selection-view .kdlistview {
+  width : 100%;
+  height: 100%;
+  margin: 0px auto;
+  background-image:-webkit-radial-gradient(50% 50%,ellipse cover,transparent 0%,rgba(255,255,255,0.5) 80%);
+}
+
+.marKDown .selection-listitem {
+  width : 300px;
+  height :150px;
+  display : inline-block;
+  margin : 10px;
+  //padding : 10px;
+  border: 1px solid #e8e8e8!important;
+  background-color : #fbfbfb;
+  border-radius:4px;
+  vertical-align:top;
+  cursor : pointer;
+  overflow:auto;
+  transition:background-color 0.2s linear;
+}
+
+.marKDown .selection-listitem:hover {
+  box-shadow:0 5px 15px -10px black, 0 0px 20px -5px rgba(0,0,0,0.25);
+  background-color:rgba(0,255,0,0.15);
+}
+
+
+.marKDown .selection-listitem .title {
+  height : auto;
+  padding : 10px 10px 10px 10px;
+  background-color : rgba(255,255,255,0.75);
+  font-size: 18px;
+  box-sizing:border-box;
+  border-bottom: 1px solid #f5f5f5;
+  color : #444;
+}
+.marKDown .selection-listitem .lectures{
+  font-size:12px;
+  margin-left:10px;
+  color:#aaa;
+
+}
+.marKDown .selection-listitem .description{
+  height : auto;
+  padding: 20px 20px 10px 20px;
+  box-sizing:border-box;
+  text-align : left;
+  color: #5f5f5f;
+}
+
+.marKDown .course-header {
+  height:auto;
+  padding-top:40px;
+  padding-bottom:30px;
+  background-color:rgba(255,255,255,0.5);
+  
+}
+
+.marKDown .kodepad-editors {
+  transition : left 0.5s ease;
+}
+
+.marKDown .kodepad-editors.out {
+  left : -100%
+}
 
 body.dragInAction .marKDown .md-help-view {
     // border : 2px dashed blue;

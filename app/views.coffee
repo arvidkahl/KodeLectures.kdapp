@@ -41,7 +41,7 @@ class KodeLectures.Views.Editor
 
 class KodeLectures.Views.MainView extends JView
 
-  {Editor,HelpView,TaskView,TaskOverview} = KodeLectures.Views
+  {Editor,HelpView,TaskView,TaskOverview,CourseSelectionView} = KodeLectures.Views
   
   constructor: ()->
     super
@@ -56,6 +56,7 @@ class KodeLectures.Views.MainView extends JView
 
     @splitViewWrapper = new KDView
     
+    
 
     # OVERFLOW FIX
     overflowFix = ->
@@ -65,19 +66,19 @@ class KodeLectures.Views.MainView extends JView
     ($ window).on "resize", overflowFix
     # window.ace = [@ace, @cssAce]
     # SHOULD REPLACE WITH LEGAL RESIZE LISTENER
-    #do =>
-      #lastAceHeight = 0
-      #lastAceWidth = 0
-      #setInterval =>
-        #aceHeight = @aceView.getHeight()
-        #aceWidth = @aceView.getWidth()
-        #
-        #if aceHeight isnt lastAceHeight or aceWidth isnt lastAceWidth
-          #@ace.resize()
-          #lastAceHeight = @aceView.getHeight()
-          #lastAceWidth = @aceView.getWidth()
-      #, 20
-    
+    do =>
+      lastAceHeight = 0
+      lastAceWidth = 0
+      setInterval =>
+        aceHeight = @aceView.getHeight()
+        aceWidth = @aceView.getWidth()
+        
+        if aceHeight isnt lastAceHeight or aceWidth isnt lastAceWidth
+          @ace.resize()
+          lastAceHeight = @aceView.getHeight()
+          lastAceWidth = @aceView.getWidth()
+      , 20
+    #
     @preview = new KDView
         cssClass: "preview-pane"
       
@@ -120,13 +121,17 @@ class KodeLectures.Views.MainView extends JView
       views : [@taskView,@taskOverview]
       
     @splitView = new KDSplitView
-        cssClass  : "kodepad-editors"
+        cssClass  : "kodepad-editors out"
         type      : "vertical"
         resizable : yes
         sizes     : ["50%","50%"]
         views     : [@editorSplitView, @taskSplitView]
 
     @splitViewWrapper.addSubView @splitView
+    
+    @splitViewWrapper.addSubView @selectionView = new CourseSelectionView
+      cssClass : 'selection-view in'
+    ,Settings.lectures
     
     @buildAce()
     
@@ -149,33 +154,42 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.previewCode do @editor.getValue       
     
     @controlButtons.addSubView nextButton = new KDButtonView
-      cssClass    : "clean-gray editor-button control-button next"
-      title       : 'Next lecture'
+      cssClass    : "clean-gray editor-button control-button next hidden"
+      title       : 'Courses'
       tooltip:
-        title : 'Go to the next lecture'
-      callback    : (event)=> @emit 'NextLectureRequested'
-      
+        title : 'Go to the course list'
+      callback    : (event)=> @emit 'CourseRequested'
+
+        
     @controlButtons.addSubView previousButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button previous"
-      title       : 'Previous lecture'
+      title       : 'Lecture'
       tooltip:
-        title : 'Go to the previous lecture'
-      callback    : (event)=> @emit 'PreviousLectureRequested'
+        title : 'Go to the current lecture'
+      callback    : (event)=> @emit 'LectureRequested'
+      
+    @on 'CourseRequested', =>
+        @splitView.setClass 'out'
+        @selectionView.setClass 'in'
+        previousButton.show()
+        nextButton.hide()
     
+    @on 'LectureRequested',=>
+        @splitView.unsetClass 'out'
+        @selectionView.unsetClass 'in'
+        nextButton.show()
+        previousButton.hide()
+
     @on 'NextLectureRequested', =>
         unless @currentLecture is KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures.length-1       
-          previousButton.unsetClass 'disabled'
           @exampleCode.setValue ++@currentLecture 
           @exampleCode.getOptions().callback()
-        else nextButton.setClass 'disabled'
-
+        
     @on 'PreviousLectureRequested', =>
         unless @currentLecture is 0       
-          nextButton.unsetClass 'disabled'
           @exampleCode.setValue --@currentLecture 
           @exampleCode.getOptions().callback()
-        else previousButton.setClass 'disabled'
-
+        
 
     @courseSelect = new KDSelectBox
       label: new KDLabelView
@@ -185,11 +199,8 @@ class KodeLectures.Views.MainView extends JView
       cssClass: 'control-button code-examples'
       selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures)
       callback: =>
-        @lastSelectedCourse = @courseSelect.getValue()
-        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
-        @exampleCode.setValue 0
-        @emit 'LectureChanged'
-
+        @emit 'CourseChanged',@courseSelect.getValue()
+        
     @exampleCode = new KDSelectBox
       label: new KDLabelView
         title: 'Lecture: '
@@ -199,9 +210,20 @@ class KodeLectures.Views.MainView extends JView
       selectOptions: ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
       callback: =>
         @emit 'LectureChanged'
-
+    
+    @on 'CourseChanged', (course)=>
+              
+        if course          
+          @courseSelect.setValue course
+        
+        @lastSelectedCourse = course
+        @exampleCode._$select.find("option").remove() # replace with .removeSelectOptions()
+        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures)
+        @exampleCode.setValue 0
+        @emit 'LectureChanged'
+        @emit 'LectureRequested'
+    
     @on 'LectureChanged', =>
-        #@lastSelectedCourse = @courseSelect.getValue()
         @lastSelectedItem = @exampleCode.getValue()        
         {code,language} = KodeLectures.Settings.lectures[@lastSelectedCourse].lectures[@lastSelectedItem]
         @ace.getSession().setValue code
@@ -233,7 +255,6 @@ class KodeLectures.Views.MainView extends JView
         
     @currentLang = KodeLectures.Settings.lectures[@lastSelectedCourse or 0].lectures[0].language
     
-    #@controlView.addSubView codeButton
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
     
@@ -251,7 +272,8 @@ class KodeLectures.Views.MainView extends JView
     
     @taskView.setMainView @
     @taskOverview.setMainView @
-    
+    @selectionView.setMainView @
+   
     @liveViewer.previewCode do @editor.getValue
     @utils.defer => ($ window).resize()
     @utils.wait 50, => 

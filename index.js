@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Fri Apr 12 2013 12:34:33 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Fri Apr 12 2013 16:59:37 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -31,6 +31,7 @@ KodeLectures.Settings.lectures = [];
 examples = [
   {
     "title": "Lecture 1: Console.log and Boolean values",
+    'videoUrl': "http://www.youtube.com/embed/v2ifWcnQs6M",
     "summary": "In this lecture, you will learn about Console and Booleans.",
     "expectedResults": "true",
     "submitSuccess": "Well done! You can procedd to the next part, where you will learn all about infinite loops.",
@@ -74,13 +75,15 @@ cowExamples = [
     "submitFailure": "This is not the statement we are looking for.",
     "language": "coffee",
     "code": "cow",
+    "codeHint": "\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
     "codeHintText": "Do something with the cow",
-    "taskText": "When fighting cows, take care."
+    "taskText": "When fighting cows, take care.\n ![cow](http://1.media.collegehumor.cvcdn.com/50/64/4c98cc8cf252b327823784e870864ab6-cow-on-a-scooter.jpg)\nSeriously."
   }
 ];
 
 KodeLectures.Settings.lectures.push({
   title: 'JavaScript 101',
+  description: 'This course will introduce JavaScript fundamentals. It will teach loops, logs and how to write small applications.',
   lectures: []
 });
 
@@ -91,6 +94,7 @@ for (_i = 0, _len = examples.length; _i < _len; _i++) {
 
 KodeLectures.Settings.lectures.push({
   title: 'How to ride a cow',
+  description: 'An instructive tutorial',
   lectures: []
 });
 
@@ -361,10 +365,19 @@ KodeLectures.Views.TaskView = (function(_super) {
   };
 
   function TaskView() {
-    var _this = this;
+    var videoUrl,
+      _this = this;
 
     TaskView.__super__.constructor.apply(this, arguments);
     this.setClass('task-view');
+    videoUrl = this.getData().videoUrl;
+    this.embed = new KDView({
+      cssClass: 'embed',
+      partial: videoUrl ? "<iframe src=\"" + videoUrl + "\" frameborder=\"0\" allowfullscreen></iframe>" : ''
+    });
+    if (!videoUrl) {
+      this.embed.hide();
+    }
     this.nextLectureButton = new KDButtonView({
       title: 'Next Lecture',
       cssClass: 'cupid-green hidden fr task-next-button',
@@ -406,6 +419,13 @@ KodeLectures.Views.TaskView = (function(_super) {
       _this.taskTextView.updatePartial("<span class='text'>Assignment</span><span class='data'>" + (marked(_this.getData().taskText)) + "</span>");
       _this.hintView.updatePartial('<span class="text">Show hint</span>');
       _this.hintCodeView.updatePartial('<span class="text">Show solution</span>');
+      videoUrl = lecture.videoUrl;
+      if (videoUrl) {
+        _this.embed.show();
+        _this.embed.updatePartial("<iframe src=\"" + videoUrl + "\" frameborder=\"0\" allowfullscreen></iframe>");
+      } else {
+        _this.embed.hide();
+      }
       return _this.render();
     });
     this.on('ResultReceived', function(result) {
@@ -422,7 +442,7 @@ KodeLectures.Views.TaskView = (function(_super) {
   }
 
   TaskView.prototype.pistachio = function() {
-    return "{{> this.nextLectureButton}}\n{{> this.resultView}}    \n\n{{> this.taskTextView}}\n\n{{> this.hintView}}\n{{> this.hintCodeView}}";
+    return "{{> this.nextLectureButton}}\n{{> this.resultView}}    \n\n{{> this.embed}}\n{{> this.taskTextView}}\n\n{{> this.hintView}}\n{{> this.hintCodeView}}";
   };
 
   return TaskView;
@@ -519,6 +539,83 @@ KodeLectures.Views.TaskOverview = (function(_super) {
 
 })(JView);
 
+KodeLectures.Views.CourseSelectionItemView = (function(_super) {
+  __extends(CourseSelectionItemView, _super);
+
+  function CourseSelectionItemView() {
+    var lectureCount;
+
+    CourseSelectionItemView.__super__.constructor.apply(this, arguments);
+    this.setClass('selection-listitem');
+    lectureCount = this.getData().lectures.length;
+    this.titleText = new KDView({
+      partial: "<span>" + (this.getData().title) + "</span><span class='lectures'>" + lectureCount + " lecture" + (lectureCount === 1 ? '' : 's') + "</span>",
+      cssClass: 'title'
+    });
+    this.descriptionText = new KDView({
+      partial: this.getData().description,
+      cssClass: 'description'
+    });
+  }
+
+  CourseSelectionItemView.prototype.viewAppended = function() {
+    this.setTemplate(this.pistachio());
+    return this.template.update();
+  };
+
+  CourseSelectionItemView.prototype.click = function() {
+    return this.getDelegate().emit('CourseSelected', this.getData());
+  };
+
+  CourseSelectionItemView.prototype.pistachio = function() {
+    return "{{> this.titleText}}\n{{> this.descriptionText}}";
+  };
+
+  return CourseSelectionItemView;
+
+})(KDListItemView);
+
+KodeLectures.Views.CourseSelectionView = (function(_super) {
+  var CourseSelectionItemView;
+
+  __extends(CourseSelectionView, _super);
+
+  CourseSelectionItemView = KodeLectures.Views.CourseSelectionItemView;
+
+  function CourseSelectionView() {
+    var courses,
+      _this = this;
+
+    CourseSelectionView.__super__.constructor.apply(this, arguments);
+    courses = this.getData();
+    this.courseController = new KDListViewController({
+      itemClass: CourseSelectionItemView,
+      delegate: this
+    }, {
+      items: courses
+    });
+    this.courseView = this.courseController.getView();
+    this.courseController.listView.on('CourseSelected', function(course) {
+      return _this.mainView.emit('CourseChanged', courses.indexOf(course));
+    });
+    this.courseHeader = new KDView({
+      cssClass: 'course-header',
+      partial: '<h1>Select a  course:</h1>'
+    });
+  }
+
+  CourseSelectionView.prototype.setMainView = function(mainView) {
+    this.mainView = mainView;
+  };
+
+  CourseSelectionView.prototype.pistachio = function() {
+    return "{{> this.courseHeader}}\n{{> this.courseView}}";
+  };
+
+  return CourseSelectionView;
+
+})(JView);
+
 
 /* BLOCK ENDS */
 
@@ -608,11 +705,11 @@ KodeLectures.Views.Editor = (function() {
 })();
 
 KodeLectures.Views.MainView = (function(_super) {
-  var Editor, TaskOverview, _ref1;
+  var CourseSelectionView, Editor, TaskOverview, _ref1;
 
   __extends(MainView, _super);
 
-  _ref1 = KodeLectures.Views, Editor = _ref1.Editor, HelpView = _ref1.HelpView, TaskView = _ref1.TaskView, TaskOverview = _ref1.TaskOverview;
+  _ref1 = KodeLectures.Views, Editor = _ref1.Editor, HelpView = _ref1.HelpView, TaskView = _ref1.TaskView, TaskOverview = _ref1.TaskOverview, CourseSelectionView = _ref1.CourseSelectionView;
 
   function MainView() {
     MainView.__super__.constructor.apply(this, arguments);
@@ -635,6 +732,23 @@ KodeLectures.Views.MainView = (function(_super) {
       return ($(".kodepad-editors")).height(height);
     };
     ($(window)).on("resize", overflowFix);
+    (function() {
+      var lastAceHeight, lastAceWidth;
+
+      lastAceHeight = 0;
+      lastAceWidth = 0;
+      return setInterval(function() {
+        var aceHeight, aceWidth;
+
+        aceHeight = _this.aceView.getHeight();
+        aceWidth = _this.aceView.getWidth();
+        if (aceHeight !== lastAceHeight || aceWidth !== lastAceWidth) {
+          _this.ace.resize();
+          lastAceHeight = _this.aceView.getHeight();
+          return lastAceWidth = _this.aceView.getWidth();
+        }
+      }, 20);
+    })();
     this.preview = new KDView({
       cssClass: "preview-pane"
     });
@@ -671,13 +785,16 @@ KodeLectures.Views.MainView = (function(_super) {
       views: [this.taskView, this.taskOverview]
     });
     this.splitView = new KDSplitView({
-      cssClass: "kodepad-editors",
+      cssClass: "kodepad-editors out",
       type: "vertical",
       resizable: true,
       sizes: ["50%", "50%"],
       views: [this.editorSplitView, this.taskSplitView]
     });
     this.splitViewWrapper.addSubView(this.splitView);
+    this.splitViewWrapper.addSubView(this.selectionView = new CourseSelectionView({
+      cssClass: 'selection-view in'
+    }, Settings.lectures));
     this.buildAce();
     this.splitView.on('ResizeDidStop', function() {
       var _ref2;
@@ -702,41 +819,47 @@ KodeLectures.Views.MainView = (function(_super) {
       }
     });
     this.controlButtons.addSubView(nextButton = new KDButtonView({
-      cssClass: "clean-gray editor-button control-button next",
-      title: 'Next lecture',
+      cssClass: "clean-gray editor-button control-button next hidden",
+      title: 'Courses',
       tooltip: {
-        title: 'Go to the next lecture'
+        title: 'Go to the course list'
       },
       callback: function(event) {
-        return _this.emit('NextLectureRequested');
+        return _this.emit('CourseRequested');
       }
     }));
     this.controlButtons.addSubView(previousButton = new KDButtonView({
       cssClass: "clean-gray editor-button control-button previous",
-      title: 'Previous lecture',
+      title: 'Lecture',
       tooltip: {
-        title: 'Go to the previous lecture'
+        title: 'Go to the current lecture'
       },
       callback: function(event) {
-        return _this.emit('PreviousLectureRequested');
+        return _this.emit('LectureRequested');
       }
     }));
+    this.on('CourseRequested', function() {
+      _this.splitView.setClass('out');
+      _this.selectionView.setClass('in');
+      previousButton.show();
+      return nextButton.hide();
+    });
+    this.on('LectureRequested', function() {
+      _this.splitView.unsetClass('out');
+      _this.selectionView.unsetClass('in');
+      nextButton.show();
+      return previousButton.hide();
+    });
     this.on('NextLectureRequested', function() {
       if (_this.currentLecture !== KodeLectures.Settings.lectures[_this.lastSelectedCourse || 0].lectures.length - 1) {
-        previousButton.unsetClass('disabled');
         _this.exampleCode.setValue(++_this.currentLecture);
         return _this.exampleCode.getOptions().callback();
-      } else {
-        return nextButton.setClass('disabled');
       }
     });
     this.on('PreviousLectureRequested', function() {
       if (_this.currentLecture !== 0) {
-        nextButton.unsetClass('disabled');
         _this.exampleCode.setValue(--_this.currentLecture);
         return _this.exampleCode.getOptions().callback();
-      } else {
-        return previousButton.setClass('disabled');
       }
     });
     this.courseSelect = new KDSelectBox({
@@ -760,23 +883,7 @@ KodeLectures.Views.MainView = (function(_super) {
         return _results;
       })(),
       callback: function() {
-        _this.lastSelectedCourse = _this.courseSelect.getValue();
-        _this.exampleCode.setSelectOptions((function() {
-          var _i, _len, _ref2, _results;
-
-          _ref2 = KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures;
-          _results = [];
-          for (key = _i = 0, _len = _ref2.length; _i < _len; key = ++_i) {
-            item = _ref2[key];
-            _results.push({
-              title: item.title,
-              value: key
-            });
-          }
-          return _results;
-        }).call(_this));
-        _this.exampleCode.setValue(0);
-        return _this.emit('LectureChanged');
+        return _this.emit('CourseChanged', _this.courseSelect.getValue());
       }
     });
     this.exampleCode = new KDSelectBox({
@@ -802,6 +909,30 @@ KodeLectures.Views.MainView = (function(_super) {
       callback: function() {
         return _this.emit('LectureChanged');
       }
+    });
+    this.on('CourseChanged', function(course) {
+      if (course) {
+        _this.courseSelect.setValue(course);
+      }
+      _this.lastSelectedCourse = course;
+      _this.exampleCode._$select.find("option").remove();
+      _this.exampleCode.setSelectOptions((function() {
+        var _i, _len, _ref2, _results;
+
+        _ref2 = KodeLectures.Settings.lectures[this.lastSelectedCourse || 0].lectures;
+        _results = [];
+        for (key = _i = 0, _len = _ref2.length; _i < _len; key = ++_i) {
+          item = _ref2[key];
+          _results.push({
+            title: item.title,
+            value: key
+          });
+        }
+        return _results;
+      }).call(_this));
+      _this.exampleCode.setValue(0);
+      _this.emit('LectureChanged');
+      return _this.emit('LectureRequested');
     });
     this.on('LectureChanged', function() {
       var code, language, _ref2;
@@ -860,6 +991,7 @@ KodeLectures.Views.MainView = (function(_super) {
     this.liveViewer.setMainView(this);
     this.taskView.setMainView(this);
     this.taskOverview.setMainView(this);
+    this.selectionView.setMainView(this);
     this.liveViewer.previewCode(this.editor.getValue());
     this.utils.defer(function() {
       return ($(window)).resize();
