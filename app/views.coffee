@@ -1,5 +1,5 @@
 {Settings, Ace}   = KodeLectures
-{LiveViewer, AppCreator, HelpView, TaskView} = KodeLectures.Core
+{LiveViewer, TaskView} = KodeLectures.Core
 
 require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
         options = {}
@@ -41,7 +41,7 @@ class KodeLectures.Views.Editor
 
 class KodeLectures.Views.MainView extends JView
 
-  {Editor,HelpView,TaskView,TaskOverview,CourseSelectionView} = KodeLectures.Views
+  {Editor,TaskView,TaskOverview,CourseSelectionView} = KodeLectures.Views
   
   constructor: ()->
     super
@@ -110,9 +110,6 @@ class KodeLectures.Views.MainView extends JView
         cssClass : 'ace-wrapper-view'
     
     @aceWrapperView.addSubView @aceView
-
-    @mdHelpView = new HelpView
-        cssClass : 'md-help-view'
 
     @editorSplitView = new KDSplitView
         type      : "horizontal"
@@ -286,8 +283,8 @@ class KodeLectures.Views.MainView extends JView
             @setPreviewScrollPercentage @getEditScrollPercentage()
 
   attachListeners :->
-    @on 'LectureChanged', =>
-        @lastSelectedItem = @exampleCode.getValue()        
+    @on 'LectureChanged', (lecture)=>
+        @lastSelectedItem = lecture or @exampleCode.getValue()        
         {code,codeFile,language,files} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
         
         @currentFile = if files?.length>0 then files[0] else 'tempfile'

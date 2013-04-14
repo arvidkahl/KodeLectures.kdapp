@@ -5,12 +5,10 @@ KodeLectures =
   Settings:
     theme      : "ace/theme/monokai"
     exampleCode: null
-    exampleCSS : null
     aceThrottle: 400
   Core:
     Utils      : null
     LiveViewer : null
-    AppCreator : null
   Views:
     Editor     : null
     MainView   : null

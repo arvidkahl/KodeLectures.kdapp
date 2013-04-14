@@ -69,146 +69,6 @@ class KodeLectures.Core.LiveViewer
           notify error.message
         finally
           delete window.appView
-  
-  previewCSS: (code)->
-    return if not @active
-    session = "__kodepadCSS#{@sessionId}"
-
-    if window[session]
-      try
-        window[session].remove()
-        
-    css = $ "<style scoped></style>"
-    css.html code
-    window[session] = css
-    
-    @previewView.domElement.prepend window[session]
-
-class KodeLectures.Core.AppCreator
-  
-  {notify} = KodeLectures.Core.Utils
-  
-  @getSingleton: ()=> @instance ?= new @
-
-  manifestTemplate: (appName)->
-    
-    {firstName, lastName, nickname} = KD.whoami().profile
-
-    manifest: 
-      """
-      {
-        "devMode": true,
-        "version": "0.1",
-        "name": "#{appName}",
-        "identifier": "com.koding.#{nickname}.apps.#{appName.toLowerCase()}",
-        "path": "~/Applications/#{appName}.kdapp",
-        "homepage": "#{nickname}.koding.com/#{appName}",
-        "author": "#{firstName} #{lastName}",
-        "repository": "git://github.com/#{nickname}/#{appName}.kdapp.git",
-        "description": "#{appName} : a Koding application created with the Kodepad.",
-        "category": "web-app",
-        "source": {
-          "blocks": {
-            "app": {
-              "files": [
-                "./index.coffee"
-              ]
-            }
-          },
-          "stylesheets": [
-            "./resources/style.css"
-          ]
-        },
-        "options": {
-          "type": "tab"
-        },
-        "icns": {
-          "128": "./resources/icon.128.png"
-        }
-      }
-      """
-
-  create: (name, coffee, css, callback) ->
-    
-    {manifest} = @manifestTemplate name
-    
-    {nickname} = KD.whoami().profile
-    
-    kite    = KD.getSingleton 'kiteController'
-    finder  = KD.getSingleton "finderController"
-    tree    = finder.treeController
-    
-    appPath      = "/Users/#{nickname}/Applications"
-    basePath     = "#{appPath}/#{name}.kdapp"
-    coffeeFile   = "#{basePath}/index.coffee"
-    cssFile      = "#{basePath}/resources/style.css"
-    manifestFile = "#{basePath}/.manifest"
-    
-    commands = [
-      "mkdir -p #{basePath}"
-      "mkdir -p #{basePath}/resources"
-      "curl -kL https://koding.com/images/default.app.thumb.png -o #{basePath}/resources/icon.128.png"
-    ]
-    skeleton = commands.join ";"
-    
-    kite.run skeleton, (error, response)->
-      return if error
-      
-      # Saving Coffee
-      coffeeFileInstance = FSHelper.createFileFromPath coffeeFile
-      coffeeFileInstance.save coffee
-      
-      # Saving CSS
-      cssFileInstance = FSHelper.createFileFromPath cssFile
-      cssFileInstance.save css
-      
-      # Saving Manifest
-      manifestFileInstance = FSHelper.createFileFromPath manifestFile
-      manifestFileInstance.save manifest
-      
-      KD.utils.wait 1000, -> 
-        tree.refreshFolder tree.nodes[appPath]
-        KD.getSingleton('kodingAppsController').refreshApps()
-        do callback
-    
-    
-  createGist: (coffee, css, callback) ->
-    
-    {nickname} = KD.whoami().profile
-    
-    gist = 
-      description: """
-      Kodepad Gist Share by #{nickname} on http://koding.com
-      Author: http://#{nickname}.koding.com
-      """
-      public: yes
-      files:
-        "index.coffee": {content: coffee}
-        "style.css": {content: css}
-
-    kite    = KD.getSingleton 'kiteController'
-    kite.run "mkdir -p /Users/#{nickname}/.kodepad", (err, res) ->
-      
-      tmpFile = "/Users/#{nickname}/.kodepad/.gist.tmp"
-      
-      tmp = FSHelper.createFileFromPath tmpFile
-      tmp.save JSON.stringify(gist), (err, res)->
-        return if err
-        
-        kite.run "curl -kL -A\"Koding\" -X POST https://api.github.com/gists --data @#{tmpFile}", (err, res)->
-          callback err, JSON.parse(res)
-          kite.run "rm -f #{tmpFile}"
-          
-class KodeLectures.Views.HelpView extends JView
-
-    constructor:->
-        super
-  
-    setDefault :->
-  
-    pistachio:->
-        """
-        """
 
 class KodeLectures.Views.TaskView extends JView
 
@@ -305,7 +165,6 @@ class KodeLectures.Views.TaskOverviewListItemView extends KDListItemView
     
   constructor:->
     super
-    console.log 'taskoverviewlistitem'
     @setClass 'task-overview-item has-markdown'
     
     {title,summary} = @getData()
@@ -339,7 +198,6 @@ class KodeLectures.Views.TaskOverview extends JView
   {TaskOverviewListItemView} = KodeLectures.Views
   constructor:->
     super
-    console.log 'taskoverview'
     @setClass 'task-overview'
     
     @lectureListController = new KDListViewController
@@ -381,8 +239,6 @@ class KodeLectures.Views.CourseLectureListItemView extends KDListItemView
   
   constructor:->
     super
-    console.log 'courselecturelistitemview'
-    log @getData()
     
     @lectureTitle = new KDView 
       cssClass : 'lecture-listitem'
@@ -404,7 +260,6 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
   {CourseLectureListItemView} = KodeLectures.Views
   constructor:->
     super
-    console.log 'courseselectionitemview'
     @setClass 'selection-listitem'
 
     lectureCount = @getData().lectures.length
@@ -422,6 +277,10 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
       delegate : @ 
     , items : @getData().lectures
     @lectureList = @lectureController.getView()
+  
+    @lectureController.listView.on 'LectureSelected', (data)=>
+      @getDelegate().emit 'LectureSelected', {lecture:data, course:@getData()}
+      
   
   viewAppended :->
     @setTemplate @pistachio()
@@ -443,7 +302,6 @@ class KodeLectures.Views.CourseSelectionView extends JView
   
   constructor:->
     super
-    console.log 'courseselectionview'
     courses = @getData()
     
     @courseController = new KDListViewController
@@ -456,6 +314,10 @@ class KodeLectures.Views.CourseSelectionView extends JView
     @on 'NewCourseImported', (course)=>
       @courseController.addItem course
       courses.push course
+    
+    @courseController.listView.on 'LectureSelected', ({course,lecture})=>
+      @mainView.emit 'CourseChanged', courses.indexOf course  
+      KD.utils.defer => @mainView.emit 'LectureChanged', course.lectures.indexOf lecture
     
     @courseController.listView.on 'CourseSelected', (course)=>
       @mainView.emit 'CourseChanged', courses.indexOf course

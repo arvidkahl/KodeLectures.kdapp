@@ -1,1 +1,1 @@
-console.log(true);sdfdsfsdf1
+console.log(true)

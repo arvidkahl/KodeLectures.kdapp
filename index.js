@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Sat Apr 13 2013 17:38:45 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Sat Apr 13 2013 21:04:55 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -12,13 +12,11 @@ KodeLectures = {
   Settings: {
     theme: "ace/theme/monokai",
     exampleCode: null,
-    exampleCSS: null,
     aceThrottle: 400
   },
   Core: {
     Utils: null,
-    LiveViewer: null,
-    AppCreator: null
+    LiveViewer: null
   },
   Views: {
     Editor: null,
@@ -152,139 +150,9 @@ KodeLectures.Core.LiveViewer = (function() {
     }
   };
 
-  LiveViewer.prototype.previewCSS = function(code) {
-    var css, session;
-
-    if (!this.active) {
-      return;
-    }
-    session = "__kodepadCSS" + this.sessionId;
-    if (window[session]) {
-      try {
-        window[session].remove();
-      } catch (_error) {}
-    }
-    css = $("<style scoped></style>");
-    css.html(code);
-    window[session] = css;
-    return this.previewView.domElement.prepend(window[session]);
-  };
-
   return LiveViewer;
 
 }).call(this);
-
-KodeLectures.Core.AppCreator = (function() {
-  var notify;
-
-  function AppCreator() {}
-
-  notify = KodeLectures.Core.Utils.notify;
-
-  AppCreator.getSingleton = function() {
-    var _ref;
-
-    return (_ref = AppCreator.instance) != null ? _ref : AppCreator.instance = new AppCreator;
-  };
-
-  AppCreator.prototype.manifestTemplate = function(appName) {
-    var firstName, lastName, nickname, _ref;
-
-    _ref = KD.whoami().profile, firstName = _ref.firstName, lastName = _ref.lastName, nickname = _ref.nickname;
-    return {
-      manifest: "{\n  \"devMode\": true,\n  \"version\": \"0.1\",\n  \"name\": \"" + appName + "\",\n  \"identifier\": \"com.koding." + nickname + ".apps." + (appName.toLowerCase()) + "\",\n  \"path\": \"~/Applications/" + appName + ".kdapp\",\n  \"homepage\": \"" + nickname + ".koding.com/" + appName + "\",\n  \"author\": \"" + firstName + " " + lastName + "\",\n  \"repository\": \"git://github.com/" + nickname + "/" + appName + ".kdapp.git\",\n  \"description\": \"" + appName + " : a Koding application created with the Kodepad.\",\n  \"category\": \"web-app\",\n  \"source\": {\n    \"blocks\": {\n      \"app\": {\n        \"files\": [\n          \"./index.coffee\"\n        ]\n      }\n    },\n    \"stylesheets\": [\n      \"./resources/style.css\"\n    ]\n  },\n  \"options\": {\n    \"type\": \"tab\"\n  },\n  \"icns\": {\n    \"128\": \"./resources/icon.128.png\"\n  }\n}"
-    };
-  };
-
-  AppCreator.prototype.create = function(name, coffee, css, callback) {
-    var appPath, basePath, coffeeFile, commands, cssFile, finder, kite, manifest, manifestFile, nickname, skeleton, tree;
-
-    manifest = this.manifestTemplate(name).manifest;
-    nickname = KD.whoami().profile.nickname;
-    kite = KD.getSingleton('kiteController');
-    finder = KD.getSingleton("finderController");
-    tree = finder.treeController;
-    appPath = "/Users/" + nickname + "/Applications";
-    basePath = "" + appPath + "/" + name + ".kdapp";
-    coffeeFile = "" + basePath + "/index.coffee";
-    cssFile = "" + basePath + "/resources/style.css";
-    manifestFile = "" + basePath + "/.manifest";
-    commands = ["mkdir -p " + basePath, "mkdir -p " + basePath + "/resources", "curl -kL https://koding.com/images/default.app.thumb.png -o " + basePath + "/resources/icon.128.png"];
-    skeleton = commands.join(";");
-    return kite.run(skeleton, function(error, response) {
-      var coffeeFileInstance, cssFileInstance, manifestFileInstance;
-
-      if (error) {
-        return;
-      }
-      coffeeFileInstance = FSHelper.createFileFromPath(coffeeFile);
-      coffeeFileInstance.save(coffee);
-      cssFileInstance = FSHelper.createFileFromPath(cssFile);
-      cssFileInstance.save(css);
-      manifestFileInstance = FSHelper.createFileFromPath(manifestFile);
-      manifestFileInstance.save(manifest);
-      return KD.utils.wait(1000, function() {
-        tree.refreshFolder(tree.nodes[appPath]);
-        KD.getSingleton('kodingAppsController').refreshApps();
-        return callback();
-      });
-    });
-  };
-
-  AppCreator.prototype.createGist = function(coffee, css, callback) {
-    var gist, kite, nickname;
-
-    nickname = KD.whoami().profile.nickname;
-    gist = {
-      description: "Kodepad Gist Share by " + nickname + " on http://koding.com\nAuthor: http://" + nickname + ".koding.com",
-      "public": true,
-      files: {
-        "index.coffee": {
-          content: coffee
-        },
-        "style.css": {
-          content: css
-        }
-      }
-    };
-    kite = KD.getSingleton('kiteController');
-    return kite.run("mkdir -p /Users/" + nickname + "/.kodepad", function(err, res) {
-      var tmp, tmpFile;
-
-      tmpFile = "/Users/" + nickname + "/.kodepad/.gist.tmp";
-      tmp = FSHelper.createFileFromPath(tmpFile);
-      return tmp.save(JSON.stringify(gist), function(err, res) {
-        if (err) {
-          return;
-        }
-        return kite.run("curl -kL -A\"Koding\" -X POST https://api.github.com/gists --data @" + tmpFile, function(err, res) {
-          callback(err, JSON.parse(res));
-          return kite.run("rm -f " + tmpFile);
-        });
-      });
-    });
-  };
-
-  return AppCreator;
-
-}).call(this);
-
-KodeLectures.Views.HelpView = (function(_super) {
-  __extends(HelpView, _super);
-
-  function HelpView() {
-    HelpView.__super__.constructor.apply(this, arguments);
-  }
-
-  HelpView.prototype.setDefault = function() {};
-
-  HelpView.prototype.pistachio = function() {
-    return "";
-  };
-
-  return HelpView;
-
-})(JView);
 
 KodeLectures.Views.TaskView = (function(_super) {
   __extends(TaskView, _super);
@@ -396,7 +264,6 @@ KodeLectures.Views.TaskOverviewListItemView = (function(_super) {
     var summary, title, _ref;
 
     TaskOverviewListItemView.__super__.constructor.apply(this, arguments);
-    console.log('taskoverviewlistitem');
     this.setClass('task-overview-item has-markdown');
     _ref = this.getData(), title = _ref.title, summary = _ref.summary;
     this.titleText = new KDView({
@@ -436,7 +303,6 @@ KodeLectures.Views.TaskOverview = (function(_super) {
     var _this = this;
 
     TaskOverview.__super__.constructor.apply(this, arguments);
-    console.log('taskoverview');
     this.setClass('task-overview');
     this.lectureListController = new KDListViewController({
       itemClass: TaskOverviewListItemView,
@@ -486,8 +352,6 @@ KodeLectures.Views.CourseLectureListItemView = (function(_super) {
 
   function CourseLectureListItemView() {
     CourseLectureListItemView.__super__.constructor.apply(this, arguments);
-    console.log('courselecturelistitemview');
-    log(this.getData());
     this.lectureTitle = new KDView({
       cssClass: 'lecture-listitem',
       partial: this.getData().title
@@ -519,10 +383,10 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
   CourseLectureListItemView = KodeLectures.Views.CourseLectureListItemView;
 
   function CourseSelectionItemView() {
-    var lectureCount;
+    var lectureCount,
+      _this = this;
 
     CourseSelectionItemView.__super__.constructor.apply(this, arguments);
-    console.log('courseselectionitemview');
     this.setClass('selection-listitem');
     lectureCount = this.getData().lectures.length;
     this.titleText = new KDView({
@@ -540,6 +404,12 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
       items: this.getData().lectures
     });
     this.lectureList = this.lectureController.getView();
+    this.lectureController.listView.on('LectureSelected', function(data) {
+      return _this.getDelegate().emit('LectureSelected', {
+        lecture: data,
+        course: _this.getData()
+      });
+    });
   }
 
   CourseSelectionItemView.prototype.viewAppended = function() {
@@ -571,7 +441,6 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
       _this = this;
 
     CourseSelectionView.__super__.constructor.apply(this, arguments);
-    console.log('courseselectionview');
     courses = this.getData();
     this.courseController = new KDListViewController({
       itemClass: CourseSelectionItemView,
@@ -583,6 +452,15 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
     this.on('NewCourseImported', function(course) {
       _this.courseController.addItem(course);
       return courses.push(course);
+    });
+    this.courseController.listView.on('LectureSelected', function(_arg) {
+      var course, lecture;
+
+      course = _arg.course, lecture = _arg.lecture;
+      _this.mainView.emit('CourseChanged', courses.indexOf(course));
+      return KD.utils.defer(function() {
+        return _this.mainView.emit('LectureChanged', course.lectures.indexOf(lecture));
+      });
     });
     this.courseController.listView.on('CourseSelected', function(course) {
       return _this.mainView.emit('CourseChanged', courses.indexOf(course));
@@ -612,14 +490,14 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
 
 /* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/views.coffee */
 
-var Ace, AppCreator, HelpView, LiveViewer, Settings, TaskView, _ref,
+var Ace, LiveViewer, Settings, TaskView, _ref,
   _this = this,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 Settings = KodeLectures.Settings, Ace = KodeLectures.Ace;
 
-_ref = KodeLectures.Core, LiveViewer = _ref.LiveViewer, AppCreator = _ref.AppCreator, HelpView = _ref.HelpView, TaskView = _ref.TaskView;
+_ref = KodeLectures.Core, LiveViewer = _ref.LiveViewer, TaskView = _ref.TaskView;
 
 require(["https://raw.github.com/chjj/marked/master/lib/marked.js"], function(marked) {
   var options, _ref1, _ref2, _ref3, _ref4, _ref5;
@@ -698,7 +576,7 @@ KodeLectures.Views.MainView = (function(_super) {
 
   __extends(MainView, _super);
 
-  _ref1 = KodeLectures.Views, Editor = _ref1.Editor, HelpView = _ref1.HelpView, TaskView = _ref1.TaskView, TaskOverview = _ref1.TaskOverview, CourseSelectionView = _ref1.CourseSelectionView;
+  _ref1 = KodeLectures.Views, Editor = _ref1.Editor, TaskView = _ref1.TaskView, TaskOverview = _ref1.TaskOverview, CourseSelectionView = _ref1.CourseSelectionView;
 
   function MainView() {
     var _this = this;
@@ -767,9 +645,6 @@ KodeLectures.Views.MainView = (function(_super) {
       cssClass: 'ace-wrapper-view'
     });
     this.aceWrapperView.addSubView(this.aceView);
-    this.mdHelpView = new HelpView({
-      cssClass: 'md-help-view'
-    });
     this.editorSplitView = new KDSplitView({
       type: "horizontal",
       resizable: true,
@@ -1001,10 +876,10 @@ KodeLectures.Views.MainView = (function(_super) {
   MainView.prototype.attachListeners = function() {
     var _this = this;
 
-    this.on('LectureChanged', function() {
+    this.on('LectureChanged', function(lecture) {
       var code, codeFile, files, language, _ref2;
 
-      _this.lastSelectedItem = _this.exampleCode.getValue();
+      _this.lastSelectedItem = lecture || _this.exampleCode.getValue();
       _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files;
       _this.currentFile = (files != null ? files.length : void 0) > 0 ? files[0] : 'tempfile';
       _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, function(err, contents) {
