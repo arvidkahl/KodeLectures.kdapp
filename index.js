@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Sat Apr 13 2013 21:04:55 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Sun Apr 14 2013 15:53:28 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -154,21 +154,106 @@ KodeLectures.Core.LiveViewer = (function() {
 
 }).call(this);
 
+KodeLectures.Views.TaskSubItemView = (function(_super) {
+  __extends(TaskSubItemView, _super);
+
+  function TaskSubItemView() {
+    var cssClass,
+      _this = this;
+
+    TaskSubItemView.__super__.constructor.apply(this, arguments);
+    cssClass = this.getData().cssClass;
+    this.setClass(cssClass);
+    this.header = new KDCustomHTMLView({
+      tagName: 'span',
+      cssClass: 'text',
+      click: function() {
+        return _this.content.show();
+      }
+    });
+    this.content = new KDCustomHTMLView({
+      tagName: 'span',
+      cssClass: 'data'
+    });
+    this.updateViews(this.getData());
+  }
+
+  TaskSubItemView.prototype.updateViews = function(data) {
+    var content, contentHidden, contentPartial, headerHidden, initialContent, initialContentHidden, initialHeaderHidden, initialTitle, title, type, _ref;
+
+    title = data.title, content = data.content, headerHidden = data.headerHidden, contentHidden = data.contentHidden;
+    _ref = this.getData(), type = _ref.type, initialTitle = _ref.title, initialContent = _ref.content, initialContentHidden = _ref.contentHidden, initialHeaderHidden = _ref.headerHidden;
+    this.header.updatePartial(title || initialTitle);
+    contentPartial = (function() {
+      switch (type) {
+        case 'lectureText':
+        case 'taskText':
+        case 'codeHint':
+        case 'codeHintText':
+          return marked(content || initialContent);
+        case 'embed':
+          if (content.type === 'youtube') {
+            return "<iframe src=\"" + content.url + "\" frameborder=\"0\" allowfullscreen></iframe>";
+          }
+      }
+    })();
+    this.content.updatePartial(contentPartial);
+    if (headerHidden == null) {
+      headerHidden = initialHeaderHidden;
+    }
+    if (contentHidden == null) {
+      contentHidden = initialContentHidden;
+    }
+    if (headerHidden) {
+      this.header.hide();
+    } else {
+      this.header.show();
+    }
+    if (contentHidden) {
+      this.content.hide();
+    } else {
+      this.content.show();
+    }
+    if (!(type !== 'embed' && content && content !== '' || type === 'embed' && ((content != null ? content.url : void 0) != null))) {
+      console.log("hiding " + type);
+      return this.hide();
+    } else {
+      console.log("showing " + type);
+      return this.show();
+    }
+  };
+
+  TaskSubItemView.prototype.viewAppended = function() {
+    this.setTemplate(this.pistachio());
+    return this.template.update();
+  };
+
+  TaskSubItemView.prototype.pistachio = function() {
+    return "{{> this.header}}\n{{> this.content}}";
+  };
+
+  return TaskSubItemView;
+
+})(KDListItemView);
+
 KodeLectures.Views.TaskView = (function(_super) {
+  var TaskSubItemView;
+
   __extends(TaskView, _super);
+
+  TaskSubItemView = KodeLectures.Views.TaskSubItemView;
 
   TaskView.prototype.setMainView = function(mainView) {
     this.mainView = mainView;
   };
 
   function TaskView() {
-    var embedType, videoUrl, _ref, _ref1, _ref2, _ref3,
+    var embedType, videoUrl, _ref, _ref1, _ref2, _ref3, _ref4,
       _this = this;
 
     TaskView.__super__.constructor.apply(this, arguments);
     this.setClass('task-view');
-    console.log('taskview');
-    _ref = this.getData(), videoUrl = _ref.videoUrl, this.codeHintText = _ref.codeHintText, this.codeHint = _ref.codeHint, embedType = _ref.embedType, this.taskText = _ref.taskText;
+    _ref = this.getData(), videoUrl = _ref.videoUrl, this.codeHintText = _ref.codeHintText, this.codeHint = _ref.codeHint, embedType = _ref.embedType, this.taskText = _ref.taskText, this.lectureText = _ref.lectureText;
     if ((_ref1 = this.codeHint) == null) {
       this.codeHint = '';
     }
@@ -178,13 +263,53 @@ KodeLectures.Views.TaskView = (function(_super) {
     if ((_ref3 = this.taskText) == null) {
       this.taskText = '';
     }
-    this.embed = new KDView({
-      cssClass: 'embed',
-      partial: videoUrl && embedType === 'youtube' ? "<iframe src=\"" + videoUrl + "\" frameborder=\"0\" allowfullscreen></iframe>" : ''
-    });
-    if (!videoUrl) {
-      this.embed.hide();
+    if ((_ref4 = this.lectureText) == null) {
+      this.lectureText = '';
     }
+    this.subItemController = new KDListViewController({
+      itemClass: TaskSubItemView,
+      delegate: this
+    });
+    this.subItemList = this.subItemController.getView();
+    this.subItemEmbed = this.subItemController.addItem({
+      type: 'embed',
+      title: '',
+      content: {
+        url: videoUrl,
+        type: embedType
+      },
+      cssClass: 'embed',
+      contentHidden: false,
+      headerHidden: true
+    });
+    this.subItemLectureText = this.subItemController.addItem({
+      type: 'lectureText',
+      title: 'Lecture',
+      content: this.lectureText,
+      cssClass: 'lecture-text-view has-markdown',
+      contentHidden: false
+    });
+    this.subItemTaskText = this.subItemController.addItem({
+      type: 'taskText',
+      title: 'Assignment',
+      content: this.taskText,
+      cssClass: 'task-text-view has-markdown',
+      contentHidden: false
+    });
+    this.subItemHintText = this.subItemController.addItem({
+      type: 'codeHintText',
+      title: 'Hint',
+      content: this.codeHintText,
+      cssClass: 'hint-view has-markdown',
+      contentHidden: true
+    });
+    this.subItemHintCode = this.subItemController.addItem({
+      type: 'codeHint',
+      title: 'Solution',
+      content: this.codeHint,
+      cssClass: 'hint-code-view has-markdown',
+      contentHidden: true
+    });
     this.nextLectureButton = new KDButtonView({
       title: 'Next Lecture',
       cssClass: 'cupid-green hidden fr task-next-button',
@@ -192,48 +317,39 @@ KodeLectures.Views.TaskView = (function(_super) {
         return _this.mainView.emit('NextLectureRequested');
       }
     });
-    this.taskTextView = new KDView({
-      cssClass: 'task-text-view has-markdown',
-      partial: "<span class='text'>Assignment</span><span class='data'>" + (marked(this.taskText)) + "</span>"
-    });
     this.resultView = new KDView({
       cssClass: 'result-view hidden'
     });
-    this.hintView = new KDView({
-      cssClass: 'hint-view has-markdown',
-      partial: '<span class="text">Show hint</span>',
-      click: function() {
-        return _this.hintView.updatePartial("<span class='text'>Hint</span><span class='data'>" + (marked(_this.codeHintText)) + "</span>");
-      }
-    });
-    this.hintCodeView = new KDView({
-      cssClass: 'hint-code-view has-markdown',
-      partial: '<span class="text">Show solution</span>',
-      click: function() {
-        return _this.hintCodeView.updatePartial("<span class='text'>Solution</span><span class='data'>" + (marked(_this.codeHint)) + "</span>");
-      }
-    });
     this.on('LectureChanged', function(lecture) {
-      var _ref4;
+      var _ref5;
 
-      _this.codeHint = lecture.codeHint, _this.codeHintText = lecture.codeHintText, _this.taskText = lecture.taskText;
+      _this.codeHint = lecture.codeHint, _this.codeHintText = lecture.codeHintText, _this.taskText = lecture.taskText, _this.lectureText = lecture.lectureText, videoUrl = lecture.videoUrl, embedType = lecture.embedType;
       _this.setData(lecture);
       _this.resultView.hide();
       _this.nextLectureButton.hide();
       _this.mainView.liveViewer.active = false;
-      if ((_ref4 = _this.mainView.liveViewer.mdPreview) != null) {
-        _ref4.updatePartial('<div class="info"><pre>When you run your code, you will see the results here</pre></div>');
+      if ((_ref5 = _this.mainView.liveViewer.mdPreview) != null) {
+        _ref5.updatePartial('<div class="info"><pre>When you run your code, you will see the results here</pre></div>');
       }
-      _this.taskTextView.updatePartial("<span class='text'>Assignment</span><span class='data'>" + (marked(_this.getData().taskText)) + "</span>");
-      _this.hintView.updatePartial('<span class="text">Show hint</span>');
-      _this.hintCodeView.updatePartial('<span class="text">Show solution</span>');
-      videoUrl = lecture.videoUrl;
-      if (videoUrl) {
-        _this.embed.show();
-        _this.embed.updatePartial("<iframe src=\"" + videoUrl + "\" frameborder=\"0\" allowfullscreen></iframe>");
-      } else {
-        _this.embed.hide();
-      }
+      _this.subItemEmbed.updateViews({
+        content: {
+          url: videoUrl,
+          type: embedType
+        },
+        headerHidden: true
+      });
+      _this.subItemLectureText.updateViews({
+        content: _this.lectureText
+      });
+      _this.subItemTaskText.updateViews({
+        content: _this.taskText
+      });
+      _this.subItemHintText.updateViews({
+        content: _this.codeHintText
+      });
+      _this.subItemHintCode.updateViews({
+        content: _this.codeHint
+      });
       return _this.render();
     });
     this.on('ResultReceived', function(result) {
@@ -250,7 +366,7 @@ KodeLectures.Views.TaskView = (function(_super) {
   }
 
   TaskView.prototype.pistachio = function() {
-    return "{{> this.nextLectureButton}}\n{{> this.resultView}}    \n\n{{> this.embed}}\n{{> this.taskTextView}}\n\n{{> this.hintView}}\n{{> this.hintCodeView}}";
+    return "{{> this.nextLectureButton}}\n{{> this.resultView}}    \n{{> this.subItemList}}";
   };
 
   return TaskView;
@@ -312,7 +428,6 @@ KodeLectures.Views.TaskOverview = (function(_super) {
     });
     this.lectureList = this.lectureListController.getView();
     this.lectureListController.listView.on('OverviewLectureClicked', function(item) {
-      _this.mainView.exampleCode.setValue(_this.lectureListController.itemsOrdered.indexOf(item));
       return _this.mainView.emit('LectureChanged', _this.lectureListController.itemsOrdered.indexOf(item));
     });
     this.on('LectureChanged', function(_arg) {
@@ -599,7 +714,7 @@ KodeLectures.Views.MainView = (function(_super) {
   }
 
   MainView.prototype.delegateElements = function() {
-    var item, key, overflowFix, runButton, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7,
+    var overflowFix, runButton, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7,
       _this = this;
 
     this.splitViewWrapper = new KDView;
@@ -765,54 +880,6 @@ KodeLectures.Views.MainView = (function(_super) {
         return _this.emit('LectureRequested');
       }
     }));
-    this.courseSelect = new KDSelectBox({
-      label: new KDLabelView({
-        title: 'Course: '
-      }),
-      defaultValue: this.lastSelectedCourse || "0",
-      cssClass: 'control-button code-examples',
-      selectOptions: (function() {
-        var _i, _len, _ref5, _results;
-
-        _ref5 = this.courses;
-        _results = [];
-        for (key = _i = 0, _len = _ref5.length; _i < _len; key = ++_i) {
-          item = _ref5[key];
-          _results.push({
-            title: item.title,
-            value: key
-          });
-        }
-        return _results;
-      }).call(this),
-      callback: function() {
-        return _this.emit('CourseChanged', _this.courseSelect.getValue());
-      }
-    });
-    this.exampleCode = new KDSelectBox({
-      label: new KDLabelView({
-        title: 'Lecture: '
-      }),
-      defaultValue: this.lastSelectedItem || "0",
-      cssClass: 'control-button code-examples',
-      selectOptions: (function() {
-        var _i, _len, _ref5, _ref6, _results;
-
-        _ref6 = ((_ref5 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref5.lectures : void 0) || [];
-        _results = [];
-        for (key = _i = 0, _len = _ref6.length; _i < _len; key = ++_i) {
-          item = _ref6[key];
-          _results.push({
-            title: item.title,
-            value: key
-          });
-        }
-        return _results;
-      }).call(this),
-      callback: function() {
-        return _this.emit('LectureChanged');
-      }
-    });
     this.languageSelect = new KDSelectBox({
       label: new KDLabelView({
         title: 'Language: '
@@ -843,10 +910,6 @@ KodeLectures.Views.MainView = (function(_super) {
     this.currentLang = ((_ref5 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref6 = _ref5.lectures) != null ? (_ref7 = _ref6[0]) != null ? _ref7.language : void 0 : void 0 : void 0) || 'javascript';
     this.controlView.addSubView(this.languageSelect.options.label);
     this.controlView.addSubView(this.languageSelect);
-    this.controlView.addSubView(this.courseSelect.options.label);
-    this.controlView.addSubView(this.courseSelect);
-    this.controlView.addSubView(this.exampleCode.options.label);
-    this.controlView.addSubView(this.exampleCode);
     this.aceWrapperView.addSubView(runButton);
     this.controlView.addSubView(this.controlButtons);
     this.liveViewer.setSplitView(this.splitView);
@@ -879,7 +942,10 @@ KodeLectures.Views.MainView = (function(_super) {
     this.on('LectureChanged', function(lecture) {
       var code, codeFile, files, language, _ref2;
 
-      _this.lastSelectedItem = lecture || _this.exampleCode.getValue();
+      if (lecture == null) {
+        lecture = 0;
+      }
+      _this.lastSelectedItem = lecture;
       _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files;
       _this.currentFile = (files != null ? files.length : void 0) > 0 ? files[0] : 'tempfile';
       _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, function(err, contents) {
@@ -891,7 +957,6 @@ KodeLectures.Views.MainView = (function(_super) {
         }
       });
       _this.taskView.emit('LectureChanged', _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem]);
-      console.log('emitting');
       _this.taskOverview.emit('LectureChanged', {
         course: _this.courses[_this.lastSelectedCourse],
         index: _this.lastSelectedItem
@@ -902,28 +967,7 @@ KodeLectures.Views.MainView = (function(_super) {
       return _this.currentLecture = _this.lastSelectedItem;
     });
     this.on('CourseChanged', function(course) {
-      var item, key;
-
-      if (course) {
-        _this.courseSelect.setValue(course);
-      }
       _this.lastSelectedCourse = course;
-      _this.exampleCode._$select.find("option").remove();
-      _this.exampleCode.setSelectOptions((function() {
-        var _i, _len, _ref2, _ref3, _results;
-
-        _ref3 = ((_ref2 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref2.lectures : void 0) || [];
-        _results = [];
-        for (key = _i = 0, _len = _ref3.length; _i < _len; key = ++_i) {
-          item = _ref3[key];
-          _results.push({
-            title: item.title,
-            value: key
-          });
-        }
-        return _results;
-      }).call(_this));
-      _this.exampleCode.setValue(0);
       _this.emit('LectureChanged');
       return _this.emit('LectureRequested');
     });
@@ -939,20 +983,8 @@ KodeLectures.Views.MainView = (function(_super) {
       _this.courseButton.show();
       return _this.lectureButton.hide();
     });
-    this.on('NextLectureRequested', function() {
-      var _ref2, _ref3;
-
-      if (_this.currentLecture !== ((_ref2 = _this.courses[_this.lastSelectedCourse || 0]) != null ? (_ref3 = _ref2.lectures) != null ? _ref3.length : void 0 : void 0) - 1) {
-        _this.exampleCode.setValue(++_this.currentLecture);
-        return _this.exampleCode.getOptions().callback();
-      }
-    });
-    return this.on('PreviousLectureRequested', function() {
-      if (_this.currentLecture !== 0) {
-        _this.exampleCode.setValue(--_this.currentLecture);
-        return _this.exampleCode.getOptions().callback();
-      }
-    });
+    this.on('NextLectureRequested', function() {});
+    return this.on('PreviousLectureRequested', function() {});
   };
 
   MainView.prototype.getEditScrollPercentage = function() {};

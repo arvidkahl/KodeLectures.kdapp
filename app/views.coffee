@@ -71,7 +71,7 @@ class KodeLectures.Views.MainView extends JView
     overflowFix = ->
       height = ($ ".kdview.marKDown").height() - 39
       ($ ".kodepad-editors").height height
-      
+      #
     ($ window).on "resize", overflowFix
     # window.ace = [@ace, @cssAce]
     # SHOULD REPLACE WITH LEGAL RESIZE LISTENER
@@ -87,7 +87,7 @@ class KodeLectures.Views.MainView extends JView
           lastAceHeight = @aceView.getHeight()
           lastAceWidth = @aceView.getWidth()
       , 20
-    #
+    
     @preview = new KDView
         cssClass: "preview-pane"
       
@@ -210,27 +210,6 @@ class KodeLectures.Views.MainView extends JView
       tooltip:
         title : 'Go to the current lecture'
       callback    : (event)=> @emit 'LectureRequested'
-      
-    @courseSelect = new KDSelectBox
-      label: new KDLabelView
-        title: 'Course: '
-        
-      defaultValue: @lastSelectedCourse or "0"
-      cssClass: 'control-button code-examples'
-      selectOptions: ({title: item.title, value: key} for item, key in @courses)
-      callback: =>
-        @emit 'CourseChanged',@courseSelect.getValue()
-        
-    @exampleCode = new KDSelectBox
-      label: new KDLabelView
-        title: 'Lecture: '
-        
-      defaultValue: @lastSelectedItem or "0"
-      cssClass: 'control-button code-examples'
-      selectOptions: ({title: item.title, value: key} for item, key in @courses[@lastSelectedCourse or 0]?.lectures or [])
-      callback: =>
-        @emit 'LectureChanged'
-    
 
     @languageSelect = new KDSelectBox
       label: new KDLabelView
@@ -253,12 +232,7 @@ class KodeLectures.Views.MainView extends JView
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
-    
-    @controlView.addSubView @courseSelect.options.label
-    @controlView.addSubView @courseSelect    
-    
-    @controlView.addSubView @exampleCode.options.label
-    @controlView.addSubView @exampleCode
+   
     @aceWrapperView.addSubView runButton 
     @controlView.addSubView @controlButtons
     
@@ -271,7 +245,6 @@ class KodeLectures.Views.MainView extends JView
    
     @attachListeners()
    
-    #@liveViewer.previewCode do @editor.getValue
     @utils.defer => ($ window).resize()
     @utils.wait 50, => 
         ($ window).resize()
@@ -283,12 +256,11 @@ class KodeLectures.Views.MainView extends JView
             @setPreviewScrollPercentage @getEditScrollPercentage()
 
   attachListeners :->
-    @on 'LectureChanged', (lecture)=>
-        @lastSelectedItem = lecture or @exampleCode.getValue()        
+    @on 'LectureChanged', (lecture=0)=>
+        @lastSelectedItem = lecture        
         {code,codeFile,language,files} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
         
         @currentFile = if files?.length>0 then files[0] else 'tempfile'
-        #@ace.getSession().setValue code
         
         @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
           unless err
@@ -298,23 +270,17 @@ class KodeLectures.Views.MainView extends JView
             console.log err
         
         @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
-       
-        console.log 'emitting'
         @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
+        
         @ace.getSession().setMode "ace/mode/#{language}"
         @currentLang = language
         @languageSelect.setValue language
         @currentLecture = @lastSelectedItem
 
     @on 'CourseChanged', (course)=>
-              
-        if course          
-          @courseSelect.setValue course
         
         @lastSelectedCourse = course
-        @exampleCode._$select.find("option").remove() # replace with .removeSelectOptions()
-        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in @courses[@lastSelectedCourse or 0]?.lectures or [])
-        @exampleCode.setValue 0
+
         @emit 'LectureChanged'
         @emit 'LectureRequested'
     
@@ -331,16 +297,8 @@ class KodeLectures.Views.MainView extends JView
         @lectureButton.hide()
    
     @on 'NextLectureRequested', =>
-        unless @currentLecture is @courses[@lastSelectedCourse or 0]?.lectures?.length-1       
-          @exampleCode.setValue ++@currentLecture 
-          @exampleCode.getOptions().callback()
-        
+  
     @on 'PreviousLectureRequested', =>
-        unless @currentLecture is 0       
-          @exampleCode.setValue --@currentLecture 
-          @exampleCode.getOptions().callback()
-        
-
 
   getEditScrollPercentage:->
 

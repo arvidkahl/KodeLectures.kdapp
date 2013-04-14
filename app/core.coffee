@@ -70,72 +70,158 @@ class KodeLectures.Core.LiveViewer
         finally
           delete window.appView
 
-class KodeLectures.Views.TaskView extends JView
+class KodeLectures.Views.TaskSubItemView extends KDListItemView
+  constructor:->
+    super
+    
+    {cssClass} = @getData()
+    
+    @setClass cssClass
+    
+    @header = new KDCustomHTMLView
+      tagName : 'span'
+      cssClass : 'text'
+      click :=>
+        @content.show()
+  
+    @content = new KDCustomHTMLView
+      tagName : 'span'
+      cssClass : 'data'
+ 
+    @updateViews @getData() 
+ 
+  updateViews:(data)->
+    
+    {title,content,headerHidden,contentHidden} = data
+    {type,title:initialTitle,content:initialContent,contentHidden:initialContentHidden,headerHidden:initialHeaderHidden} = @getData()
+    
+    @header.updatePartial title or initialTitle
+    
+    contentPartial = switch type
+      when 'lectureText','taskText','codeHint','codeHintText' then marked(content or initialContent)
+      when 'embed' then if content.type is 'youtube' then """<iframe src="#{content.url}" frameborder="0" allowfullscreen></iframe>"""
+    
+    @content.updatePartial contentPartial
+    
+    headerHidden ?= initialHeaderHidden
+    contentHidden ?= initialContentHidden
+    
+    if headerHidden then @header.hide() else @header.show()
+    if contentHidden then @content.hide() else @content.show()
+  
+    unless type isnt 'embed' and content and content isnt '' or type is 'embed' and content?.url? 
+      console.log "hiding #{type}"
+      @hide() 
+    else 
+      console.log "showing #{type}"
+      @show()
+  
+  viewAppended :->
+    @setTemplate @pistachio()
+    @template.update()
+  
+  pistachio:->
+    """
+    {{> @header}}
+    {{> @content}}
+    """  
 
+class KodeLectures.Views.TaskView extends JView
+  {TaskSubItemView} = KodeLectures.Views
   setMainView: (@mainView)->
 
   constructor:->
     super
     @setClass 'task-view'
   
-    console.log 'taskview'
   
-    {videoUrl,@codeHintText,@codeHint,embedType,@taskText} = @getData()
-    
+    {videoUrl,@codeHintText,@codeHint,embedType,@taskText,@lectureText} = @getData()
     @codeHint ?= ''
     @codeHintText ?= ''
     @taskText ?= ''
+    @lectureText ?= ''
     
-    @embed = new KDView
-      cssClass : 'embed'
-      partial : if videoUrl and embedType is 'youtube'
-        """
-        <iframe src="#{videoUrl}" frameborder="0" allowfullscreen></iframe>
-        """
-      else ''
+    @subItemController = new KDListViewController
+      itemClass : TaskSubItemView
+      delegate  : @
       
-    @embed.hide() unless videoUrl  
+    @subItemList = @subItemController.getView()
+        
+    @subItemEmbed = @subItemController.addItem 
+      type          : 'embed'
+      title         : ''
+      content       : 
+        url         : videoUrl
+        type        : embedType
+      cssClass      : 'embed'
+      contentHidden : no
+      headerHidden  : yes
+
+    @subItemLectureText = @subItemController.addItem
+      type          : 'lectureText'
+      title         : 'Lecture'
+      content       : @lectureText
+      cssClass      : 'lecture-text-view has-markdown'
+      contentHidden : no
+    
+    @subItemTaskText = @subItemController.addItem
+      type          : 'taskText'
+      title         : 'Assignment'
+      content       : @taskText
+      cssClass      : 'task-text-view has-markdown'
+      contentHidden : no
+    
+    @subItemHintText = @subItemController.addItem
+      type          : 'codeHintText'
+      title         : 'Hint'
+      content       : @codeHintText
+      cssClass      : 'hint-view has-markdown'
+      contentHidden : yes
+    
+    @subItemHintCode = @subItemController.addItem
+      type          : 'codeHint'
+      title         : 'Solution'
+      content       : @codeHint
+      cssClass      : 'hint-code-view has-markdown' 
+      contentHidden : yes
   
     @nextLectureButton = new KDButtonView
       title : 'Next Lecture'
       cssClass : 'cupid-green hidden fr task-next-button'
       callback :=>
         @mainView.emit 'NextLectureRequested'
-  
-    @taskTextView = new KDView
-      cssClass : 'task-text-view has-markdown'
-      partial : "<span class='text'>Assignment</span><span class='data'>#{marked @taskText}</span>"
-  
+ 
     @resultView = new KDView
       cssClass : 'result-view hidden'
-      
-    @hintView = new KDView
-      cssClass : 'hint-view has-markdown'
-      partial : '<span class="text">Show hint</span>'
-      click :=>
-        @hintView.updatePartial "<span class='text'>Hint</span><span class='data'>#{marked @codeHintText}</span>"
-  
-    @hintCodeView = new KDView
-      cssClass : 'hint-code-view has-markdown'
-      partial : '<span class="text">Show solution</span>'
-      click :=>
-        @hintCodeView.updatePartial "<span class='text'>Solution</span><span class='data'>#{marked @codeHint}</span>"
-    
+         
     @on 'LectureChanged',(lecture)=>
-      {@codeHint,@codeHintText,@taskText}=lecture
+      
+      
+      {@codeHint,@codeHintText,@taskText,@lectureText,videoUrl,embedType}=lecture
       @setData lecture
       @resultView.hide()
       @nextLectureButton.hide()
       @mainView.liveViewer.active = no
       @mainView.liveViewer.mdPreview?.updatePartial '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
-      @taskTextView.updatePartial "<span class='text'>Assignment</span><span class='data'>#{marked @getData().taskText}</span>"
-      @hintView.updatePartial '<span class="text">Show hint</span>'
-      @hintCodeView.updatePartial '<span class="text">Show solution</span>'
-      {videoUrl} = lecture
-      if videoUrl
-        @embed.show()
-        @embed.updatePartial """<iframe src="#{videoUrl}" frameborder="0" allowfullscreen></iframe>"""
-      else @embed.hide()
+      
+      @subItemEmbed.updateViews
+        content       : 
+          url         : videoUrl
+          type        : embedType
+        headerHidden  : yes
+      
+      @subItemLectureText.updateViews
+        content : @lectureText
+      
+      @subItemTaskText.updateViews
+        content : @taskText
+      
+      @subItemHintText.updateViews
+        content : @codeHintText
+      
+      @subItemHintCode.updateViews
+        content : @codeHint
+      
       @render()
     
     @on 'ResultReceived', (result)=>
@@ -149,17 +235,12 @@ class KodeLectures.Views.TaskView extends JView
       else 
         @resultView.updatePartial @getData().submitFailure
         @resultView.unsetClass 'success'  
-  
+ 
   pistachio:->
     """
     {{> @nextLectureButton}}
     {{> @resultView }}    
-    
-    {{> @embed }}
-    {{> @taskTextView }}
-    
-    {{> @hintView}}
-    {{> @hintCodeView}}
+    {{> @subItemList}}
     """
 class KodeLectures.Views.TaskOverviewListItemView extends KDListItemView
     
@@ -216,7 +297,6 @@ class KodeLectures.Views.TaskOverview extends JView
     @lectureList = @lectureListController.getView()
     
     @lectureListController.listView.on 'OverviewLectureClicked', (item)=>
-      @mainView.exampleCode.setValue @lectureListController.itemsOrdered.indexOf item 
       @mainView.emit 'LectureChanged',@lectureListController.itemsOrdered.indexOf item 
     
     @on 'LectureChanged', ({course,index})=>
