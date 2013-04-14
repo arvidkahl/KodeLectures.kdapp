@@ -11,17 +11,61 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @basePath     = "#{@appPath}/#{@name}.kdapp"
     
     @attachListeners()
+  
+  importCourseFromURL:(url,callback)->
+    baseUrl = url
+    url = url.replace /\/$/, ''
+    url += '/manifest.json' unless url.match /manifest.json$/
     
-  readFile:(courses,course,lecture,key,callback)->
+    command = "curl -kL '#{url}'"
+    console.log 'importing from url', url
     
-    currentFile  = "#{@basePath}/courses/#{courses[course].path}/#{courses[course].lectures[lecture][key]}"    
+    @kiteController.run command, (err,res)=>
+      if err then console.log err
+      
+      else        
+        console.log 'parsing manifest.json'
+        try 
+          course = JSON.parse res
+        catch e 
+          console.log 'parse failed',e
+        
+        if course 
+          
+          @kiteController.run "mkdir #{@basePath}/courses/#{course.path}", (err,res)=>
+            @kiteController.run "curl -kL '#{url}' > #{@basePath}/courses/#{course.path}/manifest.json"
+            
+            console.log 'importing course',course?.title
+            
+            if course.lectures
+              for lecture in course.lectures
+                console.log 'importing lecture',lecture.title
+                if lecture.files                   
+                  for file in lecture.files 
+                    console.log "importing file #{baseUrl}/#{file} to #{@basePath}/courses/#{course.path}/#{file}"
+                    @kiteController.run "curl -kL '#{baseUrl}/#{file}' > #{@basePath}/courses/#{course.path}/#{file}", (err,res)=>
+                        if err 
+                          console.log 'file could not be imported', err
+                        else
+                          console.log 'file successfully imported', err, res
+                          
+            
+            KD.utils.wait 2000, =>
+              @emit 'NewCourseImported', course
+              callback course
+          
+    
+  
+  readFile:(courses,course,lecture,filename,callback)->
+    
+    currentFile  = "#{@basePath}/courses/#{courses[course].path}/#{filename}"    
     
     codeFileInstance = FSHelper.createFileFromPath currentFile
     codeFileInstance.fetchContents callback
    
-  saveFile:(courses,course,lecture,value,callback=->)->
+  saveFile:(courses,course,lecture,filename,value,callback=->)->
     
-    currentFile  = "#{@basePath}/courses/#{courses[course].path}/#{courses[course].lectures[lecture].codeFile}"
+    currentFile  = "#{@basePath}/courses/#{courses[course].path}/#{filename}"
     
     codeFileInstance = FSHelper.createFileFromPath currentFile
     codeFileInstance.save value, callback

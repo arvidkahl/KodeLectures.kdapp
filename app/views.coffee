@@ -50,6 +50,7 @@ class KodeLectures.Views.MainView extends JView
     
     @autoScroll = yes
     @currentLecture = 0
+    @currentFile = ''
     @lastSelectedCourse = 0
     
     @ioController = new KodeLectures.Controllers.FileIOController
@@ -94,7 +95,7 @@ class KodeLectures.Views.MainView extends JView
   
 
     @editor = new Editor
-        defaultValue: Settings.lectures[@lastSelectedCourse]?.lectures?[0]?.code or ''
+        defaultValue: ''
         callback: =>
 
     @editor.getView().hide()
@@ -151,17 +152,54 @@ class KodeLectures.Views.MainView extends JView
 
     @controlView = new KDView
       cssClass: 'control-pane editor-header'  
-        
+    
+    @controlButtons.addSubView @importButton = new KDButtonView
+      cssClass    : "clean-gray editor-button control-button import"
+      title       : 'Import Course'
+      callback : =>
+        modal = new KDModalViewWithForms
+          title                   : "Import a Course"
+          content                 : ""
+          overlay                 : yes
+          cssClass                : "new-kdmodal"
+          width                   : 500
+          height                  : "auto"
+          tabs                    : 
+              navigable           : yes            
+              forms               :
+                "ImportFromURL"   :
+                  buttons         :
+                    'Import'      :
+                      title       : 'Import'
+                      type        : 'submit'
+                      style       : 'modal-clean-gray'
+                      callback    : =>
+                        console.log arguments
+                        @ioController.importCourseFromURL modal.modalTabs.forms['ImportFromURL'].inputs['URL'].getValue(), =>
+                          console.log 'done'
+                          modal.destroy()
+                    Cancel        :
+                      title       : 'Cancel'
+                      type        : 'modal-cancel'
+                      callback    : =>
+                        modal.destroy()
+                  fields          :
+                    "URL"         :
+                      itemClass   : KDInputView
+                      name        : 'url'
+      
     runButton = new KDButtonView
       cssClass    : "cupid-green control-button run"
-      title       : 'Run this code'
+      title       : 'Save and Run your code'
       tooltip:
-        title : 'Run your code'
+        title : 'Save and Run your code'
       callback    : (event)=>
         @liveViewer.active = yes
-        @liveViewer.previewCode @editor.getValue(), @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute     
+        
+        @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @ace.getSession().getValue(), =>
+          @liveViewer.previewCode @editor.getValue(), @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute     
     
-    @controlButtons.addSubView nextButton = new KDButtonView
+    @controlButtons.addSubView @courseButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button next hidden"
       title       : 'Courses'
       tooltip:
@@ -169,36 +207,13 @@ class KodeLectures.Views.MainView extends JView
       callback    : (event)=> @emit 'CourseRequested'
 
         
-    @controlButtons.addSubView previousButton = new KDButtonView
+    @controlButtons.addSubView @lectureButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button previous"
       title       : 'Lecture'
       tooltip:
         title : 'Go to the current lecture'
       callback    : (event)=> @emit 'LectureRequested'
       
-    @on 'CourseRequested', =>
-        @splitView.setClass 'out'
-        @selectionView.setClass 'in'
-        previousButton.show()
-        nextButton.hide()
-    
-    @on 'LectureRequested',=>
-        @splitView.unsetClass 'out'
-        @selectionView.unsetClass 'in'
-        nextButton.show()
-        previousButton.hide()
-
-    @on 'NextLectureRequested', =>
-        unless @currentLecture is @courses[@lastSelectedCourse or 0]?.lectures?.length-1       
-          @exampleCode.setValue ++@currentLecture 
-          @exampleCode.getOptions().callback()
-        
-    @on 'PreviousLectureRequested', =>
-        unless @currentLecture is 0       
-          @exampleCode.setValue --@currentLecture 
-          @exampleCode.getOptions().callback()
-        
-
     @courseSelect = new KDSelectBox
       label: new KDLabelView
         title: 'Course: '
@@ -219,40 +234,7 @@ class KodeLectures.Views.MainView extends JView
       callback: =>
         @emit 'LectureChanged'
     
-    @on 'CourseChanged', (course)=>
-              
-        if course          
-          @courseSelect.setValue course
-        
-        @lastSelectedCourse = course
-        @exampleCode._$select.find("option").remove() # replace with .removeSelectOptions()
-        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in @courses[@lastSelectedCourse or 0]?.lectures or [])
-        @exampleCode.setValue 0
-        @emit 'LectureChanged'
-        @emit 'LectureRequested'
-    
-    @on 'LectureChanged', =>
-        @lastSelectedItem = @exampleCode.getValue()        
-        {code,codeFile,language} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
-        
-        #@ace.getSession().setValue code
-        
-        @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, "codeFile", (err,contents)=>
-          unless err
-            console.log contents
-            @ace.getSession().setValue contents 
-          else 
-            console.log err
-        
-        @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
-       
-        console.log 'emitting'
-        @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
-        @ace.getSession().setMode "ace/mode/#{language}"
-        @currentLang = language
-        @languageSelect.setValue language
-        @currentLecture = @lastSelectedItem
-    
+
     @languageSelect = new KDSelectBox
       label: new KDLabelView
         title: 'Language: '
@@ -290,6 +272,8 @@ class KodeLectures.Views.MainView extends JView
     @taskOverview.setMainView @
     @selectionView.setMainView @
    
+    @attachListeners()
+   
     #@liveViewer.previewCode do @editor.getValue
     @utils.defer => ($ window).resize()
     @utils.wait 50, => 
@@ -301,7 +285,64 @@ class KodeLectures.Views.MainView extends JView
           if @autoScroll is yes
             @setPreviewScrollPercentage @getEditScrollPercentage()
 
+  attachListeners :->
+    @on 'LectureChanged', =>
+        @lastSelectedItem = @exampleCode.getValue()        
+        {code,codeFile,language,files} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+        
+        @currentFile = if files?.length>0 then files[0] else 'tempfile'
+        #@ace.getSession().setValue code
+        
+        @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
+          unless err
+            console.log contents
+            @ace.getSession().setValue contents 
+          else 
+            console.log err
+        
+        @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+       
+        console.log 'emitting'
+        @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
+        @ace.getSession().setMode "ace/mode/#{language}"
+        @currentLang = language
+        @languageSelect.setValue language
+        @currentLecture = @lastSelectedItem
 
+    @on 'CourseChanged', (course)=>
+              
+        if course          
+          @courseSelect.setValue course
+        
+        @lastSelectedCourse = course
+        @exampleCode._$select.find("option").remove() # replace with .removeSelectOptions()
+        @exampleCode.setSelectOptions ({title: item.title, value: key} for item, key in @courses[@lastSelectedCourse or 0]?.lectures or [])
+        @exampleCode.setValue 0
+        @emit 'LectureChanged'
+        @emit 'LectureRequested'
+    
+    @on 'CourseRequested', =>
+        @splitView.setClass 'out'
+        @selectionView.setClass 'in'
+        @lectureButton.show()
+        @courseButton.hide()
+    
+    @on 'LectureRequested',=>
+        @splitView.unsetClass 'out'
+        @selectionView.unsetClass 'in'
+        @courseButton.show()
+        @lectureButton.hide()
+   
+    @on 'NextLectureRequested', =>
+        unless @currentLecture is @courses[@lastSelectedCourse or 0]?.lectures?.length-1       
+          @exampleCode.setValue ++@currentLecture 
+          @exampleCode.getOptions().callback()
+        
+    @on 'PreviousLectureRequested', =>
+        unless @currentLecture is 0       
+          @exampleCode.setValue --@currentLecture 
+          @exampleCode.getOptions().callback()
+        
 
 
   getEditScrollPercentage:->
@@ -340,7 +381,7 @@ class KodeLectures.Views.MainView extends JView
         exec    : (event)=>
           console.log event
           @editor.setValue @ace.getSession().getValue()
-          @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @ace.getSession().getValue()
+          @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @ace.getSession().getValue()
       
   viewAppended:->
     @delegateElements()

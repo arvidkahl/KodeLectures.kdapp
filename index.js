@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Sat Apr 13 2013 01:01:52 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Sat Apr 13 2013 17:38:45 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -708,6 +708,7 @@ KodeLectures.Views.MainView = (function(_super) {
     this.listenWindowResize();
     this.autoScroll = true;
     this.currentLecture = 0;
+    this.currentFile = '';
     this.lastSelectedCourse = 0;
     this.ioController = new KodeLectures.Controllers.FileIOController;
     this.ioController.emit('CourseImportRequested');
@@ -720,7 +721,7 @@ KodeLectures.Views.MainView = (function(_super) {
   }
 
   MainView.prototype.delegateElements = function() {
-    var item, key, nextButton, overflowFix, previousButton, runButton, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
+    var item, key, overflowFix, runButton, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7,
       _this = this;
 
     this.splitViewWrapper = new KDView;
@@ -753,12 +754,12 @@ KodeLectures.Views.MainView = (function(_super) {
     });
     this.liveViewer.setPreviewView(this.preview);
     this.editor = new Editor({
-      defaultValue: ((_ref2 = Settings.lectures[this.lastSelectedCourse]) != null ? (_ref3 = _ref2.lectures) != null ? (_ref4 = _ref3[0]) != null ? _ref4.code : void 0 : void 0 : void 0) || '',
+      defaultValue: '',
       callback: function() {}
     });
     this.editor.getView().hide();
-    this.taskView = new TaskView({}, ((_ref5 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref6 = _ref5.lectures) != null ? _ref6[0] : void 0 : void 0) || {});
-    this.taskOverview = new TaskOverview({}, ((_ref7 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref7.lectures : void 0) || []);
+    this.taskView = new TaskView({}, ((_ref2 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref3 = _ref2.lectures) != null ? _ref3[0] : void 0 : void 0) || {});
+    this.taskOverview = new TaskOverview({}, ((_ref4 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref4.lectures : void 0) || []);
     this.aceView = new KDView({
       cssClass: 'editor code-editor'
     });
@@ -796,9 +797,9 @@ KodeLectures.Views.MainView = (function(_super) {
     }, Settings.lectures));
     this.buildAce();
     this.splitView.on('ResizeDidStop', function() {
-      var _ref8;
+      var _ref5;
 
-      return (_ref8 = _this.ace) != null ? _ref8.resize() : void 0;
+      return (_ref5 = _this.ace) != null ? _ref5.resize() : void 0;
     });
     this.controlButtons = new KDView({
       cssClass: 'header-buttons'
@@ -806,18 +807,70 @@ KodeLectures.Views.MainView = (function(_super) {
     this.controlView = new KDView({
       cssClass: 'control-pane editor-header'
     });
+    this.controlButtons.addSubView(this.importButton = new KDButtonView({
+      cssClass: "clean-gray editor-button control-button import",
+      title: 'Import Course',
+      callback: function() {
+        var modal;
+
+        return modal = new KDModalViewWithForms({
+          title: "Import a Course",
+          content: "",
+          overlay: true,
+          cssClass: "new-kdmodal",
+          width: 500,
+          height: "auto",
+          tabs: {
+            navigable: true,
+            forms: {
+              "ImportFromURL": {
+                buttons: {
+                  'Import': {
+                    title: 'Import',
+                    type: 'submit',
+                    style: 'modal-clean-gray',
+                    callback: function() {
+                      console.log(arguments);
+                      return _this.ioController.importCourseFromURL(modal.modalTabs.forms['ImportFromURL'].inputs['URL'].getValue(), function() {
+                        console.log('done');
+                        return modal.destroy();
+                      });
+                    }
+                  },
+                  Cancel: {
+                    title: 'Cancel',
+                    type: 'modal-cancel',
+                    callback: function() {
+                      return modal.destroy();
+                    }
+                  }
+                },
+                fields: {
+                  "URL": {
+                    itemClass: KDInputView,
+                    name: 'url'
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }));
     runButton = new KDButtonView({
       cssClass: "cupid-green control-button run",
-      title: 'Run this code',
+      title: 'Save and Run your code',
       tooltip: {
-        title: 'Run your code'
+        title: 'Save and Run your code'
       },
       callback: function(event) {
         _this.liveViewer.active = true;
-        return _this.liveViewer.previewCode(_this.editor.getValue(), _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem].execute);
+        return _this.ioController.saveFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, _this.ace.getSession().getValue(), function() {
+          return _this.liveViewer.previewCode(_this.editor.getValue(), _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem].execute);
+        });
       }
     });
-    this.controlButtons.addSubView(nextButton = new KDButtonView({
+    this.controlButtons.addSubView(this.courseButton = new KDButtonView({
       cssClass: "clean-gray editor-button control-button next hidden",
       title: 'Courses',
       tooltip: {
@@ -827,7 +880,7 @@ KodeLectures.Views.MainView = (function(_super) {
         return _this.emit('CourseRequested');
       }
     }));
-    this.controlButtons.addSubView(previousButton = new KDButtonView({
+    this.controlButtons.addSubView(this.lectureButton = new KDButtonView({
       cssClass: "clean-gray editor-button control-button previous",
       title: 'Lecture',
       tooltip: {
@@ -837,32 +890,6 @@ KodeLectures.Views.MainView = (function(_super) {
         return _this.emit('LectureRequested');
       }
     }));
-    this.on('CourseRequested', function() {
-      _this.splitView.setClass('out');
-      _this.selectionView.setClass('in');
-      previousButton.show();
-      return nextButton.hide();
-    });
-    this.on('LectureRequested', function() {
-      _this.splitView.unsetClass('out');
-      _this.selectionView.unsetClass('in');
-      nextButton.show();
-      return previousButton.hide();
-    });
-    this.on('NextLectureRequested', function() {
-      var _ref8, _ref9;
-
-      if (_this.currentLecture !== ((_ref8 = _this.courses[_this.lastSelectedCourse || 0]) != null ? (_ref9 = _ref8.lectures) != null ? _ref9.length : void 0 : void 0) - 1) {
-        _this.exampleCode.setValue(++_this.currentLecture);
-        return _this.exampleCode.getOptions().callback();
-      }
-    });
-    this.on('PreviousLectureRequested', function() {
-      if (_this.currentLecture !== 0) {
-        _this.exampleCode.setValue(--_this.currentLecture);
-        return _this.exampleCode.getOptions().callback();
-      }
-    });
     this.courseSelect = new KDSelectBox({
       label: new KDLabelView({
         title: 'Course: '
@@ -870,12 +897,12 @@ KodeLectures.Views.MainView = (function(_super) {
       defaultValue: this.lastSelectedCourse || "0",
       cssClass: 'control-button code-examples',
       selectOptions: (function() {
-        var _i, _len, _ref8, _results;
+        var _i, _len, _ref5, _results;
 
-        _ref8 = this.courses;
+        _ref5 = this.courses;
         _results = [];
-        for (key = _i = 0, _len = _ref8.length; _i < _len; key = ++_i) {
-          item = _ref8[key];
+        for (key = _i = 0, _len = _ref5.length; _i < _len; key = ++_i) {
+          item = _ref5[key];
           _results.push({
             title: item.title,
             value: key
@@ -894,12 +921,12 @@ KodeLectures.Views.MainView = (function(_super) {
       defaultValue: this.lastSelectedItem || "0",
       cssClass: 'control-button code-examples',
       selectOptions: (function() {
-        var _i, _len, _ref8, _ref9, _results;
+        var _i, _len, _ref5, _ref6, _results;
 
-        _ref9 = ((_ref8 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref8.lectures : void 0) || [];
+        _ref6 = ((_ref5 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref5.lectures : void 0) || [];
         _results = [];
-        for (key = _i = 0, _len = _ref9.length; _i < _len; key = ++_i) {
-          item = _ref9[key];
+        for (key = _i = 0, _len = _ref6.length; _i < _len; key = ++_i) {
+          item = _ref6[key];
           _results.push({
             title: item.title,
             value: key
@@ -910,54 +937,6 @@ KodeLectures.Views.MainView = (function(_super) {
       callback: function() {
         return _this.emit('LectureChanged');
       }
-    });
-    this.on('CourseChanged', function(course) {
-      if (course) {
-        _this.courseSelect.setValue(course);
-      }
-      _this.lastSelectedCourse = course;
-      _this.exampleCode._$select.find("option").remove();
-      _this.exampleCode.setSelectOptions((function() {
-        var _i, _len, _ref8, _ref9, _results;
-
-        _ref9 = ((_ref8 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref8.lectures : void 0) || [];
-        _results = [];
-        for (key = _i = 0, _len = _ref9.length; _i < _len; key = ++_i) {
-          item = _ref9[key];
-          _results.push({
-            title: item.title,
-            value: key
-          });
-        }
-        return _results;
-      }).call(_this));
-      _this.exampleCode.setValue(0);
-      _this.emit('LectureChanged');
-      return _this.emit('LectureRequested');
-    });
-    this.on('LectureChanged', function() {
-      var code, codeFile, language, _ref8;
-
-      _this.lastSelectedItem = _this.exampleCode.getValue();
-      _ref8 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref8.code, codeFile = _ref8.codeFile, language = _ref8.language;
-      _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, "codeFile", function(err, contents) {
-        if (!err) {
-          console.log(contents);
-          return _this.ace.getSession().setValue(contents);
-        } else {
-          return console.log(err);
-        }
-      });
-      _this.taskView.emit('LectureChanged', _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem]);
-      console.log('emitting');
-      _this.taskOverview.emit('LectureChanged', {
-        course: _this.courses[_this.lastSelectedCourse],
-        index: _this.lastSelectedItem
-      });
-      _this.ace.getSession().setMode("ace/mode/" + language);
-      _this.currentLang = language;
-      _this.languageSelect.setValue(language);
-      return _this.currentLecture = _this.lastSelectedItem;
     });
     this.languageSelect = new KDSelectBox({
       label: new KDLabelView({
@@ -986,7 +965,7 @@ KodeLectures.Views.MainView = (function(_super) {
         return _this.ace.getSession().setMode("ace/mode/" + item);
       }
     });
-    this.currentLang = ((_ref8 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref9 = _ref8.lectures) != null ? (_ref10 = _ref9[0]) != null ? _ref10.language : void 0 : void 0 : void 0) || 'javascript';
+    this.currentLang = ((_ref5 = this.courses[this.lastSelectedCourse || 0]) != null ? (_ref6 = _ref5.lectures) != null ? (_ref7 = _ref6[0]) != null ? _ref7.language : void 0 : void 0 : void 0) || 'javascript';
     this.controlView.addSubView(this.languageSelect.options.label);
     this.controlView.addSubView(this.languageSelect);
     this.controlView.addSubView(this.courseSelect.options.label);
@@ -1000,14 +979,15 @@ KodeLectures.Views.MainView = (function(_super) {
     this.taskView.setMainView(this);
     this.taskOverview.setMainView(this);
     this.selectionView.setMainView(this);
+    this.attachListeners();
     this.utils.defer(function() {
       return ($(window)).resize();
     });
     this.utils.wait(50, function() {
-      var _ref11;
+      var _ref8;
 
       ($(window)).resize();
-      return (_ref11 = _this.ace) != null ? _ref11.resize() : void 0;
+      return (_ref8 = _this.ace) != null ? _ref8.resize() : void 0;
     });
     return this.utils.wait(1000, function() {
       return _this.ace.renderer.scrollBar.on('scroll', function() {
@@ -1015,6 +995,88 @@ KodeLectures.Views.MainView = (function(_super) {
           return _this.setPreviewScrollPercentage(_this.getEditScrollPercentage());
         }
       });
+    });
+  };
+
+  MainView.prototype.attachListeners = function() {
+    var _this = this;
+
+    this.on('LectureChanged', function() {
+      var code, codeFile, files, language, _ref2;
+
+      _this.lastSelectedItem = _this.exampleCode.getValue();
+      _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files;
+      _this.currentFile = (files != null ? files.length : void 0) > 0 ? files[0] : 'tempfile';
+      _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, function(err, contents) {
+        if (!err) {
+          console.log(contents);
+          return _this.ace.getSession().setValue(contents);
+        } else {
+          return console.log(err);
+        }
+      });
+      _this.taskView.emit('LectureChanged', _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem]);
+      console.log('emitting');
+      _this.taskOverview.emit('LectureChanged', {
+        course: _this.courses[_this.lastSelectedCourse],
+        index: _this.lastSelectedItem
+      });
+      _this.ace.getSession().setMode("ace/mode/" + language);
+      _this.currentLang = language;
+      _this.languageSelect.setValue(language);
+      return _this.currentLecture = _this.lastSelectedItem;
+    });
+    this.on('CourseChanged', function(course) {
+      var item, key;
+
+      if (course) {
+        _this.courseSelect.setValue(course);
+      }
+      _this.lastSelectedCourse = course;
+      _this.exampleCode._$select.find("option").remove();
+      _this.exampleCode.setSelectOptions((function() {
+        var _i, _len, _ref2, _ref3, _results;
+
+        _ref3 = ((_ref2 = this.courses[this.lastSelectedCourse || 0]) != null ? _ref2.lectures : void 0) || [];
+        _results = [];
+        for (key = _i = 0, _len = _ref3.length; _i < _len; key = ++_i) {
+          item = _ref3[key];
+          _results.push({
+            title: item.title,
+            value: key
+          });
+        }
+        return _results;
+      }).call(_this));
+      _this.exampleCode.setValue(0);
+      _this.emit('LectureChanged');
+      return _this.emit('LectureRequested');
+    });
+    this.on('CourseRequested', function() {
+      _this.splitView.setClass('out');
+      _this.selectionView.setClass('in');
+      _this.lectureButton.show();
+      return _this.courseButton.hide();
+    });
+    this.on('LectureRequested', function() {
+      _this.splitView.unsetClass('out');
+      _this.selectionView.unsetClass('in');
+      _this.courseButton.show();
+      return _this.lectureButton.hide();
+    });
+    this.on('NextLectureRequested', function() {
+      var _ref2, _ref3;
+
+      if (_this.currentLecture !== ((_ref2 = _this.courses[_this.lastSelectedCourse || 0]) != null ? (_ref3 = _ref2.lectures) != null ? _ref3.length : void 0 : void 0) - 1) {
+        _this.exampleCode.setValue(++_this.currentLecture);
+        return _this.exampleCode.getOptions().callback();
+      }
+    });
+    return this.on('PreviousLectureRequested', function() {
+      if (_this.currentLecture !== 0) {
+        _this.exampleCode.setValue(--_this.currentLecture);
+        return _this.exampleCode.getOptions().callback();
+      }
     });
   };
 
@@ -1055,7 +1117,7 @@ KodeLectures.Views.MainView = (function(_super) {
         exec: function(event) {
           console.log(event);
           _this.editor.setValue(_this.ace.getSession().getValue());
-          return _this.ioController.saveFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.ace.getSession().getValue());
+          return _this.ioController.saveFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, _this.ace.getSession().getValue());
         }
       });
     } catch (_error) {}
@@ -1094,21 +1156,82 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     this.attachListeners();
   }
 
-  FileIOController.prototype.readFile = function(courses, course, lecture, key, callback) {
+  FileIOController.prototype.importCourseFromURL = function(url, callback) {
+    var baseUrl, command,
+      _this = this;
+
+    baseUrl = url;
+    url = url.replace(/\/$/, '');
+    if (!url.match(/manifest.json$/)) {
+      url += '/manifest.json';
+    }
+    command = "curl -kL '" + url + "'";
+    console.log('importing from url', url);
+    return this.kiteController.run(command, function(err, res) {
+      var course, e;
+
+      if (err) {
+        return console.log(err);
+      } else {
+        console.log('parsing manifest.json');
+        try {
+          course = JSON.parse(res);
+        } catch (_error) {
+          e = _error;
+          console.log('parse failed', e);
+        }
+        if (course) {
+          return _this.kiteController.run("mkdir " + _this.basePath + "/courses/" + course.path, function(err, res) {
+            var file, lecture, _i, _j, _len, _len1, _ref, _ref1;
+
+            _this.kiteController.run("curl -kL '" + url + "' > " + _this.basePath + "/courses/" + course.path + "/manifest.json");
+            console.log('importing course', course != null ? course.title : void 0);
+            if (course.lectures) {
+              _ref = course.lectures;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                lecture = _ref[_i];
+                console.log('importing lecture', lecture.title);
+                if (lecture.files) {
+                  _ref1 = lecture.files;
+                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                    file = _ref1[_j];
+                    console.log("importing file " + baseUrl + "/" + file + " to " + _this.basePath + "/courses/" + course.path + "/" + file);
+                    _this.kiteController.run("curl -kL '" + baseUrl + "/" + file + "' > " + _this.basePath + "/courses/" + course.path + "/" + file, function(err, res) {
+                      if (err) {
+                        return console.log('file could not be imported', err);
+                      } else {
+                        return console.log('file successfully imported', err, res);
+                      }
+                    });
+                  }
+                }
+              }
+            }
+            return KD.utils.wait(2000, function() {
+              _this.emit('NewCourseImported', course);
+              return callback(course);
+            });
+          });
+        }
+      }
+    });
+  };
+
+  FileIOController.prototype.readFile = function(courses, course, lecture, filename, callback) {
     var codeFileInstance, currentFile;
 
-    currentFile = "" + this.basePath + "/courses/" + courses[course].path + "/" + courses[course].lectures[lecture][key];
+    currentFile = "" + this.basePath + "/courses/" + courses[course].path + "/" + filename;
     codeFileInstance = FSHelper.createFileFromPath(currentFile);
     return codeFileInstance.fetchContents(callback);
   };
 
-  FileIOController.prototype.saveFile = function(courses, course, lecture, value, callback) {
+  FileIOController.prototype.saveFile = function(courses, course, lecture, filename, value, callback) {
     var codeFileInstance, currentFile;
 
     if (callback == null) {
       callback = function() {};
     }
-    currentFile = "" + this.basePath + "/courses/" + courses[course].path + "/" + courses[course].lectures[lecture].codeFile;
+    currentFile = "" + this.basePath + "/courses/" + courses[course].path + "/" + filename;
     codeFileInstance = FSHelper.createFileFromPath(currentFile);
     return codeFileInstance.save(value, callback);
   };

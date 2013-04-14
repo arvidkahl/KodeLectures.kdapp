@@ -1,0 +1,27 @@
+{
+   "title":"CoffeeScript 101",
+   "description":"This course will introduce CoffeeScript.",
+   "path":"coffee101.kdlecture",
+   "lectures":[
+      {
+         "title":"Lecture 1: What is CoffeeScript",
+         
+         "embedType":"youtube",
+         "videoUrl":"http://www.youtube.com/embed/fvsKkwbhfs8",
+         "summary":"In this lecture, you will learn about CoffeeScript.",
+         "expectedResults":"Hello World!",
+         "submitSuccess":"Well done! You can procedd to the next part.",
+         "submitFailure":"This is not the statement we are looking for.",
+         
+         "language":"coffee",
+         "code":"console.log 'Hello World!'",
+         
+         "previewType":"code-preview",        
+         "execute": "coffee lecture01.coffee -n",
+         "files" : ["lecture01.coffee"],
+         "codeHint":"Hit the button.",
+         "codeHintText":"There is nothign to see here",
+         "taskText":"Hi.wanna learn CoffeeScript?"
+      }
+   ]
+}

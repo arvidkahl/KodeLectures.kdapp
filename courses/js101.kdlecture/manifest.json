@@ -18,8 +18,7 @@
          
          "previewType":"code-preview",        
          "execute": "node lecture01.js",
-         "codeFile": "lecture01.js",
-         
+         "files" : ["lecture01.js"],
          "codeHint":"\nThere are two Boolean values, `true` and `false`. The easiest way of logging a true value to the console is:\n\n```js\nconsole.log(true)\n```\n\nBut any truthy expression would do the trick, such as\n\n```js\nconsole.log(1==1)\n```\n\nor\n\n```js\nconsole.log(!(false && (1+2!==Infinity)))\n```\n\nBoth evaluate to `true` before being logged to the console.\n",
          "codeHintText":"`Console.log()` prints to the console. Javascript knows only one truly true statement. That would be `true`.",
          "taskText":"#Hello\n\nWelcome to the Lecture. Today we'll be learning about Boolean values. Named after [George Boole](http://en.wikipedia.org/wiki/George_Boole), these values are logical representations of Truth of Falsehood. Since there is nothing in between, only two mutually exclusive values exist in JavaScript, `true` and `false`.\n\nThere is also an  Object type called Boolean, which can take these values. It also supplies a few methods. But more on that later!\n\nTry printing a true statement to the console."
@@ -34,7 +33,7 @@
 
          "previewType":"code-preview",        
          "execute": "node lecture02.js",
-         "codeFile": "lecture02.js",
+         "files": ["lecture02.js"],
 
          "code":"// There are many ways to loop in JavaScript.\n//Try using while() in this assignment. We'll get to the other ones later.",
          "codeHint":"\nOne way to use a while loop would be:\n\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
@@ -50,7 +49,7 @@
 
          "previewType":"code-preview",        
          "execute": "coffee lecture03.coffee -n",
-         "codeFile": "lecture03.coffee",
+         "files": ["lecture03.coffee"],
 
 
          "language":"coffee",
