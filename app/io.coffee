@@ -12,6 +12,39 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     @attachListeners()
   
+  resetCourseFiles:(courses,course,type,callback=->)->
+    if type is 'git' 
+      path = courses[course].path.replace /\.\.\//, ''
+      command = "cd #{@basePath}/courses/#{path}; git reset --hard HEAD"
+    
+    console.log "Resetting course '#{courses[course].title}' if possible"
+    
+    if command then @kiteController.run command , (err,res)=>  
+      if err 
+        console.log 'Resetting failed with error ',err
+        callback err
+      else 
+        console.log "Resetting completed",err,res
+        callback err,res
+        @emit 'CourseFilesReset',courses[course]
+      
+  removeCourse:(courses,course,callback=->)->
+
+    {path} = courses[course]
+    unless path
+      callback 'No path available.'
+    else 
+     path = path.replace /\.\.\//, '' # should prevent ../ traversal
+     console.log "Attempting to remove course at #{path}"
+     @kiteController.run "rm -rf #{@basePath}/courses/#{path}", (err,res)=>
+      if err
+        callback err
+        console.log "Removing the course failed with error #{err}"
+      else 
+        console.log 'Course successfully removed'
+        callback err,res
+        
+  
   importCourseFromRepository:(url, type, callback)->
     
     if type is 'git' 
@@ -27,7 +60,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
 
       manifestInstance = FSHelper.createFileFromPath "#{@basePath}/courses/#{newCourseName}/manifest.json"
       manifestInstance.fetchContents (err,res)=>
-        console.log 'Parsing manifest.json',err,res
+        console.log 'Parsing manifest.json' #,err,res
         
         if err then callback err
         else

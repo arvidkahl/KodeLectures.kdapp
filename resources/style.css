@@ -432,6 +432,7 @@
   box-sizing:border-box;
   border-bottom: 1px solid #f5f5f5;
   color : #444;
+  
 }
 .marKDown .selection-listitem .lectures{
   font-size:12px;
@@ -447,6 +448,9 @@
   color: #5f5f5f;
 }
 
+.marKDown .lecture-listitem:hover{
+  color:#ff9200;
+}
 .marKDown .lecture-listitem {
   height:auto;
   cursor:pointer;
@@ -466,7 +470,16 @@
 }
 
 .marKDown .kodepad-editors.out {
-  left : -100%
+  left : -100%;
+}
+.marKDown .selection-listitem:hover .course-settings-menu{
+  opacity:1;
+}
+.marKDown .course-settings-menu {
+  border : none;
+  background-color:transparent;
+  transition:opacity 0.2s linear;
+  opacity:0.5;
 }
 
 body.dragInAction .marKDown .md-help-view {
@@ -477,4 +490,9 @@ body.dragInAction .marKDown .md-help-view {
 
 .jcontextmenu {
     z-index : 10002;
+}
+
+
+.modal-warning.formline {
+  background-color : rgba(200,0,0,0.2)
 }

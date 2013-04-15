@@ -61,6 +61,11 @@ class KodeLectures.Views.MainView extends JView
       @selectionView.emit 'NewCourseImported', course
       @courses.push course
     
+    @ioController.on 'CourseFilesReset', (course)=>
+      # make sure the lecture gets reloaded 
+      @emit 'LectureChanged', @lastSelectedItem
+      
+    
     @courses = []
     
   delegateElements:->
@@ -176,7 +181,7 @@ class KodeLectures.Views.MainView extends JView
             goToNextFormOnSubmit  : no              
             forms                 :
               "Import From Repository"  :
-                  fields          :
+                  fields          :                      
                     "Repo URL"    :
                       label       : 'Repo URL'
                       itemClass   : KDInputView
@@ -218,6 +223,12 @@ class KodeLectures.Views.MainView extends JView
                       callback    : =>
                         modal.destroy()
                   fields          :
+                    "Notice"      :
+                      itemClass   : KDCustomHTMLView
+                      tagName     : 'span'
+                      partial     : '<strong>Warning</strong>. This feature is experimental. Due to the nature of HTTP requests, the files requested might not yield their source code but get executed by the webserver. Consider hosting your lecture on GitHub.'
+                      cssClass    : 'modal-warning'  
+      
                     "URL"         :
                       label       : 'URL'
                       itemClass   : KDInputView 

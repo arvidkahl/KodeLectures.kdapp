@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Sun Apr 14 2013 22:33:56 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Mon Apr 15 2013 11:53:45 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -518,6 +518,91 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
         course: _this.getData()
       });
     });
+    this.titleText.addSubView(this.settingsButton = new KDButtonView({
+      style: 'course-settings-menu editor-advanced-settings-menu fr',
+      icon: true,
+      iconOnly: true,
+      iconClass: "cog",
+      callback: function(event) {
+        var contextMenu;
+
+        return contextMenu = new JContextMenu({
+          event: event,
+          delegate: _this
+        }, {
+          'Remove Course': {
+            callback: function(source, event) {
+              var modal;
+
+              contextMenu.destroy();
+              return modal = new KDModalView({
+                title: 'Remove Course',
+                content: 'Do you really want to remove this course and all its files? All the changes you made will be deleted alongside the lectures. You will have to re-import the course to open it again.',
+                buttons: {
+                  "Remove Course completely": {
+                    title: 'Remove Course completely',
+                    cssClass: 'modal-clean-red',
+                    callback: function() {
+                      _this.getDelegate().emit('RemoveCourseClicked', {
+                        course: _this.getData(),
+                        view: _this
+                      });
+                      return modal.destroy();
+                    }
+                  },
+                  Cancel: {
+                    cssClass: 'modal-cancel',
+                    title: 'Cancel',
+                    callback: function() {
+                      return modal.destroy();
+                    }
+                  }
+                }
+              });
+            }
+          },
+          'Reset Course files': {
+            callback: function(source, event) {
+              var modal, _ref;
+
+              contextMenu.destroy();
+              if ((_ref = _this.getData().originType) === 'git') {
+                return modal = new KDModalView({
+                  title: 'Reset Course Files',
+                  content: 'Do you really want to reset all files in this course? All the changes you made will be deleted. The course will revert to the stage it was in when it was imported.',
+                  buttons: {
+                    "Reset all files": {
+                      title: 'Reset all files',
+                      cssClass: 'modal-clean-red',
+                      callback: function() {
+                        console.log('Resetting');
+                        _this.getDelegate().emit('ResetCourseClicked', {
+                          course: _this.getData(),
+                          view: _this
+                        });
+                        contextMenu.destroy();
+                        return modal.destroy();
+                      }
+                    },
+                    Cancel: {
+                      cssClass: 'modal-cancel',
+                      title: 'Cancel',
+                      callback: function() {
+                        return modal.destroy();
+                      }
+                    }
+                  }
+                });
+              } else {
+                return new KDNotificationView({
+                  title: 'This Course can not be reset. Try deleting and re-importing it.'
+                });
+              }
+            }
+          }
+        });
+      }
+    }));
   }
 
   CourseSelectionItemView.prototype.viewAppended = function() {
@@ -572,6 +657,29 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
     });
     this.courseController.listView.on('CourseSelected', function(course) {
       return _this.mainView.emit('CourseChanged', courses.indexOf(course));
+    });
+    this.courseController.listView.on('RemoveCourseClicked', function(_arg) {
+      var course, view;
+
+      course = _arg.course, view = _arg.view;
+      return _this.mainView.ioController.removeCourse(courses, courses.indexOf(course), function(err, res) {
+        if (!err) {
+          return view.destroy();
+        }
+      });
+    });
+    this.courseController.listView.on('ResetCourseClicked', function(_arg) {
+      var course, view;
+
+      course = _arg.course, view = _arg.view;
+      console.log(course);
+      return _this.mainView.ioController.resetCourseFiles(courses, courses.indexOf(course), course.originType, function(err, res) {
+        if (!err) {
+          return new KDNotificationView({
+            title: 'Files successfully reset'
+          });
+        }
+      });
     });
     this.courseHeader = new KDView({
       cssClass: 'course-header',
@@ -702,6 +810,9 @@ KodeLectures.Views.MainView = (function(_super) {
       console.log('Forwarding new Course to view');
       _this.selectionView.emit('NewCourseImported', course);
       return _this.courses.push(course);
+    });
+    this.ioController.on('CourseFilesReset', function(course) {
+      return _this.emit('LectureChanged', _this.lastSelectedItem);
     });
     this.courses = [];
   }
@@ -875,6 +986,12 @@ KodeLectures.Views.MainView = (function(_super) {
                   }
                 },
                 fields: {
+                  "Notice": {
+                    itemClass: KDCustomHTMLView,
+                    tagName: 'span',
+                    partial: '<strong>Warning</strong>. This feature is experimental. Due to the nature of HTTP requests, the files requested might not yield their source code but get executed by the webserver. Consider hosting your lecture on GitHub.',
+                    cssClass: 'modal-warning'
+                  },
                   "URL": {
                     label: 'URL',
                     itemClass: KDInputView,
@@ -1103,6 +1220,57 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     this.attachListeners();
   }
 
+  FileIOController.prototype.resetCourseFiles = function(courses, course, type, callback) {
+    var command, path,
+      _this = this;
+
+    if (callback == null) {
+      callback = function() {};
+    }
+    if (type === 'git') {
+      path = courses[course].path.replace(/\.\.\//, '');
+      command = "cd " + this.basePath + "/courses/" + path + "; git reset --hard HEAD";
+    }
+    console.log("Resetting course '" + courses[course].title + "' if possible");
+    if (command) {
+      return this.kiteController.run(command, function(err, res) {
+        if (err) {
+          console.log('Resetting failed with error ', err);
+          return callback(err);
+        } else {
+          console.log("Resetting completed", err, res);
+          callback(err, res);
+          return _this.emit('CourseFilesReset', courses[course]);
+        }
+      });
+    }
+  };
+
+  FileIOController.prototype.removeCourse = function(courses, course, callback) {
+    var path,
+      _this = this;
+
+    if (callback == null) {
+      callback = function() {};
+    }
+    path = courses[course].path;
+    if (!path) {
+      return callback('No path available.');
+    } else {
+      path = path.replace(/\.\.\//, '');
+      console.log("Attempting to remove course at " + path);
+      return this.kiteController.run("rm -rf " + this.basePath + "/courses/" + path, function(err, res) {
+        if (err) {
+          callback(err);
+          return console.log("Removing the course failed with error " + err);
+        } else {
+          console.log('Course successfully removed');
+          return callback(err, res);
+        }
+      });
+    }
+  };
+
   FileIOController.prototype.importCourseFromRepository = function(url, type, callback) {
     var command,
       _this = this;
@@ -1121,7 +1289,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
         return manifestInstance.fetchContents(function(err, res) {
           var course, e;
 
-          console.log('Parsing manifest.json', err, res);
+          console.log('Parsing manifest.json');
           if (err) {
             return callback(err);
           } else {

@@ -360,6 +360,63 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
     @lectureController.listView.on 'LectureSelected', (data)=>
       @getDelegate().emit 'LectureSelected', {lecture:data, course:@getData()}
       
+    @titleText.addSubView @settingsButton = new KDButtonView
+          style               : 'course-settings-menu editor-advanced-settings-menu fr'
+          icon                : yes
+          iconOnly            : yes
+          iconClass           : "cog"
+          callback            : (event)=>
+
+            contextMenu       = new JContextMenu
+              event           : event
+              delegate        : @
+            ,
+
+            'Remove Course'   :
+              callback        : (source, event)=>
+                contextMenu.destroy()
+                modal         = new KDModalView
+                  title       : 'Remove Course'
+                  content     : 'Do you really want to remove this course and all its files? All the changes you made will be deleted alongside the lectures. You will have to re-import the course to open it again.'
+                  buttons     :
+                    "Remove Course completely":
+                      title   : 'Remove Course completely'
+                      cssClass: 'modal-clean-red'
+                      callback: =>
+                        @getDelegate().emit 'RemoveCourseClicked',{course:@getData(),view:@}
+                        modal.destroy()
+                    Cancel    :
+                      cssClass: 'modal-cancel'
+                      title   : 'Cancel'
+                      callback: =>
+                        modal.destroy()
+                    
+            'Reset Course files':
+              callback        : (source, event)=>                
+                contextMenu.destroy()
+                
+                if @getData().originType in ['git']
+                 modal         = new KDModalView
+                  title       : 'Reset Course Files'
+                  content     : 'Do you really want to reset all files in this course? All the changes you made will be deleted. The course will revert to the stage it was in when it was imported.'
+                  buttons     :
+                    "Reset all files":
+                      title   : 'Reset all files'
+                      cssClass: 'modal-clean-red'
+                      callback: =>
+                        console.log 'Resetting'
+                        @getDelegate().emit 'ResetCourseClicked',{course:@getData(),view:@}
+                        contextMenu.destroy()
+                        modal.destroy()
+                    Cancel    :
+                      cssClass: 'modal-cancel'
+                      title   : 'Cancel'
+                      callback: =>
+                        modal.destroy()
+                else new KDNotificationView {title:'This Course can not be reset. Try deleting and re-importing it.'}
+                    
+  
+      
   
   viewAppended :->
     @setTemplate @pistachio()
@@ -401,6 +458,15 @@ class KodeLectures.Views.CourseSelectionView extends JView
     @courseController.listView.on 'CourseSelected', (course)=>
       @mainView.emit 'CourseChanged', courses.indexOf course
 
+    @courseController.listView.on 'RemoveCourseClicked', ({course,view})=>
+      @mainView.ioController.removeCourse courses, courses.indexOf(course), (err,res)=>
+        unless err then view.destroy()
+    
+    @courseController.listView.on 'ResetCourseClicked', ({course,view})=>
+      console.log course
+      @mainView.ioController.resetCourseFiles courses, courses.indexOf(course), course.originType, (err,res)=>
+        unless err then new KDNotificationView {title:'Files successfully reset'}
+      #
     @courseHeader = new KDView
       cssClass : 'course-header'
       partial : '<h1>Select a  course:</h1>'
