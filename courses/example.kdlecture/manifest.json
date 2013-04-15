@@ -1,18 +1,29 @@
 {
-   "title":"How to ride a cow",
+   "title":"Wordpress for Beginners",
    "description":"An instructive tutorial",
+   "path":"example.kdlecture",
+   "install":{
+     "postImport":""
+   },
    "lectures":[
       {
-         "title":"A cow and how to tip it",
-         "summary":"Cow handling procedures",
-         "expectedResults":"Cow",
+         "title":"A Wordpress Instance. What is that?",
+         "summary":"Explaining index.php",
+         "expectedResults":false,
          "submitSuccess":"Well done! You can procedd to the next part, where you will learn all more things.",
          "submitFailure":"This is not the statement we are looking for.",
-         "language":"coffee",
-         "code":"cow",
-         "codeHint":"\n```js\nvar i = 1;\nwhile(i<6){\n  console.log(i++);\n}\n```",
-         "codeHintText":"Do something with the cow",
-         "taskText":"When fighting cows, take care.\n ![cow](http://1.media.collegehumor.cvcdn.com/50/64/4c98cc8cf252b327823784e870864ab6-cow-on-a-scooter.jpg)\nSeriously."
+         "language":"php",
+         "code":"",
+         "execute":"",
+         "previewType":"execute-html",
+         "previewPath":"lecture/index.php",
+         "files":["lecture/index.php"],
+         "embedType":"youtube",
+         "videoUrl":"http://www.youtube.com/embed/8Jv47_VIBOQ",
+         "codeHint":"See code",
+         "codeHintText":"See code",
+         "taskText":"Run the code on the left to see the Wordpress instance.",
+         "lectureText":"What you see here is the `index.php` file of wordpress, where everything starts.",
       }
    ]
 }

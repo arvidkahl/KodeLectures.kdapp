@@ -29,46 +29,115 @@ class KodeLectures.Core.LiveViewer
     
   setMainView: (@mainView)->
   
-  previewCode: (code, execute)->
+  previewCode: (code, execute, options)->
     return if not @active 
     
     unless not code or code is ''
     
       kiteController = KD.getSingleton "kiteController"
-      
-      command = switch @mainView.currentLang
-        
-        when 'javascript' then "echo '#{window.btoa code}' | base64 -d > temp.js; node temp.js;"
-        when 'coffee'     then "echo '#{window.btoa code}' | base64 -d > temp.coffee; coffee temp.coffee -n;"
-        when 'ruby'       then "echo '#{window.btoa code}' | base64 -d > temp.rb; ruby temp.rb;"
-        when 'python'     then "echo '#{window.btoa code}' | base64 -d > temp.py; python temp.py;" 
-        
-      #if execute
-        #command = ""execute
-      #
+
       {ioController,courses,lastSelectedCourse:course,lastSelectedItem:lecture} = @mainView
       
       ioController.runFile courses,course,lecture,execute, (err,res)=>
-      #kiteController.run command, (err, res)=>
       
         @mainView.taskView.emit 'ResultReceived',res unless err
-
-        if res is '' then text = '<div class="info"><pre>KodeLectures received an empty response but no error.</pre></div>'
-        else text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{res}</pre></div>"
-      
-        window.appView = @previewView
-        try
-          unless @mdPreview
-            @previewView.addSubView @mdPreview = new KDView
-              cssClass : 'has-markdown markdown-preview'
-              partial : text
-          else 
-            @mdPreview.updatePartial text
+        
+        {type,previewPath,coursePath} = options
+       
+        type ?= 'code-preview'
+  
+        # CODE-PREVIEW
+  
+        if type is 'code-preview'
+          window.appView = @previewView
+        
+          if res is '' then text = '<div class="info"><pre>KodeLectures received an empty response but no error.</pre></div>'
+          else text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{res}</pre></div>"
+          try
+            unless @mdPreview
+              @previewView.addSubView @mdPreview = new KDView
+                cssClass : 'has-markdown markdown-preview'
+                partial : text
+            else 
+              @mdPreview.updatePartial text
           
-        catch error
-          notify error.message
-        finally
-          delete window.appView
+          catch error
+            notify error.message
+          finally
+            @mdPreview?.show()
+            @terminal?.hide()
+            delete window.appView
+       
+        # EXECUTE-HTML
+       
+        else if type is 'execute-html'
+
+          window.appView = @previewView
+          
+          {nickname}=KD.whoami().profile
+          id = KD.utils.getRandomNumber 50000
+          publicURL = "https://#{nickname}.koding.com/.kodelectures/#{id}/#{previewPath}"
+          publicBasePath = "/Users/#{nickname}/Sites/#{nickname}.koding.com/website/.kodelectures"
+          courseBasePath = "/Users/#{nickname}/Applications/KodeLectures.kdapp/courses/#{coursePath}"
+          command = "mkdir #{publicBasePath};find #{publicBasePath}/ -maxdepth 1 -type l -exec rm -f {} \;ln -s '#{courseBasePath}' '#{publicBasePath}/#{id}';"
+                    
+          kiteController.run command, (err,res)=>
+            console.log err,res
+            console.log publicURL
+          
+            partial ="<div class='result-frame'><iframe src='#{publicURL}'></iframe></div>"
+          
+                 
+        
+            try
+              unless @mdPreview
+                @previewView.addSubView @mdPreview = new KDView
+                  cssClass : 'has-markdown markdown-preview'
+                  partial : partial
+              else 
+                @mdPreview.updatePartial partial
+          
+            catch error
+              notify error.message
+            finally
+              @mdPreview?.show()
+              @terminal?.hide()
+              delete window.appView
+        
+        # TERMINAL
+        
+        else if type is 'terminal'
+          console.log 'Terminal requested'
+          window.appView = @previewView
+        
+          sendCommand = (command)=>
+            @terminal.terminal.server.input command+"\n"
+            KD.utils.defer => @terminal.emit 'click'
+          
+          unless @terminal
+              console.log 'Adding terminal'
+              appStorage = new AppStorage 'WebTerm', '1.0'
+              appStorage.fetchStorage (storage)=>
+                @previewView.addSubView @terminal = new WebTermView appStorage
+                @terminal.setClass 'webterm'
+                console.log 'Terminal added'
+                @terminal.show()
+                @mdPreview?.hide()   
+                delete window.appView  
+
+                # this is hacky. where did the connected event go?
+                KD.utils.wait 2000, =>                  
+                  sendCommand code
+                            
+          else 
+              console.log 'Send cmd to terminal'
+              sendCommand code     
+              
+              @terminal?.show()
+              @mdPreview?.hide()   
+              
+              delete window.appView        
+ 
 
 class KodeLectures.Views.TaskSubItemView extends KDListItemView
   constructor:->
@@ -428,8 +497,10 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
   pistachio:->
     """
     {{> @titleText}}
+    <div class="course-details">
     {{> @descriptionText}}
     {{> @lectureList }}
+    </div>
     """
   
   

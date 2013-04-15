@@ -1,0 +1,27 @@
+{
+   "title":"How to use Bash",
+   "description":"Bash away!l",
+   "path":"terminal.kdlecture",
+   "install":{
+     "postImport":""
+   },
+   "lectures":[
+      {
+         "title":"Bash Basics",
+         "summary":"The pwd command",
+         "expectedResults":false,
+         "submitSuccess":"Well done! You can procedd to the next part, where you will learn all more things.",
+         "submitFailure":"This is not the statement we are looking for.",
+         "language":"sh",
+         "code":"",
+         "execute":"",
+         "previewType":"terminal",
+         "previewPath":"lecture.sh",
+         "files":["lecture.sh"],
+         "codeHint":"Use `pwd`.",
+         "codeHintText":"Try the `pwd` command.",
+         "taskText":"Make the shell display your current path.",
+         "lectureText":"For any operation, it is important to know where you are currently working. You need to find out!",
+      }
+   ]
+}

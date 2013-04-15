@@ -243,7 +243,10 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.active = yes
         
         @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @ace.getSession().getValue(), =>
-          @liveViewer.previewCode @editor.getValue(), @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute     
+          @liveViewer.previewCode @editor.getValue(), @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
+            type: @courses[@lastSelectedCourse].lectures[@lastSelectedItem].previewType            
+            previewPath: @courses[@lastSelectedCourse].lectures[@lastSelectedItem].previewPath
+            coursePath: @courses[@lastSelectedCourse].path
     
     @controlButtons.addSubView @courseButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button next hidden"
@@ -267,6 +270,7 @@ class KodeLectures.Views.MainView extends JView
       selectOptions : [
         {value:'javascript',title:'JavaScript'}
         {value:'coffee',title:'CoffeeScript'}
+        {value:'php',title:'PHP'}
         {value:'ruby',title:'Ruby'}
         {value:'python',title:'Python'}
         ]
