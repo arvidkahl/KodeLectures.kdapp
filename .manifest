@@ -3,10 +3,10 @@
   "version": "0.0.2",
   "name": "KodeLectures",
   "identifier": "com.koding.apps.kodelectures",
-  "path": "~/Applications/kodelectures.kdapp",
+  "path": "~/Applications/KodeLectures.kdapp",
   "homepage": "arvidkahl.koding.com/kodelectures",
   "author": "Arvid Kahl",
-  "repository": "git@github.com:arvidkahl/kodelectures.git",
+  "repository": "git@github.com:arvidkahl/KodeLectures.git",
   "description": "KodeLectures. Learning to code, one command at a time.",
   "category": "web-app",
   "source": {

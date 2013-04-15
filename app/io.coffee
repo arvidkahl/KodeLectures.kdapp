@@ -6,7 +6,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @kiteController = KD.getSingleton "kiteController"
     
     {@nickname} = KD.whoami().profile
-    @name       = 'kodelectures'
+    @name       = 'KodeLectures'
     @appPath      = "/Users/#{@nickname}/Applications"
     @basePath     = "#{@appPath}/#{@name}.kdapp"
     

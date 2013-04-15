@@ -1,10 +1,10 @@
-// Compiled by Koding Servers at Sun Apr 14 2013 15:53:28 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Sun Apr 14 2013 21:09:33 GMT-0700 (PDT) in server time
 
 (function() {
 
 /* KDAPP STARTS */
 
-/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/settings.coffee */
+/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/KodeLectures.kdapp/app/settings.coffee */
 
 var KodeLectures;
 
@@ -34,7 +34,7 @@ KodeLectures.Settings.lectures = [];
 
 
 
-/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/core.coffee */
+/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/KodeLectures.kdapp/app/core.coffee */
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -603,7 +603,7 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
 
 
 
-/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/views.coffee */
+/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/KodeLectures.kdapp/app/views.coffee */
 
 var Ace, LiveViewer, Settings, TaskView, _ref,
   _this = this,
@@ -771,7 +771,7 @@ KodeLectures.Views.MainView = (function(_super) {
       type: 'vertical',
       resizable: false,
       cssClass: 'task-splitview',
-      sizes: ['62%', '38%'],
+      sizes: [null, '200px'],
       views: [this.taskView, this.taskOverview]
     });
     this.splitView = new KDSplitView({
@@ -780,6 +780,9 @@ KodeLectures.Views.MainView = (function(_super) {
       resizable: true,
       sizes: ["50%", "50%"],
       views: [this.editorSplitView, this.taskSplitView]
+    });
+    this.splitView.on('ResizeDidStop', function() {
+      return _this.taskSplitView._windowDidResize({});
     });
     this.splitViewWrapper.addSubView(this.splitView);
     this.splitViewWrapper.addSubView(this.selectionView = new CourseSelectionView({
@@ -1045,7 +1048,7 @@ KodeLectures.Views.MainView = (function(_super) {
 
 
 
-/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/app/io.coffee */
+/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/KodeLectures.kdapp/app/io.coffee */
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1057,7 +1060,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     FileIOController.__super__.constructor.apply(this, arguments);
     this.kiteController = KD.getSingleton("kiteController");
     this.nickname = KD.whoami().profile.nickname;
-    this.name = 'kodelectures';
+    this.name = 'KodeLectures';
     this.appPath = "/Users/" + this.nickname + "/Applications";
     this.basePath = "" + this.appPath + "/" + this.name + ".kdapp";
     this.attachListeners();
@@ -1194,7 +1197,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
 
 
 
-/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/kodelectures.kdapp/index.coffee */
+/* BLOCK STARTS /Source: /Users/arvidkahl/Applications/KodeLectures.kdapp/index.coffee */
 
 var MainView, loader,
   _this = this;
