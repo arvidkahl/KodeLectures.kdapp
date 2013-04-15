@@ -12,44 +12,73 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     @attachListeners()
   
+  importCourseFromRepository:(url, type, callback)->
+    
+    if type is 'git' 
+      command = "cd #{@basePath}/courses; git clone #{url}"
+    
+    console.log "Importing a course from #{type} repository at #{url}"
+    
+    if command then @kiteController.run command , (err,res)=>
+      
+      console.log 'Import finished.',err
+      
+      newCourseName = url.replace(/\/$/,'').substring(url.lastIndexOf("/") + 1, url.length).replace(/\.git$/,'')
+
+      manifestInstance = FSHelper.createFileFromPath "#{@basePath}/courses/#{newCourseName}/manifest.json"
+      manifestInstance.fetchContents (err,res)=>
+        console.log 'Parsing manifest.json',err,res
+        
+        if err then callback err
+        else
+          try 
+            course = JSON.parse res
+          catch e
+            console.log 'Parse fauled with exception ',e
+          
+          if course 
+            console.log "Successfully imported course #{course.title} from #{url}"
+            @emit 'NewCourseImported',course
+            callback course
+            
   importCourseFromURL:(url,callback)->
     baseUrl = url
     url = url.replace /\/$/, ''
     url += '/manifest.json' unless url.match /manifest.json$/
     
     command = "curl -kL '#{url}'"
-    console.log 'importing from url', url
+    console.log "Importing a course from url #{url}"
     
     @kiteController.run command, (err,res)=>
       if err then console.log err
       
       else        
-        console.log 'parsing manifest.json'
+        console.log 'Parsing manifest.json'
         try 
           course = JSON.parse res
         catch e 
-          console.log 'parse failed',e
+          console.log 'Parse failed with exception ',e
         
         if course 
           
           @kiteController.run "mkdir #{@basePath}/courses/#{course.path}", (err,res)=>
             @kiteController.run "curl -kL '#{url}' > #{@basePath}/courses/#{course.path}/manifest.json"
             
-            console.log 'importing course',course?.title
+            console.log "Importing course '#{course.title}' from manifest.json data"
             
             if course.lectures
               for lecture in course.lectures
-                console.log 'importing lecture',lecture.title
+                console.log "Importing lecture #{lecture.title}"
                 if lecture.files                   
                   for file in lecture.files 
-                    console.log "importing file #{baseUrl}/#{file} to #{@basePath}/courses/#{course.path}/#{file}"
+                    console.log "Importing file #{baseUrl}/#{file} to #{@basePath}/courses/#{course.path}/#{file}"
                     @kiteController.run "curl -kL '#{baseUrl}/#{file}' > #{@basePath}/courses/#{course.path}/#{file}", (err,res)=>
                         if err 
-                          console.log 'file could not be imported', err
+                          console.log "File #{file} could not be imported, an error occured: ", err
                         else
-                          console.log 'file successfully imported', err, res
+                          console.log "File #{file} successfully imported"
                           
-            
+            # this timeout is a hack. basically, i need to wait until everything is imported. then fire the event/cb
             KD.utils.wait 2000, =>
               @emit 'NewCourseImported', course
               callback course

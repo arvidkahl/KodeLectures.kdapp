@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Sun Apr 14 2013 21:09:33 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Sun Apr 14 2013 22:33:56 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -215,10 +215,8 @@ KodeLectures.Views.TaskSubItemView = (function(_super) {
       this.content.show();
     }
     if (!(type !== 'embed' && content && content !== '' || type === 'embed' && ((content != null ? content.url : void 0) != null))) {
-      console.log("hiding " + type);
       return this.hide();
     } else {
-      console.log("showing " + type);
       return this.show();
     }
   };
@@ -446,12 +444,7 @@ KodeLectures.Views.TaskOverview = (function(_super) {
   }
 
   TaskOverview.prototype.setMainView = function(mainView) {
-    var _this = this;
-
     this.mainView = mainView;
-    return KD.utils.defer(function() {
-      return _this.lectureListController.itemsOrdered[0].setClass('active');
-    });
   };
 
   TaskOverview.prototype.pistachio = function() {
@@ -781,7 +774,13 @@ KodeLectures.Views.MainView = (function(_super) {
       sizes: ["50%", "50%"],
       views: [this.editorSplitView, this.taskSplitView]
     });
+    this.splitView.on('ResizeDidStart', function() {
+      return _this.resizeInterval = KD.utils.repeat(100, function() {
+        return _this.taskSplitView._windowDidResize({});
+      });
+    });
     this.splitView.on('ResizeDidStop', function() {
+      KD.utils.killRepeat(_this.resizeInterval);
       return _this.taskSplitView._windowDidResize({});
     });
     this.splitViewWrapper.addSubView(this.splitView);
@@ -815,17 +814,54 @@ KodeLectures.Views.MainView = (function(_super) {
           height: "auto",
           tabs: {
             navigable: true,
+            goToNextFormOnSubmit: false,
             forms: {
-              "ImportFromURL": {
+              "Import From Repository": {
+                fields: {
+                  "Repo URL": {
+                    label: 'Repo URL',
+                    itemClass: KDInputView,
+                    name: 'url'
+                  }
+                },
                 buttons: {
                   'Import': {
                     title: 'Import',
                     type: 'submit',
-                    style: 'modal-clean-gray',
+                    style: 'modal-clean-green',
+                    loader: {
+                      color: "#ffffff",
+                      diameter: 12
+                    },
                     callback: function() {
-                      console.log(arguments);
-                      return _this.ioController.importCourseFromURL(modal.modalTabs.forms['ImportFromURL'].inputs['URL'].getValue(), function() {
-                        console.log('done');
+                      return _this.ioController.importCourseFromRepository(modal.modalTabs.forms['Import From Repository'].inputs['Repo URL'].getValue(), 'git', function() {
+                        console.log('Done importing from repository. Closing modal.');
+                        return modal.destroy();
+                      });
+                    }
+                  },
+                  Cancel: {
+                    title: 'Cancel',
+                    type: 'modal-cancel',
+                    callback: function() {
+                      return modal.destroy();
+                    }
+                  }
+                }
+              },
+              "Import From URL": {
+                buttons: {
+                  'Import': {
+                    title: 'Import',
+                    type: 'submit',
+                    style: 'modal-clean-green',
+                    loader: {
+                      color: "#ffffff",
+                      diameter: 12
+                    },
+                    callback: function() {
+                      return _this.ioController.importCourseFromURL(modal.modalTabs.forms['Import From URL'].inputs['URL'].getValue(), function() {
+                        console.log('Done importing from url. Closing modal.');
                         return modal.destroy();
                       });
                     }
@@ -840,6 +876,7 @@ KodeLectures.Views.MainView = (function(_super) {
                 },
                 fields: {
                   "URL": {
+                    label: 'URL',
                     itemClass: KDInputView,
                     name: 'url'
                   }
@@ -1066,6 +1103,45 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     this.attachListeners();
   }
 
+  FileIOController.prototype.importCourseFromRepository = function(url, type, callback) {
+    var command,
+      _this = this;
+
+    if (type === 'git') {
+      command = "cd " + this.basePath + "/courses; git clone " + url;
+    }
+    console.log("Importing a course from " + type + " repository at " + url);
+    if (command) {
+      return this.kiteController.run(command, function(err, res) {
+        var manifestInstance, newCourseName;
+
+        console.log('Import finished.', err);
+        newCourseName = url.replace(/\/$/, '').substring(url.lastIndexOf("/") + 1, url.length).replace(/\.git$/, '');
+        manifestInstance = FSHelper.createFileFromPath("" + _this.basePath + "/courses/" + newCourseName + "/manifest.json");
+        return manifestInstance.fetchContents(function(err, res) {
+          var course, e;
+
+          console.log('Parsing manifest.json', err, res);
+          if (err) {
+            return callback(err);
+          } else {
+            try {
+              course = JSON.parse(res);
+            } catch (_error) {
+              e = _error;
+              console.log('Parse fauled with exception ', e);
+            }
+            if (course) {
+              console.log("Successfully imported course " + course.title + " from " + url);
+              _this.emit('NewCourseImported', course);
+              return callback(course);
+            }
+          }
+        });
+      });
+    }
+  };
+
   FileIOController.prototype.importCourseFromURL = function(url, callback) {
     var baseUrl, command,
       _this = this;
@@ -1076,41 +1152,41 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
       url += '/manifest.json';
     }
     command = "curl -kL '" + url + "'";
-    console.log('importing from url', url);
+    console.log("Importing a course from url " + url);
     return this.kiteController.run(command, function(err, res) {
       var course, e;
 
       if (err) {
         return console.log(err);
       } else {
-        console.log('parsing manifest.json');
+        console.log('Parsing manifest.json');
         try {
           course = JSON.parse(res);
         } catch (_error) {
           e = _error;
-          console.log('parse failed', e);
+          console.log('Parse failed with exception ', e);
         }
         if (course) {
           return _this.kiteController.run("mkdir " + _this.basePath + "/courses/" + course.path, function(err, res) {
             var file, lecture, _i, _j, _len, _len1, _ref, _ref1;
 
             _this.kiteController.run("curl -kL '" + url + "' > " + _this.basePath + "/courses/" + course.path + "/manifest.json");
-            console.log('importing course', course != null ? course.title : void 0);
+            console.log("Importing course '" + course.title + "' from manifest.json data");
             if (course.lectures) {
               _ref = course.lectures;
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 lecture = _ref[_i];
-                console.log('importing lecture', lecture.title);
+                console.log("Importing lecture " + lecture.title);
                 if (lecture.files) {
                   _ref1 = lecture.files;
                   for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
                     file = _ref1[_j];
-                    console.log("importing file " + baseUrl + "/" + file + " to " + _this.basePath + "/courses/" + course.path + "/" + file);
+                    console.log("Importing file " + baseUrl + "/" + file + " to " + _this.basePath + "/courses/" + course.path + "/" + file);
                     _this.kiteController.run("curl -kL '" + baseUrl + "/" + file + "' > " + _this.basePath + "/courses/" + course.path + "/" + file, function(err, res) {
                       if (err) {
-                        return console.log('file could not be imported', err);
+                        return console.log("File " + file + " could not be imported, an error occured: ", err);
                       } else {
-                        return console.log('file successfully imported', err, res);
+                        return console.log("File " + file + " successfully imported");
                       }
                     });
                   }

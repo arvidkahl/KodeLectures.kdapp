@@ -110,10 +110,10 @@ class KodeLectures.Views.TaskSubItemView extends KDListItemView
     if contentHidden then @content.hide() else @content.show()
   
     unless type isnt 'embed' and content and content isnt '' or type is 'embed' and content?.url? 
-      console.log "hiding #{type}"
+      #console.log "hiding #{type}"
       @hide() 
     else 
-      console.log "showing #{type}"
+      #console.log "showing #{type}"
       @show()
   
   viewAppended :->
@@ -308,8 +308,7 @@ class KodeLectures.Views.TaskOverview extends JView
       @lectureListController.itemsOrdered[index].setClass 'active'
   
   setMainView:(@mainView)->
-    KD.utils.defer => @lectureListController.itemsOrdered[0].setClass 'active' 
-
+  
   pistachio:->
     """
     {{> @lectureList}}

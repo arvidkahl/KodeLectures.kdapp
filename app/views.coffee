@@ -132,7 +132,15 @@ class KodeLectures.Views.MainView extends JView
         resizable : yes
         sizes     : ["50%","50%"]
         views     : [@editorSplitView, @taskSplitView]
-    @splitView.on 'ResizeDidStop',=>
+        
+    # Resize hack for nested splitviews    
+        
+    @splitView.on 'ResizeDidStart', =>
+      @resizeInterval = KD.utils.repeat 100, =>
+        @taskSplitView._windowDidResize {}
+        
+    @splitView.on 'ResizeDidStop', =>
+      KD.utils.killRepeat @resizeInterval
       @taskSplitView._windowDidResize {}
 
     @splitViewWrapper.addSubView @splitView
@@ -164,18 +172,45 @@ class KodeLectures.Views.MainView extends JView
           width                   : 500
           height                  : "auto"
           tabs                    : 
-              navigable           : yes            
-              forms               :
-                "ImportFromURL"   :
+            navigable             : yes 
+            goToNextFormOnSubmit  : no              
+            forms                 :
+              "Import From Repository"  :
+                  fields          :
+                    "Repo URL"    :
+                      label       : 'Repo URL'
+                      itemClass   : KDInputView
+                      name        : 'url'
+                  buttons         :  
+                    'Import'      :
+                      title       : 'Import'
+                      type        : 'submit'
+                      style       : 'modal-clean-green'
+                      loader      :
+                        color     : "#ffffff"
+                        diameter  : 12
+                      callback    : =>
+                        @ioController.importCourseFromRepository modal.modalTabs.forms['Import From Repository'].inputs['Repo URL'].getValue(), 'git',=>
+                          console.log 'Done importing from repository. Closing modal.'
+                          modal.destroy()
+                    Cancel        :
+                      title       : 'Cancel'
+                      type        : 'modal-cancel'
+                      callback    : =>
+                        modal.destroy()
+              
+              "Import From URL"   :
                   buttons         :
                     'Import'      :
                       title       : 'Import'
                       type        : 'submit'
-                      style       : 'modal-clean-gray'
+                      style       : 'modal-clean-green'
+                      loader      :
+                        color     : "#ffffff"
+                        diameter  : 12    
                       callback    : =>
-                        console.log arguments
-                        @ioController.importCourseFromURL modal.modalTabs.forms['ImportFromURL'].inputs['URL'].getValue(), =>
-                          console.log 'done'
+                        @ioController.importCourseFromURL modal.modalTabs.forms['Import From URL'].inputs['URL'].getValue(), =>
+                          console.log 'Done importing from url. Closing modal.'
                           modal.destroy()
                     Cancel        :
                       title       : 'Cancel'
@@ -184,7 +219,8 @@ class KodeLectures.Views.MainView extends JView
                         modal.destroy()
                   fields          :
                     "URL"         :
-                      itemClass   : KDInputView
+                      label       : 'URL'
+                      itemClass   : KDInputView 
                       name        : 'url'
       
     runButton = new KDButtonView
