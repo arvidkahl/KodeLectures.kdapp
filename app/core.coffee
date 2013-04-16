@@ -31,7 +31,7 @@ class KodeLectures.Core.LiveViewer
   
   previewCode: (code, execute, options)->
     return if not @active 
-    
+    console.log arguments
     if code or code is ''
     
       kiteController = KD.getSingleton "kiteController"
@@ -111,9 +111,10 @@ class KodeLectures.Core.LiveViewer
           window.appView = @previewView
         
           sendCommand = (command)=>
-            @terminal.terminal.server.input command+"\n" unless command is ''
-            KD.utils.defer => @terminal.emit 'click'
-          
+            if @terminal.terminal?.server?.input
+              @terminal.terminal?.server?.input command+"\n" unless command is ''
+              KD.utils.defer => @terminal.emit 'click' # focus :)
+            else console.log 'There is a connectivity problem with the terminal'  
           unless @terminal
               console.log 'Adding terminal'
               appStorage = new AppStorage 'WebTerm', '1.0'
@@ -126,8 +127,10 @@ class KodeLectures.Core.LiveViewer
                 delete window.appView  
 
                 # this is hacky. where did the connected event go?
-                KD.utils.wait 2000, =>                  
-                  sendCommand code
+                KD.utils.wait 2000, =>    
+                  console.log 'Sending initial command to terminal'
+                  sendCommand "cd 'Applications/KodeLectures.kdapp/courses/#{coursePath}'"
+                  KD.utils.defer => sendCommand code
                             
           else 
               console.log 'Send cmd to terminal'
@@ -294,6 +297,9 @@ class KodeLectures.Views.TaskView extends JView
       @render()
     
     @on 'ResultReceived', (result)=>
+      
+      console.log 'Received',result
+      
       {expectedResults,submitSuccess,submitFailure} = @getData()
       
       @resultView.show() unless expectedResults is null
@@ -305,6 +311,10 @@ class KodeLectures.Views.TaskView extends JView
       else 
         @resultView.updatePartial submitFailure
         @resultView.unsetClass 'success'  
+ 
+    @on 'ReadyForNextLecture', =>
+      console.log 'shwoing button'
+      @nextLectureButton.show()
  
   pistachio:->
     """
@@ -402,8 +412,11 @@ class KodeLectures.Views.CourseLectureListItemView extends KDListItemView
     {{> @lectureTitle}}
     """
   
-  click:->
+  click:(event)->
+    event.stopPropagation()
+    event.preventDefault()
     @getDelegate().emit 'LectureSelected', @getData()
+    
     
 class KodeLectures.Views.CourseSelectionItemView extends KDListItemView  
   {CourseLectureListItemView} = KodeLectures.Views
@@ -492,7 +505,9 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
     @setTemplate @pistachio()
     @template.update()
   
-  click:->
+  click:(event)->
+    event.stopPropagation()
+    event.preventDefault()
     @getDelegate().emit 'CourseSelected', @getData()
   
   pistachio:->
@@ -524,11 +539,12 @@ class KodeLectures.Views.CourseSelectionView extends JView
       courses.push course
     
     @courseController.listView.on 'LectureSelected', ({course,lecture})=>
-      @mainView.emit 'CourseChanged', courses.indexOf course  
+      @mainView.emit 'CourseChanged', courses.indexOf course
       KD.utils.defer => @mainView.emit 'LectureChanged', course.lectures.indexOf lecture
     
     @courseController.listView.on 'CourseSelected', (course)=>
       @mainView.emit 'CourseChanged', courses.indexOf course
+      KD.utils.defer => @mainView.emit 'LectureChanged', 0
 
     @courseController.listView.on 'RemoveCourseClicked', ({course,view})=>
       @mainView.ioController.removeCourse courses, courses.indexOf(course), (err,res)=>

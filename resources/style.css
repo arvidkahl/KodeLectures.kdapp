@@ -251,7 +251,7 @@
 }
 
 .marKDown .task-next-button {
-  margin-left : 15px;
+  width:100%;
 }
 
 .marKDown .hint-view {

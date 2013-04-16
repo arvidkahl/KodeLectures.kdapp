@@ -310,14 +310,17 @@ class KodeLectures.Views.MainView extends JView
 
   attachListeners :->
     @on 'LectureChanged', (lecture=0)=>
+      
+        console.log 'LectureChanged'
+      
         @lastSelectedItem = lecture        
-        {code,codeFile,language,files,previewType} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+        {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
         
         @currentFile = if files?.length>0 then files[0] else 'tempfile'
         
         @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
           unless err
-            console.log contents
+            #console.log contents
             @ace.getSession().setValue contents 
           else 
             console.log err
@@ -329,18 +332,24 @@ class KodeLectures.Views.MainView extends JView
         @currentLang = language
         @languageSelect.setValue language
         @currentLecture = @lastSelectedItem
+        
+        if expectedResults is null
+          @taskView.emit 'ReadyForNextLecture'
+      
         if previewType is 'terminal' 
           @liveViewer.active = yes
-          @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, {type:previewType}
+          @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
+            type:previewType
+            coursePath:@courses[@lastSelectedCourse].path
         else 
           @liveViewer.mdPreview?.show()
           @liveViewer.terminal?.hide()
 
     @on 'CourseChanged', (course)=>
-        
+              
         @lastSelectedCourse = course
 
-        @emit 'LectureChanged'
+        #@emit 'LectureChanged'
         @emit 'LectureRequested'
     
     @on 'CourseRequested', =>
@@ -356,7 +365,7 @@ class KodeLectures.Views.MainView extends JView
         @lectureButton.hide()
    
     @on 'NextLectureRequested', =>
-  
+      @emit 'LectureChanged',@lastSelectedItem+1
     @on 'PreviousLectureRequested', =>
 
   getEditScrollPercentage:->

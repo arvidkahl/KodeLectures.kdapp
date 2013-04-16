@@ -1,0 +1,54 @@
+{
+   "title":"Basic Bash Commands",
+   "description":"Learn to use the Terminal with a selection of the most commonly used commands",
+   "path":"BasicBashCommands.kdlecture",
+   "originUrl":"https://github.com/arvidkahl/BasicBashCommands.kdlecture.git",
+   "originType":"git",
+   "lectures":[
+      {
+         "title":"Lecture 1: Where am I?",
+         "summary":"Knowing where you are. (__pwd__)",
+         "expectedResults":null,
+         "submitSuccess":"Well done.",
+         "submitFailure":"Not quite there yet.",
+         "language":"sh",
+         "code":"",
+         "previewType":"terminal",        
+         "execute": "",
+         "files" : ["lecture01.sh"],
+         "taskText":"Type `pwd` either directly into the terminal or into the editor and click the 'Submit and Run' button.",
+         "lectureText":"The terminal prompt is usually very short. If you want to know the path of your work directory, you can use the `pwd` command. It is short for __p__rint __w__orking __d__irectory."
+      },
+      {
+         "title":"Lecture 2: How do I move?",
+         "summary":"Knowing how to change directories (__cd__)",
+         "expectedResults":null,
+         "submitSuccess":"Well done.",
+         "submitFailure":"Nope.",
+         "language":"sh",
+         "code":"",
+         "execute":"",
+         "previewType":"terminal",
+         "files":["lecture02.sh"],
+         "codeHint":"Use `cd lecture` after the `cd` statement that is already in the editor. Write it on a new line.",
+         "codeHintText":"Try the `cd` command to move into the directory called `lecture`.",
+         "taskText":"Move into a directory called `lecture` inside the course folder. The course folder can be reached by the command that is in the editor already.",
+         "lectureText":"If you want to change directories, you can use the `cd` command. It is short for __c__hange __d__irectory. Figures!"
+      },
+      {
+         "title":"Lecture 3: How do I list directory contents?",
+         "summary":"Knowing how to list the contents of a directory (__ls__)",
+         "expectedResults":null,
+         "submitSuccess":"Well done.",
+         "submitFailure":"Not quite.",
+         "language":"sh",
+         "code":"",
+         "execute":"",
+         "previewType":"terminal",
+         "files":["lecture03.sh"],
+         "codeHintText":"Try the `ls` command to see the contents of your current work directory.",
+         "taskText":"Enter the command to see the contents of your directory.",
+         "lectureText":"To see the contents of your directory, you have to give the order to __l__i__s__t everything. The `ls` command will help you with that."
+      }
+   ]
+}

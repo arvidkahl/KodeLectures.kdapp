@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Mon Apr 15 2013 18:48:02 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Tue Apr 16 2013 11:10:05 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -104,6 +104,7 @@ KodeLectures.Core.LiveViewer = (function() {
     if (!this.active) {
       return;
     }
+    console.log(arguments);
     if (code || code === '') {
       kiteController = KD.getSingleton("kiteController");
       _ref = this.mainView, ioController = _ref.ioController, courses = _ref.courses, course = _ref.lastSelectedCourse, lecture = _ref.lastSelectedItem;
@@ -185,12 +186,22 @@ KodeLectures.Core.LiveViewer = (function() {
           console.log('Terminal requested');
           window.appView = _this.previewView;
           sendCommand = function(command) {
-            if (command !== '') {
-              _this.terminal.terminal.server.input(command + "\n");
+            var _ref3, _ref4, _ref5, _ref6;
+
+            if ((_ref3 = _this.terminal.terminal) != null ? (_ref4 = _ref3.server) != null ? _ref4.input : void 0 : void 0) {
+              if (command !== '') {
+                if ((_ref5 = _this.terminal.terminal) != null) {
+                  if ((_ref6 = _ref5.server) != null) {
+                    _ref6.input(command + "\n");
+                  }
+                }
+              }
+              return KD.utils.defer(function() {
+                return _this.terminal.emit('click');
+              });
+            } else {
+              return console.log('There is a connectivity problem with the terminal');
             }
-            return KD.utils.defer(function() {
-              return _this.terminal.emit('click');
-            });
           };
           if (!_this.terminal) {
             console.log('Adding terminal');
@@ -207,7 +218,11 @@ KodeLectures.Core.LiveViewer = (function() {
               }
               delete window.appView;
               return KD.utils.wait(2000, function() {
-                return sendCommand(code);
+                console.log('Sending initial command to terminal');
+                sendCommand("cd 'Applications/KodeLectures.kdapp/courses/" + coursePath + "'");
+                return KD.utils.defer(function() {
+                  return sendCommand(code);
+                });
               });
             });
           } else {
@@ -429,6 +444,7 @@ KodeLectures.Views.TaskView = (function(_super) {
     this.on('ResultReceived', function(result) {
       var expectedResults, submitFailure, submitSuccess, _ref5;
 
+      console.log('Received', result);
       _ref5 = _this.getData(), expectedResults = _ref5.expectedResults, submitSuccess = _ref5.submitSuccess, submitFailure = _ref5.submitFailure;
       if (expectedResults !== null) {
         _this.resultView.show();
@@ -441,6 +457,10 @@ KodeLectures.Views.TaskView = (function(_super) {
         _this.resultView.updatePartial(submitFailure);
         return _this.resultView.unsetClass('success');
       }
+    });
+    this.on('ReadyForNextLecture', function() {
+      console.log('shwoing button');
+      return _this.nextLectureButton.show();
     });
   }
 
@@ -556,7 +576,9 @@ KodeLectures.Views.CourseLectureListItemView = (function(_super) {
     return "{{> this.lectureTitle}}";
   };
 
-  CourseLectureListItemView.prototype.click = function() {
+  CourseLectureListItemView.prototype.click = function(event) {
+    event.stopPropagation();
+    event.preventDefault();
     return this.getDelegate().emit('LectureSelected', this.getData());
   };
 
@@ -691,7 +713,9 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
     return this.template.update();
   };
 
-  CourseSelectionItemView.prototype.click = function() {
+  CourseSelectionItemView.prototype.click = function(event) {
+    event.stopPropagation();
+    event.preventDefault();
     return this.getDelegate().emit('CourseSelected', this.getData());
   };
 
@@ -737,7 +761,10 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
       });
     });
     this.courseController.listView.on('CourseSelected', function(course) {
-      return _this.mainView.emit('CourseChanged', courses.indexOf(course));
+      _this.mainView.emit('CourseChanged', courses.indexOf(course));
+      return KD.utils.defer(function() {
+        return _this.mainView.emit('LectureChanged', 0);
+      });
     });
     this.courseController.listView.on('RemoveCourseClicked', function(_arg) {
       var course, view;
@@ -1185,17 +1212,17 @@ KodeLectures.Views.MainView = (function(_super) {
     var _this = this;
 
     this.on('LectureChanged', function(lecture) {
-      var code, codeFile, files, language, previewType, _ref2, _ref3, _ref4;
+      var code, codeFile, expectedResults, files, language, previewType, _ref2, _ref3, _ref4;
 
       if (lecture == null) {
         lecture = 0;
       }
+      console.log('LectureChanged');
       _this.lastSelectedItem = lecture;
-      _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files, previewType = _ref2.previewType;
+      _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files, previewType = _ref2.previewType, expectedResults = _ref2.expectedResults;
       _this.currentFile = (files != null ? files.length : void 0) > 0 ? files[0] : 'tempfile';
       _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, function(err, contents) {
         if (!err) {
-          console.log(contents);
           return _this.ace.getSession().setValue(contents);
         } else {
           return console.log(err);
@@ -1210,10 +1237,14 @@ KodeLectures.Views.MainView = (function(_super) {
       _this.currentLang = language;
       _this.languageSelect.setValue(language);
       _this.currentLecture = _this.lastSelectedItem;
+      if (expectedResults === null) {
+        _this.taskView.emit('ReadyForNextLecture');
+      }
       if (previewType === 'terminal') {
         _this.liveViewer.active = true;
         return _this.liveViewer.previewCode("", _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem].execute, {
-          type: previewType
+          type: previewType,
+          coursePath: _this.courses[_this.lastSelectedCourse].path
         });
       } else {
         if ((_ref3 = _this.liveViewer.mdPreview) != null) {
@@ -1224,7 +1255,6 @@ KodeLectures.Views.MainView = (function(_super) {
     });
     this.on('CourseChanged', function(course) {
       _this.lastSelectedCourse = course;
-      _this.emit('LectureChanged');
       return _this.emit('LectureRequested');
     });
     this.on('CourseRequested', function() {
@@ -1239,7 +1269,9 @@ KodeLectures.Views.MainView = (function(_super) {
       _this.courseButton.show();
       return _this.lectureButton.hide();
     });
-    this.on('NextLectureRequested', function() {});
+    this.on('NextLectureRequested', function() {
+      return _this.emit('LectureChanged', _this.lastSelectedItem + 1);
+    });
     return this.on('PreviousLectureRequested', function() {});
   };
 
