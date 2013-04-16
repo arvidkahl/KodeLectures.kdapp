@@ -32,7 +32,7 @@ class KodeLectures.Core.LiveViewer
   previewCode: (code, execute, options)->
     return if not @active 
     
-    unless not code or code is ''
+    if code or code is ''
     
       kiteController = KD.getSingleton "kiteController"
 
@@ -111,7 +111,7 @@ class KodeLectures.Core.LiveViewer
           window.appView = @previewView
         
           sendCommand = (command)=>
-            @terminal.terminal.server.input command+"\n"
+            @terminal.terminal.server.input command+"\n" unless command is ''
             KD.utils.defer => @terminal.emit 'click'
           
           unless @terminal
@@ -294,15 +294,16 @@ class KodeLectures.Views.TaskView extends JView
       @render()
     
     @on 'ResultReceived', (result)=>
+      {expectedResults,submitSuccess,submitFailure} = @getData()
       
-      @resultView.show()
+      @resultView.show() unless expectedResults is null
       
-      if result.trim() is @getData().expectedResults
-        @resultView.updatePartial @getData().submitSuccess
+      if result.trim() is expectedResults
+        @resultView.updatePartial submitSuccess
         @resultView.setClass 'success'
         @nextLectureButton.show()
       else 
-        @resultView.updatePartial @getData().submitFailure
+        @resultView.updatePartial submitFailure
         @resultView.unsetClass 'success'  
  
   pistachio:->

@@ -311,7 +311,7 @@ class KodeLectures.Views.MainView extends JView
   attachListeners :->
     @on 'LectureChanged', (lecture=0)=>
         @lastSelectedItem = lecture        
-        {code,codeFile,language,files} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+        {code,codeFile,language,files,previewType} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
         
         @currentFile = if files?.length>0 then files[0] else 'tempfile'
         
@@ -329,6 +329,12 @@ class KodeLectures.Views.MainView extends JView
         @currentLang = language
         @languageSelect.setValue language
         @currentLecture = @lastSelectedItem
+        if previewType is 'terminal' 
+          @liveViewer.active = yes
+          @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, {type:previewType}
+        else 
+          @liveViewer.mdPreview?.show()
+          @liveViewer.terminal?.hide()
 
     @on 'CourseChanged', (course)=>
         

@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Mon Apr 15 2013 16:16:17 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Mon Apr 15 2013 18:48:02 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -104,7 +104,7 @@ KodeLectures.Core.LiveViewer = (function() {
     if (!this.active) {
       return;
     }
-    if (!(!code || code === '')) {
+    if (code || code === '') {
       kiteController = KD.getSingleton("kiteController");
       _ref = this.mainView, ioController = _ref.ioController, courses = _ref.courses, course = _ref.lastSelectedCourse, lecture = _ref.lastSelectedItem;
       return ioController.runFile(courses, course, lecture, execute, function(err, res) {
@@ -185,7 +185,9 @@ KodeLectures.Core.LiveViewer = (function() {
           console.log('Terminal requested');
           window.appView = _this.previewView;
           sendCommand = function(command) {
-            _this.terminal.terminal.server.input(command + "\n");
+            if (command !== '') {
+              _this.terminal.terminal.server.input(command + "\n");
+            }
             return KD.utils.defer(function() {
               return _this.terminal.emit('click');
             });
@@ -205,7 +207,6 @@ KodeLectures.Core.LiveViewer = (function() {
               }
               delete window.appView;
               return KD.utils.wait(2000, function() {
-                console.log('Webterm conncted');
                 return sendCommand(code);
               });
             });
@@ -426,13 +427,18 @@ KodeLectures.Views.TaskView = (function(_super) {
       return _this.render();
     });
     this.on('ResultReceived', function(result) {
-      _this.resultView.show();
-      if (result.trim() === _this.getData().expectedResults) {
-        _this.resultView.updatePartial(_this.getData().submitSuccess);
+      var expectedResults, submitFailure, submitSuccess, _ref5;
+
+      _ref5 = _this.getData(), expectedResults = _ref5.expectedResults, submitSuccess = _ref5.submitSuccess, submitFailure = _ref5.submitFailure;
+      if (expectedResults !== null) {
+        _this.resultView.show();
+      }
+      if (result.trim() === expectedResults) {
+        _this.resultView.updatePartial(submitSuccess);
         _this.resultView.setClass('success');
         return _this.nextLectureButton.show();
       } else {
-        _this.resultView.updatePartial(_this.getData().submitFailure);
+        _this.resultView.updatePartial(submitFailure);
         return _this.resultView.unsetClass('success');
       }
     });
@@ -1179,13 +1185,13 @@ KodeLectures.Views.MainView = (function(_super) {
     var _this = this;
 
     this.on('LectureChanged', function(lecture) {
-      var code, codeFile, files, language, _ref2;
+      var code, codeFile, files, language, previewType, _ref2, _ref3, _ref4;
 
       if (lecture == null) {
         lecture = 0;
       }
       _this.lastSelectedItem = lecture;
-      _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files;
+      _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files, previewType = _ref2.previewType;
       _this.currentFile = (files != null ? files.length : void 0) > 0 ? files[0] : 'tempfile';
       _this.ioController.readFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, function(err, contents) {
         if (!err) {
@@ -1203,7 +1209,18 @@ KodeLectures.Views.MainView = (function(_super) {
       _this.ace.getSession().setMode("ace/mode/" + language);
       _this.currentLang = language;
       _this.languageSelect.setValue(language);
-      return _this.currentLecture = _this.lastSelectedItem;
+      _this.currentLecture = _this.lastSelectedItem;
+      if (previewType === 'terminal') {
+        _this.liveViewer.active = true;
+        return _this.liveViewer.previewCode("", _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem].execute, {
+          type: previewType
+        });
+      } else {
+        if ((_ref3 = _this.liveViewer.mdPreview) != null) {
+          _ref3.show();
+        }
+        return (_ref4 = _this.liveViewer.terminal) != null ? _ref4.hide() : void 0;
+      }
     });
     this.on('CourseChanged', function(course) {
       _this.lastSelectedCourse = course;
