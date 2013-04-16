@@ -268,8 +268,10 @@
   z-index: 20000;
   position: absolute;
   bottom: 10px;
-  right: 10px;}
-
+  right: 10px;
+  left: 10px;
+  width:auto;
+}
 .marKDown .text{
   display:block;
   border-bottom:1px solid #e8e8e8;

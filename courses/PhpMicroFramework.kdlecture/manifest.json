@@ -1,0 +1,24 @@
+{
+   "title":"PHP MicroFramework",
+   "description":"Writing a PHP microframework from scratch",
+   "path":"PhpMicroFramework.kdlecture",
+   "originUrl":"https://github.com/arvidkahl/PhpMicroFramework.kdlecture.git",
+   "originType":"git",
+   "lectures":[
+      {
+         "title":"Lecture 1: The skeleton.",
+         "summary":"Starting with a single page",
+         "expectedResults":null,
+         "submitSuccess":"Well done.",
+         "submitFailure":"Not quite there yet.",
+         "language":"php",
+         "code":"",
+         "previewType":"execute-html", 
+         "previewPath":"lecture/index.php",
+         "execute": "",
+         "files" : ["lecture/index.php"],
+         "taskText":"Change the title to see changes.",
+         "lectureText":"`$title` is a PHP variable. Change it and submit the code to see immediate changes."
+      }
+   ]
+}

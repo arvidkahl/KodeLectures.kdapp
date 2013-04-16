@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Apr 16 2013 11:10:05 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Tue Apr 16 2013 12:53:39 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -73,19 +73,24 @@ KodeLectures.Core.LiveViewer = (function() {
 
   LiveViewer.prototype.active = false;
 
-  LiveViewer.prototype.pistachios = /\{(\w*)?(\#\w*)?((?:\.\w*)*)(\[(?:\b\w*\b)(?:\=[\"|\']?.*[\"|\']?)\])*\{([^{}]*)\}\s*\}/g;
-
   function LiveViewer() {
     this.sessionId = KD.utils.uniqueId("kodepadSession");
   }
 
   LiveViewer.prototype.setPreviewView = function(previewView) {
+    var _ref, _ref1;
+
     this.previewView = previewView;
     if (!this.mdPreview) {
       return this.previewView.addSubView(this.mdPreview = new KDView({
         cssClass: 'has-markdown markdown-preview',
         partial: '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
       }));
+    } else {
+      if ((_ref = this.mdPreview) != null) {
+        _ref.show();
+      }
+      return (_ref1 = this.terminal) != null ? _ref1.hide() : void 0;
     }
   };
 
@@ -104,12 +109,11 @@ KodeLectures.Core.LiveViewer = (function() {
     if (!this.active) {
       return;
     }
-    console.log(arguments);
     if (code || code === '') {
       kiteController = KD.getSingleton("kiteController");
       _ref = this.mainView, ioController = _ref.ioController, courses = _ref.courses, course = _ref.lastSelectedCourse, lecture = _ref.lastSelectedItem;
       return ioController.runFile(courses, course, lecture, execute, function(err, res) {
-        var appStorage, command, courseBasePath, coursePath, error, id, nickname, previewPath, publicBasePath, publicURL, sendCommand, text, type, _ref1, _ref2, _ref3, _ref4;
+        var appStorage, coursePath, error, previewPath, sendCommand, text, type, _ref1, _ref2, _ref3, _ref4;
 
         if (!err) {
           _this.mainView.taskView.emit('ResultReceived', res);
@@ -148,17 +152,15 @@ KodeLectures.Core.LiveViewer = (function() {
           }
         } else if (type === 'execute-html') {
           window.appView = _this.previewView;
-          nickname = KD.whoami().profile.nickname;
-          id = KD.utils.getRandomNumber(50000);
-          publicURL = "https://" + nickname + ".koding.com/.kodelectures/" + id + "/" + previewPath;
-          publicBasePath = "/Users/" + nickname + "/Sites/" + nickname + ".koding.com/website/.kodelectures";
-          courseBasePath = "/Users/" + nickname + "/Applications/KodeLectures.kdapp/courses/" + coursePath;
-          command = "mkdir " + publicBasePath + ";find " + publicBasePath + "/ -maxdepth 1 -type l -exec rm -f {} \;ln -s '" + courseBasePath + "' '" + publicBasePath + "/" + id + "';";
-          return kiteController.run(command, function(err, res) {
+          return ioController.generateSymlinkedPreview(previewPath, coursePath, function(err, res, publicURL) {
             var partial, _ref3, _ref4;
 
-            console.log(err, res);
-            console.log(publicURL);
+            if (err) {
+              console.log(err);
+            }
+            if (!err) {
+              console.log("Course preview path '" + previewPath + "' symlinked to '" + publicURL + "'");
+            }
             partial = "<div class='result-frame'><iframe src='" + publicURL + "'></iframe></div>";
             try {
               if (!_this.mdPreview) {
@@ -444,7 +446,6 @@ KodeLectures.Views.TaskView = (function(_super) {
     this.on('ResultReceived', function(result) {
       var expectedResults, submitFailure, submitSuccess, _ref5;
 
-      console.log('Received', result);
       _ref5 = _this.getData(), expectedResults = _ref5.expectedResults, submitSuccess = _ref5.submitSuccess, submitFailure = _ref5.submitFailure;
       if (expectedResults !== null) {
         _this.resultView.show();
@@ -1217,7 +1218,6 @@ KodeLectures.Views.MainView = (function(_super) {
       if (lecture == null) {
         lecture = 0;
       }
-      console.log('LectureChanged');
       _this.lastSelectedItem = lecture;
       _ref2 = _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem], code = _ref2.code, codeFile = _ref2.codeFile, language = _ref2.language, files = _ref2.files, previewType = _ref2.previewType, expectedResults = _ref2.expectedResults;
       _this.currentFile = (files != null ? files.length : void 0) > 0 ? files[0] : 'tempfile';
@@ -1225,7 +1225,7 @@ KodeLectures.Views.MainView = (function(_super) {
         if (!err) {
           return _this.ace.getSession().setValue(contents);
         } else {
-          return console.log(err);
+          return console.log('Reading from lecture file failed with error: ', err);
         }
       });
       _this.taskView.emit('LectureChanged', _this.courses[_this.lastSelectedCourse].lectures[_this.lastSelectedItem]);
@@ -1270,7 +1270,9 @@ KodeLectures.Views.MainView = (function(_super) {
       return _this.lectureButton.hide();
     });
     this.on('NextLectureRequested', function() {
-      return _this.emit('LectureChanged', _this.lastSelectedItem + 1);
+      if (_this.lastSelectedItem !== _this.courses[_this.lastSelectedCourse].lectures.length - 1) {
+        return _this.emit('LectureChanged', _this.lastSelectedItem + 1);
+      }
     });
     return this.on('PreviousLectureRequested', function() {});
   };
@@ -1351,6 +1353,29 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     this.attachListeners();
   }
 
+  FileIOController.prototype.generateSymlinkedPreview = function(previewPath, coursePath, callback) {
+    var command, courseBasePath, id, publicBasePath, publicURL,
+      _this = this;
+
+    if (callback == null) {
+      callback = function() {};
+    }
+    id = KD.utils.getRandomNumber(50000);
+    publicURL = "https://" + this.nickname + ".koding.com/.kodelectures/" + id + "/" + previewPath;
+    publicBasePath = "/Users/" + this.nickname + "/Sites/" + this.nickname + ".koding.com/website/.kodelectures";
+    courseBasePath = "/Users/" + this.nickname + "/Applications/KodeLectures.kdapp/courses/" + coursePath;
+    command = "mkdir " + publicBasePath + ";ln -s '" + courseBasePath + "' '" + publicBasePath + "/" + id + "';";
+    console.log('Cleaning up symlinks in public directory (if necessary)');
+    return this.kiteController.run("find " + publicBasePath + "/ -maxdepth 1 -type l -exec rm -f {} \\;", function(cleanupErr, cleanupRes) {
+      if (cleanupErr) {
+        console.log('Cleaning up failed with error: ', cleanupErr);
+      }
+      return _this.kiteController.run(command, function(err, res) {
+        return callback(err, res, publicURL);
+      });
+    });
+  };
+
   FileIOController.prototype.resetCourseFiles = function(courses, course, type, callback) {
     var command, path,
       _this = this;
@@ -1366,7 +1391,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     if (command) {
       return this.kiteController.run(command, function(err, res) {
         if (err) {
-          console.log('Resetting failed with error ', err);
+          console.log('Resetting failed with error :', err);
           return callback(err);
         } else {
           console.log("Resetting completed", err, res);
@@ -1393,7 +1418,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
       return this.kiteController.run("rm -rf " + this.basePath + "/courses/" + path, function(err, res) {
         if (err) {
           callback(err);
-          return console.log("Removing the course failed with error " + err);
+          return console.log("Removing the course failed with error : " + err);
         } else {
           console.log('Course successfully removed');
           return callback(err, res);
@@ -1406,6 +1431,9 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     var command,
       _this = this;
 
+    if (callback == null) {
+      callback = function() {};
+    }
     if (type === 'git') {
       command = "cd " + this.basePath + "/courses; git clone " + url;
     }
@@ -1445,6 +1473,9 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
     var baseUrl, command,
       _this = this;
 
+    if (callback == null) {
+      callback = function() {};
+    }
     baseUrl = url;
     url = url.replace(/\/$/, '');
     if (!url.match(/manifest.json$/)) {
@@ -1456,14 +1487,14 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
       var course, e;
 
       if (err) {
-        return console.log(err);
+        return console.log('Importing via url failed with error : ', err);
       } else {
         console.log('Parsing manifest.json');
         try {
           course = JSON.parse(res);
         } catch (_error) {
           e = _error;
-          console.log('Parse failed with exception ', e);
+          console.log('Parse failed with exception : ', e);
         }
         if (course) {
           return _this.kiteController.run("mkdir " + _this.basePath + "/courses/" + course.path, function(err, res) {
@@ -1483,7 +1514,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
                     console.log("Importing file " + baseUrl + "/" + file + " to " + _this.basePath + "/courses/" + course.path + "/" + file);
                     _this.kiteController.run("curl -kL '" + baseUrl + "/" + file + "' > " + _this.basePath + "/courses/" + course.path + "/" + file, function(err, res) {
                       if (err) {
-                        return console.log("File " + file + " could not be imported, an error occured: ", err);
+                        return console.log("File " + file + " could not be imported, an error occured : ", err);
                       } else {
                         return console.log("File " + file + " successfully imported");
                       }
@@ -1553,7 +1584,7 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
                 return _this.emit('NewCourseImported', newCourse);
               } catch (_error) {
                 e = _error;
-                return console.log(e);
+                return console.log('Reading and/or parsing manifest.json failed with : ', e, err);
               }
             }));
           }

@@ -12,6 +12,20 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     @attachListeners()
   
+  generateSymlinkedPreview:(previewPath,coursePath,callback=->)->
+    
+    id = KD.utils.getRandomNumber 50000
+    publicURL = "https://#{@nickname}.koding.com/.kodelectures/#{id}/#{previewPath}"
+    publicBasePath = "/Users/#{@nickname}/Sites/#{@nickname}.koding.com/website/.kodelectures"
+    courseBasePath = "/Users/#{@nickname}/Applications/KodeLectures.kdapp/courses/#{coursePath}"
+    command = "mkdir #{publicBasePath};ln -s '#{courseBasePath}' '#{publicBasePath}/#{id}';"
+    
+    console.log 'Cleaning up symlinks in public directory (if necessary)'
+    @kiteController.run "find #{publicBasePath}/ -maxdepth 1 -type l -exec rm -f {} \\;", (cleanupErr,cleanupRes)=>
+     console.log 'Cleaning up failed with error: ',cleanupErr if cleanupErr
+     @kiteController.run command, (err,res) => 
+       callback err,res,publicURL
+   
   resetCourseFiles:(courses,course,type,callback=->)->
     if type is 'git' 
       path = courses[course].path.replace /\.\.\//, ''
@@ -21,7 +35,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     if command then @kiteController.run command , (err,res)=>  
       if err 
-        console.log 'Resetting failed with error ',err
+        console.log 'Resetting failed with error :',err
         callback err
       else 
         console.log "Resetting completed",err,res
@@ -39,13 +53,13 @@ class KodeLectures.Controllers.FileIOController extends KDController
      @kiteController.run "rm -rf #{@basePath}/courses/#{path}", (err,res)=>
       if err
         callback err
-        console.log "Removing the course failed with error #{err}"
+        console.log "Removing the course failed with error : #{err}"
       else 
         console.log 'Course successfully removed'
         callback err,res
         
   
-  importCourseFromRepository:(url, type, callback)->
+  importCourseFromRepository:(url, type, callback=->)->
     
     if type is 'git' 
       command = "cd #{@basePath}/courses; git clone #{url}"
@@ -74,7 +88,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
             @emit 'NewCourseImported',course
             callback course
             
-  importCourseFromURL:(url,callback)->
+  importCourseFromURL:(url,callback=->)->
     baseUrl = url
     url = url.replace /\/$/, ''
     url += '/manifest.json' unless url.match /manifest.json$/
@@ -83,14 +97,14 @@ class KodeLectures.Controllers.FileIOController extends KDController
     console.log "Importing a course from url #{url}"
     
     @kiteController.run command, (err,res)=>
-      if err then console.log err
+      if err then console.log 'Importing via url failed with error : ', err
       
       else        
         console.log 'Parsing manifest.json'
         try 
           course = JSON.parse res
         catch e 
-          console.log 'Parse failed with exception ',e
+          console.log 'Parse failed with exception : ',e
         
         if course 
           
@@ -107,7 +121,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
                     console.log "Importing file #{baseUrl}/#{file} to #{@basePath}/courses/#{course.path}/#{file}"
                     @kiteController.run "curl -kL '#{baseUrl}/#{file}' > #{@basePath}/courses/#{course.path}/#{file}", (err,res)=>
                         if err 
-                          console.log "File #{file} could not be imported, an error occured: ", err
+                          console.log "File #{file} could not be imported, an error occured : ", err
                         else
                           console.log "File #{file} successfully imported"
                           
@@ -155,5 +169,5 @@ class KodeLectures.Controllers.FileIOController extends KDController
                 newCourse = JSON.parse manifest
                 @emit 'NewCourseImported', newCourse
               catch e
-                console.log e
+                console.log 'Reading and/or parsing manifest.json failed with : ',e,err
           

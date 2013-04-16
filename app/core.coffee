@@ -14,16 +14,19 @@ class KodeLectures.Core.LiveViewer
   
   active: no
   
-  pistachios: /\{(\w*)?(\#\w*)?((?:\.\w*)*)(\[(?:\b\w*\b)(?:\=[\"|\']?.*[\"|\']?)\])*\{([^{}]*)\}\s*\}/g
+  #pistachios: /\{(\w*)?(\#\w*)?((?:\.\w*)*)(\[(?:\b\w*\b)(?:\=[\"|\']?.*[\"|\']?)\])*\{([^{}]*)\}\s*\}/g
   
   constructor: ()->
     @sessionId = KD.utils.uniqueId "kodepadSession"
   
   setPreviewView: (@previewView)->
-     unless @mdPreview
-        @previewView.addSubView @mdPreview = new KDView
-          cssClass : 'has-markdown markdown-preview'
-          partial : '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
+    unless @mdPreview
+      @previewView.addSubView @mdPreview = new KDView
+        cssClass : 'has-markdown markdown-preview'
+        partial : '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
+    else 
+      @mdPreview?.show() 
+      @terminal?.hide()
     
   setSplitView: (@splitView)->
     
@@ -31,7 +34,6 @@ class KodeLectures.Core.LiveViewer
   
   previewCode: (code, execute, options)->
     return if not @active 
-    console.log arguments
     if code or code is ''
     
       kiteController = KD.getSingleton "kiteController"
@@ -46,8 +48,10 @@ class KodeLectures.Core.LiveViewer
        
         type ?= 'code-preview'
   
+        # ======================
         # CODE-PREVIEW
-  
+        # ======================
+        
         if type is 'code-preview'
           window.appView = @previewView
         
@@ -68,26 +72,19 @@ class KodeLectures.Core.LiveViewer
             @terminal?.hide()
             delete window.appView
        
+        # ======================
         # EXECUTE-HTML
-       
+        # ======================
+
         else if type is 'execute-html'
 
           window.appView = @previewView
-          
-          {nickname}=KD.whoami().profile
-          id = KD.utils.getRandomNumber 50000
-          publicURL = "https://#{nickname}.koding.com/.kodelectures/#{id}/#{previewPath}"
-          publicBasePath = "/Users/#{nickname}/Sites/#{nickname}.koding.com/website/.kodelectures"
-          courseBasePath = "/Users/#{nickname}/Applications/KodeLectures.kdapp/courses/#{coursePath}"
-          command = "mkdir #{publicBasePath};find #{publicBasePath}/ -maxdepth 1 -type l -exec rm -f {} \;ln -s '#{courseBasePath}' '#{publicBasePath}/#{id}';"
-                    
-          kiteController.run command, (err,res)=>
-            console.log err,res
-            console.log publicURL
+
+          ioController.generateSymlinkedPreview previewPath, coursePath, (err,res,publicURL) =>
+            console.log err if err
+            console.log "Course preview path '#{previewPath}' symlinked to '#{publicURL}'" unless err
           
             partial ="<div class='result-frame'><iframe src='#{publicURL}'></iframe></div>"
-          
-                 
         
             try
               unless @mdPreview
@@ -104,8 +101,10 @@ class KodeLectures.Core.LiveViewer
               @terminal?.hide()
               delete window.appView
         
+        # ======================
         # TERMINAL
-        
+        # ======================
+
         else if type is 'terminal'
           console.log 'Terminal requested'
           window.appView = @previewView
@@ -182,10 +181,8 @@ class KodeLectures.Views.TaskSubItemView extends KDListItemView
     if contentHidden then @content.hide() else @content.show()
   
     unless type isnt 'embed' and content and content isnt '' or type is 'embed' and content?.url? 
-      #console.log "hiding #{type}"
       @hide() 
     else 
-      #console.log "showing #{type}"
       @show()
   
   viewAppended :->
@@ -297,8 +294,6 @@ class KodeLectures.Views.TaskView extends JView
       @render()
     
     @on 'ResultReceived', (result)=>
-      
-      console.log 'Received',result
       
       {expectedResults,submitSuccess,submitFailure} = @getData()
       
@@ -427,78 +422,78 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
     lectureCount = @getData().lectures.length
     
     @titleText = new KDView
-      partial : "<span>#{@getData().title}</span><span class='lectures'>#{lectureCount} lecture#{if lectureCount is 1 then '' else 's'}</span>"
-      cssClass : 'title'
+      partial   : "<span>#{@getData().title}</span><span class='lectures'>#{lectureCount} lecture#{if lectureCount is 1 then '' else 's'}</span>"
+      cssClass  : 'title'
       
     @descriptionText = new KDView
-      partial : @getData().description
-      cssClass : 'description'
+      partial   : @getData().description
+      cssClass  : 'description'
   
     @lectureController = new KDListViewController
       itemClass : CourseLectureListItemView
-      delegate : @ 
-    , items : @getData().lectures
+      delegate  : @ 
+    , items     : @getData().lectures
     @lectureList = @lectureController.getView()
   
     @lectureController.listView.on 'LectureSelected', (data)=>
       @getDelegate().emit 'LectureSelected', {lecture:data, course:@getData()}
       
     @titleText.addSubView @settingsButton = new KDButtonView
-          style               : 'course-settings-menu editor-advanced-settings-menu fr'
-          icon                : yes
-          iconOnly            : yes
-          iconClass           : "cog"
-          callback            : (event)=>
+      style               : 'course-settings-menu editor-advanced-settings-menu fr'
+      icon                : yes
+      iconOnly            : yes
+      iconClass           : "cog"
+      callback            : (event)=>
 
-            contextMenu       = new JContextMenu
-              event           : event
-              delegate        : @
-            ,
+        contextMenu       = new JContextMenu
+          event           : event
+          delegate        : @
+        ,
 
-            'Remove Course'   :
-              callback        : (source, event)=>
-                contextMenu.destroy()
-                modal         = new KDModalView
-                  title       : 'Remove Course'
-                  content     : 'Do you really want to remove this course and all its files? All the changes you made will be deleted alongside the lectures. You will have to re-import the course to open it again.'
-                  buttons     :
-                    "Remove Course completely":
-                      title   : 'Remove Course completely'
-                      cssClass: 'modal-clean-red'
-                      callback: =>
-                        @getDelegate().emit 'RemoveCourseClicked',{course:@getData(),view:@}
-                        modal.destroy()
-                    Cancel    :
-                      cssClass: 'modal-cancel'
-                      title   : 'Cancel'
-                      callback: =>
-                        modal.destroy()
-                    
-            'Reset Course files':
-              callback        : (source, event)=>                
-                contextMenu.destroy()
+        'Remove Course'   :
+          callback        : (source, event)=>
+            contextMenu.destroy()
+            modal         = new KDModalView
+              title       : 'Remove Course'
+              content     : 'Do you really want to remove this course and all its files? All the changes you made will be deleted alongside the lectures. You will have to re-import the course to open it again.'
+              buttons     :
+                "Remove Course completely":
+                  title   : 'Remove Course completely'
+                  cssClass: 'modal-clean-red'
+                  callback: =>
+                    @getDelegate().emit 'RemoveCourseClicked',{course:@getData(),view:@}
+                    modal.destroy()
+                Cancel    :
+                  cssClass: 'modal-cancel'
+                  title   : 'Cancel'
+                  callback: =>
+                    modal.destroy()
                 
-                if @getData().originType in ['git']
-                 modal         = new KDModalView
-                  title       : 'Reset Course Files'
-                  content     : 'Do you really want to reset all files in this course? All the changes you made will be deleted. The course will revert to the stage it was in when it was imported.'
-                  buttons     :
-                    "Reset all files":
-                      title   : 'Reset all files'
-                      cssClass: 'modal-clean-red'
-                      callback: =>
-                        console.log 'Resetting'
-                        @getDelegate().emit 'ResetCourseClicked',{course:@getData(),view:@}
-                        contextMenu.destroy()
-                        modal.destroy()
-                    Cancel    :
-                      cssClass: 'modal-cancel'
-                      title   : 'Cancel'
-                      callback: =>
-                        modal.destroy()
-                else new KDNotificationView {title:'This Course can not be reset. Try deleting and re-importing it.'}
-                    
-  
+        'Reset Course files':
+          callback        : (source, event)=>                
+            contextMenu.destroy()
+            
+            if @getData().originType in ['git']
+             modal         = new KDModalView
+              title       : 'Reset Course Files'
+              content     : 'Do you really want to reset all files in this course? All the changes you made will be deleted. The course will revert to the stage it was in when it was imported.'
+              buttons     :
+                "Reset all files":
+                  title   : 'Reset all files'
+                  cssClass: 'modal-clean-red'
+                  callback: =>
+                    console.log 'Resetting'
+                    @getDelegate().emit 'ResetCourseClicked',{course:@getData(),view:@}
+                    contextMenu.destroy()
+                    modal.destroy()
+                Cancel    :
+                  cssClass: 'modal-cancel'
+                  title   : 'Cancel'
+                  callback: =>
+                    modal.destroy()
+            else new KDNotificationView {title:'This Course can not be reset. Try deleting and re-importing it.'}
+                
+
       
   
   viewAppended :->
@@ -529,8 +524,8 @@ class KodeLectures.Views.CourseSelectionView extends JView
     
     @courseController = new KDListViewController
       itemClass : CourseSelectionItemView
-      delegate : @
-    , items : courses
+      delegate  : @
+    , items     : courses
   
     @courseView = @courseController.getView()
     

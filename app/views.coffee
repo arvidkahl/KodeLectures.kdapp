@@ -311,45 +311,40 @@ class KodeLectures.Views.MainView extends JView
   attachListeners :->
     @on 'LectureChanged', (lecture=0)=>
       
-        console.log 'LectureChanged'
+      @lastSelectedItem = lecture        
+      {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
       
-        @lastSelectedItem = lecture        
-        {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
-        
-        @currentFile = if files?.length>0 then files[0] else 'tempfile'
-        
-        @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
-          unless err
-            #console.log contents
-            @ace.getSession().setValue contents 
-          else 
-            console.log err
-        
-        @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
-        @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
-        
-        @ace.getSession().setMode "ace/mode/#{language}"
-        @currentLang = language
-        @languageSelect.setValue language
-        @currentLecture = @lastSelectedItem
-        
-        if expectedResults is null
-          @taskView.emit 'ReadyForNextLecture'
+      @currentFile = if files?.length>0 then files[0] else 'tempfile'
       
-        if previewType is 'terminal' 
-          @liveViewer.active = yes
-          @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
-            type:previewType
-            coursePath:@courses[@lastSelectedCourse].path
+      @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
+        unless err
+          #console.log contents
+          @ace.getSession().setValue contents 
         else 
-          @liveViewer.mdPreview?.show()
-          @liveViewer.terminal?.hide()
+          console.log 'Reading from lecture file failed with error: ',err
+      
+      @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+      @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
+      
+      @ace.getSession().setMode "ace/mode/#{language}"
+      @currentLang = language
+      @languageSelect.setValue language
+      @currentLecture = @lastSelectedItem
+      
+      if expectedResults is null
+        @taskView.emit 'ReadyForNextLecture'
+    
+      if previewType is 'terminal' 
+        @liveViewer.active = yes
+        @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
+          type:previewType
+          coursePath:@courses[@lastSelectedCourse].path
+      else 
+        @liveViewer.mdPreview?.show()
+        @liveViewer.terminal?.hide()
 
-    @on 'CourseChanged', (course)=>
-              
+    @on 'CourseChanged', (course)=>              
         @lastSelectedCourse = course
-
-        #@emit 'LectureChanged'
         @emit 'LectureRequested'
     
     @on 'CourseRequested', =>
@@ -365,7 +360,7 @@ class KodeLectures.Views.MainView extends JView
         @lectureButton.hide()
    
     @on 'NextLectureRequested', =>
-      @emit 'LectureChanged',@lastSelectedItem+1
+      @emit 'LectureChanged',@lastSelectedItem+1 if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
     @on 'PreviousLectureRequested', =>
 
   getEditScrollPercentage:->
