@@ -1,3 +1,10 @@
+.kodelectures .recommended-courses > h1 {
+  background-color: rgba(255,255,255,0.25);  
+  padding: 20px;
+  font-size: 18px;
+  color: #444;  
+}
+
 .kodelectures .import-course-bar {
   position: absolute;
   bottom:0;
@@ -11,12 +18,46 @@
   border-top:1px solid white;
 }
 
+.kodelectures .import-course-bar .listview-wrapper .kdlistview{
+  margin-bottom:35px;
+}
+
+.kodelectures .import-course-bar .listview-wrapper{
+  height:auto;
+  text-align:left;
+}
+
+.kodelectures .recommended-listitem .recommended-import-button {
+  float:right;
+  
+}
+
+.kodelectures .recommended-listitem:hover {
+  background-color:rgba(255,255,255,0.5);
+}
+
+.kodelectures .recommended-listitem span.data[data-paths="title"] {
+  font-weight:bold;
+}
+.kodelectures .recommended-listitem span.data[data-paths="description"] {
+  display:block;
+  color:#888;
+  font-size:12px;
+}
+
+.kodelectures .recommended-listitem span.data {
+  margin-right : 120px;
+}
+
 .kodelectures .recommended-listitem {
   
   padding:10px;
   box-sizing:border-box;
   display:inline-block;
-  width:33.333333%; 
+  width:50%; 
+  height:auto;
+  transition:background-color 0.2s linear;
+  
 }
 
 .kodelectures .course-settings-menu {

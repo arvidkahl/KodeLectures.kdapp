@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Apr 16 2013 15:10:44 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Tue Apr 16 2013 16:38:09 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -644,6 +644,7 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
 
               contextMenu.destroy();
               return modal = new KDModalView({
+                cssClass: 'lecture-modal',
                 title: 'Remove Course',
                 content: 'Do you really want to remove this course and all its files? All the changes you made will be deleted alongside the lectures. You will have to re-import the course to open it again.',
                 buttons: {
@@ -676,6 +677,7 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
               contextMenu.destroy();
               if ((_ref = _this.getData().originType) === 'git') {
                 return modal = new KDModalView({
+                  cssClass: 'lecture-modal',
                   title: 'Reset Course Files',
                   content: 'Do you really want to reset all files in this course? All the changes you made will be deleted. The course will revert to the stage it was in when it was imported.',
                   buttons: {
@@ -741,10 +743,10 @@ KodeLectures.Views.ImportCourseRecommendedListItemView = (function(_super) {
     ImportCourseRecommendedListItemView.__super__.constructor.apply(this, arguments);
     this.setClass('recommended-listitem');
     this.importButton = new KDButtonView({
-      cssClass: 'green-cupid',
+      cssClass: 'cupid-green recommended-import-button',
       title: 'Import this Course',
       callback: function() {
-        return _this.getDelegate().emit(_this.getData());
+        return _this.getDelegate().emit('ImportClicked', _this.getData());
       }
     });
   }
@@ -755,7 +757,7 @@ KodeLectures.Views.ImportCourseRecommendedListItemView = (function(_super) {
   };
 
   ImportCourseRecommendedListItemView.prototype.pistachio = function() {
-    return "\n{{#(title)}}\n{{> this.importButton}}";
+    return "{{> this.importButton}}\n{{#(title)}}\n{{#(description)}}";
   };
 
   return ImportCourseRecommendedListItemView;
@@ -808,7 +810,7 @@ KodeLectures.Views.ImportCourseBar = (function(_super) {
   }
 
   ImportCourseBar.prototype.pistachio = function() {
-    return "<div class='recommended-courses'>Recommended Courses</div>\n{{> this.recommendedList}}\n  ";
+    return "<div class='recommended-courses'><h1>Recommended Courses</h1></div>\n{{> this.recommendedList}}\n  ";
   };
 
   return ImportCourseBar;
@@ -860,8 +862,9 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
       course = _arg.course, view = _arg.view;
       return _this.mainView.ioController.removeCourse(courses, courses.indexOf(course), function(err, res) {
         if (!err) {
-          return view.destroy();
+          view.destroy();
         }
+        return courses.splice(courses.indexOf(course), 1);
       });
     });
     this.courseController.listView.on('ResetCourseClicked', function(_arg) {
@@ -878,19 +881,67 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
       });
     });
     this.on('ImportRequested', function(data) {
-      var title, type, url;
+      var course, courseExists, modal, title, type, url, _i, _len;
 
+      for (_i = 0, _len = courses.length; _i < _len; _i++) {
+        course = courses[_i];
+        if (course.originUrl === data.url) {
+          courseExists = course;
+        }
+      }
       title = data.title, type = data.type, url = data.url;
-      if (type === 'git') {
-        console.log('Starting import');
-        return _this.mainView.ioController.importCourseFromRepository(url, type, function() {
-          return console.log('Import finished.');
+      if (courseExists) {
+        return modal = new KDModalView({
+          cssClass: 'lecture-modal',
+          title: 'Import a Course',
+          content: '<p>The Course you are trying to import is already installed. Do you want to replace the currently installed version?</p><p><strong>Warning</strong>: all your file changes will be lost!</p>',
+          buttons: {
+            "Replace Course": {
+              title: "Replace Course " + course.title,
+              cssClass: 'modal-clean-red',
+              callback: function() {
+                console.log("Removing old Course " + course.title);
+                modal.destroy();
+                return _this.mainView.ioController.removeCourse(courses, courses.indexOf(course), function(err, res) {
+                  var item, _j, _len1, _ref1;
+
+                  _ref1 = _this.courseController.itemsOrdered;
+                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                    item = _ref1[_j];
+                    if (item.getData().path === course.path) {
+                      item.destroy();
+                    }
+                  }
+                  if (type === 'git') {
+                    console.log('Attempting import from', url);
+                    return _this.mainView.ioController.importCourseFromRepository(url, type, function() {
+                      return console.log('Import started.');
+                    });
+                  }
+                });
+              }
+            },
+            Cancel: {
+              title: 'Keep the old Course',
+              cssClass: 'modal-cancel',
+              callback: function() {
+                return modal.destroy();
+              }
+            }
+          }
         });
+      } else {
+        if (type === 'git') {
+          console.log('Attempting import from ', url);
+          return _this.mainView.ioController.importCourseFromRepository(url, type, function() {
+            return console.log('Import started.');
+          });
+        }
       }
     });
     this.courseHeader = new KDView({
       cssClass: 'course-header',
-      partial: '<h1>Select a  course:</h1>'
+      partial: '<h1>Your Courses</h1>'
     });
     this.importCourseBar = new ImportCourseBar({
       cssClass: 'import-course-bar',

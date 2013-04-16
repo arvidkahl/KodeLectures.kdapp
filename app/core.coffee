@@ -457,6 +457,7 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
           callback        : (source, event)=>
             contextMenu.destroy()
             modal         = new KDModalView
+              cssClass    : 'lecture-modal'
               title       : 'Remove Course'
               content     : 'Do you really want to remove this course and all its files? All the changes you made will be deleted alongside the lectures. You will have to re-import the course to open it again.'
               buttons     :
@@ -478,6 +479,7 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
             
             if @getData().originType in ['git']
              modal         = new KDModalView
+              cssClass    : 'lecture-modal'              
               title       : 'Reset Course Files'
               content     : 'Do you really want to reset all files in this course? All the changes you made will be deleted. The course will revert to the stage it was in when it was imported.'
               buttons     :
@@ -524,10 +526,10 @@ class KodeLectures.Views.ImportCourseRecommendedListItemView extends KDListItemV
     @setClass 'recommended-listitem'
     
     @importButton = new KDButtonView
-      cssClass : 'green-cupid'
+      cssClass : 'cupid-green recommended-import-button'
       title :'Import this Course'
       callback :=>
-        @getDelegate().emit @getData()
+        @getDelegate().emit 'ImportClicked',@getData()
     
   viewAppended :->
     @setTemplate @pistachio()
@@ -535,9 +537,9 @@ class KodeLectures.Views.ImportCourseRecommendedListItemView extends KDListItemV
       
   pistachio:->
     """
-    
-    {{ #(title)}}
     {{> @importButton}}
+    {{ #(title)}}
+    {{ #(description)}}
     """
     
 class KodeLectures.Views.ImportCourseBar extends JView
@@ -574,7 +576,7 @@ class KodeLectures.Views.ImportCourseBar extends JView
       
   pistachio:->
     """
-    <div class='recommended-courses'>Recommended Courses</div>
+    <div class='recommended-courses'><h1>Recommended Courses</h1></div>
     {{> @recommendedList}}
       
     """
@@ -609,6 +611,7 @@ class KodeLectures.Views.CourseSelectionView extends JView
     @courseController.listView.on 'RemoveCourseClicked', ({course,view})=>
       @mainView.ioController.removeCourse courses, courses.indexOf(course), (err,res)=>
         unless err then view.destroy()
+        courses.splice courses.indexOf(course),1
     
     @courseController.listView.on 'ResetCourseClicked', ({course,view})=>
       console.log course
@@ -616,16 +619,48 @@ class KodeLectures.Views.CourseSelectionView extends JView
         unless err then new KDNotificationView {title:'Files successfully reset'}
     
     @on 'ImportRequested', (data)=>
+      
+      courseExists = course for course in courses when course.originUrl is data.url
+
       {title,type,url} = data
-      if type in ['git']
-        console.log 'Starting import'
-        @mainView.ioController.importCourseFromRepository url, type, =>
-          console.log 'Import finished.'
+
+      if courseExists
+        #new KDNotificationView
+          #title : 'Course already exists.'
+        modal = new KDModalView
+          cssClass : 'lecture-modal'
+          title : 'Import a Course'
+          content : '<p>The Course you are trying to import is already installed. Do you want to replace the currently installed version?</p><p><strong>Warning</strong>: all your file changes will be lost!</p>'
+          buttons :
+            "Replace Course":
+              title : "Replace Course #{course.title}"
+              cssClass : 'modal-clean-red'
+              callback : =>
+                console.log "Removing old Course #{course.title}"
+                modal.destroy()
+                @mainView.ioController.removeCourse courses, courses.indexOf(course), (err,res)=>
+                  item.destroy() for item in @courseController.itemsOrdered when item.getData().path is course.path
+                  if type in ['git']
+                    console.log 'Attempting import from',url
+                    @mainView.ioController.importCourseFromRepository url, type, =>
+                      console.log 'Import started.'
+            Cancel :
+              title : 'Keep the old Course'
+              cssClass : 'modal-cancel'
+              callback : =>
+                modal.destroy()
+                      
+  
+      else 
+        if type in ['git']
+          console.log 'Attempting import from ',url
+          @mainView.ioController.importCourseFromRepository url, type, =>
+            console.log 'Import started.'
 
     
     @courseHeader = new KDView
       cssClass : 'course-header'
-      partial : '<h1>Select a  course:</h1>'
+      partial : '<h1>Your Courses</h1>'
       
     @importCourseBar = new ImportCourseBar
       cssClass : 'import-course-bar'

@@ -4,8 +4,7 @@
 
 .kodelectures.loading {
   box-shadow: inset 2px 2px 10px rgba(0,0,0,0.5);
-  background: url(icon.128.png) center center no-repeat, 
-              url(transparent.png) top left repeat;
+  background: url(icon.128.cloud.png) center center no-repeat;
   font-size: 20px;
   text-align: center;
   color: #fff;
@@ -44,9 +43,6 @@
   background-position: 0 -630px;
 }
 
-.kodelectures .control-pane button .icon {
-  background-image:url(markdownIcons.png)!important;  
-}
 
 .kodelectures .control-pane button.headline .icon {
   background-position: -40px -40px;
@@ -210,6 +206,17 @@ body.dragInAction .kodelectures .md-help-view {
     z-index : 10002;
 }
 
+.kodelectures .kdsplitview-resizer {
+  background:transparent;
+}
+
+.kodelectures .ace_scrollbar {
+  overflow-y:auto;
+}
+
+.lecture-modal.kdmodal .kdmodal-content {
+  padding : 30px;
+}
 
 .modal-warning.formline {
   background-color : rgba(200,0,0,0.2)
