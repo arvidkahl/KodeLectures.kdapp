@@ -22,7 +22,9 @@
       }
     },
     "stylesheets": [
-      "./resources/style.css"
+      "./resources/style.css",
+      "./resources/course.css",
+      "./resources/lecture.css"
     ]
   },
   "options": {

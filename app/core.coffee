@@ -106,7 +106,7 @@ class KodeLectures.Core.LiveViewer
         # ======================
 
         else if type is 'terminal'
-          console.log 'Terminal requested'
+          console.log 'Terminal requested.'
           window.appView = @previewView
         
           sendCommand = (command)=>
@@ -115,24 +115,27 @@ class KodeLectures.Core.LiveViewer
               KD.utils.defer => @terminal.emit 'click' # focus :)
             else console.log 'There is a connectivity problem with the terminal'  
           unless @terminal
-              console.log 'Adding terminal'
+              console.log 'Adding terminal. This should only happen once.'
               appStorage = new AppStorage 'WebTerm', '1.0'
               appStorage.fetchStorage (storage)=>
                 @previewView.addSubView @terminal = new WebTermView appStorage
                 @terminal.setClass 'webterm'
-                console.log 'Terminal added'
+                console.log 'Terminal added successfully.'
                 @terminal.show()
                 @mdPreview?.hide()   
                 delete window.appView  
 
                 # this is hacky. where did the connected event go?
                 KD.utils.wait 2000, =>    
-                  console.log 'Sending initial command to terminal'
-                  sendCommand "cd 'Applications/KodeLectures.kdapp/courses/#{coursePath}'"
-                  KD.utils.defer => sendCommand code
+                  initialCommand = "cd 'Applications/KodeLectures.kdapp/courses/#{coursePath}'"
+                  console.log 'Sending initial command to terminal',initialCommand
+                  sendCommand initialCommand
+                  KD.utils.defer => 
+                    console.log 'Sending command to terminal',code
+                    sendCommand code
                             
           else 
-              console.log 'Send cmd to terminal'
+              console.log 'Send command to terminal',code
               sendCommand code     
               
               @terminal?.show()
@@ -513,10 +516,72 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
     {{> @lectureList }}
     </div>
     """
+class KodeLectures.Views.ImportCourseRecommendedListItemView extends KDListItemView    
   
-  
+  constructor:->
+    super
+    
+    @setClass 'recommended-listitem'
+    
+    @importButton = new KDButtonView
+      cssClass : 'green-cupid'
+      title :'Import this Course'
+      callback :=>
+        @getDelegate().emit @getData()
+    
+  viewAppended :->
+    @setTemplate @pistachio()
+    @template.update()
+      
+  pistachio:->
+    """
+    
+    {{ #(title)}}
+    {{> @importButton}}
+    """
+    
+class KodeLectures.Views.ImportCourseBar extends JView
+  {ImportCourseRecommendedListItemView} = KodeLectures.Views
+  constructor:->
+    super
+    
+    @apiURL = 'http://arvidkahl.koding.com/lectures'
+    
+    @recommendedListController = new KDListViewController
+      itemClass : ImportCourseRecommendedListItemView
+    
+    @recommendedList = @recommendedListController.getView()
+    @recommendedListController.listView.on 'ImportClicked', (data)=>
+      @getDelegate().emit 'ImportRequested', data
+    
+    @getSingleton('kiteController').run "curl -kL '#{@apiURL}'", (error, data)=>
+      
+      # if any error exists or data is empty, try JSONP
+      if error or not data
+        json = $.ajax 
+          url         : "#{apiURL}"
+          data        : {}
+          dataType    : "jsonp"
+          success     : callback
+      
+      # parse the curl result.
+      try json = JSON.parse data
+      #console.log json
+      
+      if json.courses?.length 
+        for course in json.courses
+          @recommendedListController.addItem course
+      
+  pistachio:->
+    """
+    <div class='recommended-courses'>Recommended Courses</div>
+    {{> @recommendedList}}
+      
+    """
+    
+
 class KodeLectures.Views.CourseSelectionView extends JView
-  {CourseSelectionItemView} = KodeLectures.Views
+  {CourseSelectionItemView, ImportCourseBar} = KodeLectures.Views
   
   constructor:->
     super
@@ -549,10 +614,22 @@ class KodeLectures.Views.CourseSelectionView extends JView
       console.log course
       @mainView.ioController.resetCourseFiles courses, courses.indexOf(course), course.originType, (err,res)=>
         unless err then new KDNotificationView {title:'Files successfully reset'}
-      #
+    
+    @on 'ImportRequested', (data)=>
+      {title,type,url} = data
+      if type in ['git']
+        console.log 'Starting import'
+        @mainView.ioController.importCourseFromRepository url, type, =>
+          console.log 'Import finished.'
+
+    
     @courseHeader = new KDView
       cssClass : 'course-header'
       partial : '<h1>Select a  course:</h1>'
+      
+    @importCourseBar = new ImportCourseBar
+      cssClass : 'import-course-bar'
+      delegate : @
 
   setMainView:(@mainView)->
 
@@ -560,4 +637,5 @@ class KodeLectures.Views.CourseSelectionView extends JView
     """
     {{> @courseHeader}}
     {{> @courseView}}
+    {{> @importCourseBar}}
     """

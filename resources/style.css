@@ -1,8 +1,8 @@
-.marKDown.kdview {
+.kodelectures.kdview {
   background: #fff url(transparent.png) top left fixed;
 }
 
-.marKDown.loading {
+.kodelectures.loading {
   box-shadow: inset 2px 2px 10px rgba(0,0,0,0.5);
   background: url(icon.128.png) center center no-repeat, 
               url(transparent.png) top left repeat;
@@ -14,11 +14,11 @@
   opacity: 0.5;
 }
 
-.marKDown .kdsplitview-panel {
+.kodelectures .kdsplitview-panel {
   overflow: hidden;
 }
 
-.marKDown .preview-pane {
+.kodelectures .preview-pane {
   overflow-y: auto;
   background: #444;
   -webkit-transition-duration: 200ms;
@@ -27,486 +27,180 @@
   border-top : 5px solid #ccc;
 }
 
-.marKDown .preview-pane.transparented {
+.kodelectures .preview-pane.transparented {
   background: transparent;
   box-shadow: inset 2px 2px 10px rgba(0,0,0,0.5);
 }
 
-.marKDown .control-pane {
+.kodelectures .control-pane {
 }
 
-.marKDown .control-pane .on-off {
+.kodelectures .control-pane .on-off {
   float: right;
   margin-right: 5px;
 }
 
-.marKDown .control-pane .icon.docs {
+.kodelectures .control-pane .icon.docs {
   background-position: 0 -630px;
 }
 
-.marKDown .control-pane button .icon {
+.kodelectures .control-pane button .icon {
   background-image:url(markdownIcons.png)!important;  
 }
 
-.marKDown .control-pane button.headline .icon {
+.kodelectures .control-pane button.headline .icon {
   background-position: -40px -40px;
 }
 
-.marKDown .control-pane button.list .icon {
+.kodelectures .control-pane button.list .icon {
   background-position: -140px -40px;
 }
 
-.marKDown .control-pane button.bold .icon {
+.kodelectures .control-pane button.bold .icon {
   background-position: -60px -40px;
 }
 
-.marKDown .control-pane button.italic .icon {
+.kodelectures .control-pane button.italic .icon {
   background-position: -80px -40px;
 }
 
-.marKDown .control-pane button.link .icon {
+.kodelectures .control-pane button.link .icon {
   background-position: -120px -40px;
 }
 
-.marKDown .control-pane button.image .icon {
+.kodelectures .control-pane button.image .icon {
   background-position: -100px -40px;
 }
 
-.marKDown .control-pane button.inline .icon {
+.kodelectures .control-pane button.inline .icon {
   background-position: -180px -40px;
 }
 
-.marKDown .control-pane button.code .icon {
+.kodelectures .control-pane button.code .icon {
   background-position: -160px -40px;
 }
 
-.marKDown .control-pane .icon.underline {
+.kodelectures .control-pane .icon.underline {
   background-position: 0 -60px;
 }
 
-.marKDown .control-pane .on-off .on {
+.kodelectures .control-pane .on-off .on {
   width: 90px;
 }
 
-.marKDown .control-pane .on-off .off {
+.kodelectures .control-pane .on-off .off {
   width: 55px;
 }
 
-.marKDown .control-pane .header-buttons {
+.kodelectures .control-pane .header-buttons {
   width: 411px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons{
+.kodelectures .control-pane .header-buttons .orientation-buttons{
   margin-right:5px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button{
+.kodelectures .control-pane .header-buttons .orientation-buttons button{
   margin-right:0px;
 }
-.marKDown .control-pane .header-format-buttons button{
+.kodelectures .control-pane .header-format-buttons button{
   margin-right:0px;
 }
-.marKDown .control-pane .header-buttons .orientation-buttons button span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button span.icon{
   background-image:url(markdownIcons.png);
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button.v5 span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button.v5 span.icon{
   background-position: -80px -60px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button.v3 span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button.v3 span.icon{
   background-position: -120px -60px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button.h5 span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button.h5 span.icon{
   background-position: -100px -60px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button.h3 span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button.h3 span.icon{
   background-position: -140px -60px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button.full-editor span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button.full-editor span.icon{
   background-position: -60px -60px;
 }
 
-.marKDown .control-pane .header-buttons .orientation-buttons button.full-preview span.icon{
+.kodelectures .control-pane .header-buttons .orientation-buttons button.full-preview span.icon{
   background-position: -40px -60px;
 }
 
-.marKDown .control-pane .header-format-buttons {
+.kodelectures .control-pane .header-format-buttons {
   width: auto;
   float: left;
   margin:5px;
 }
 
-.marKDown .control-pane .header-format-buttons .control-button {
+.kodelectures .control-pane .header-format-buttons .control-button {
   float: left;
   margin: 6px 3px;
 }
-.marKDown .control-pane .header-buttons .control-button {
+.kodelectures .control-pane .header-buttons .control-button {
   float: right;
 }
 
-.marKDown .control-pane .control-button.full-preview {
+.kodelectures .control-pane .control-button.full-preview {
   line-height: 10px;
 }
 
-.marKDown .control-pane .control-button.auto-manual a {
+.kodelectures .control-pane .control-button.auto-manual a {
   padding: 8px 6px;
 }
 
-.marKDown .control-pane .control-button.scroll-switch a {
+.kodelectures .control-pane .control-button.scroll-switch a {
   padding: 8px 6px;
 }
 
-.marKDown .control-pane .control-button.save-as-kdapp {
+.kodelectures .control-pane .control-button.save-as-kdapp {
   line-height: 10px;
 }
 
-.marKDown .control-pane .control-button.code-examples {
+.kodelectures .control-pane .control-button.code-examples {
   margin-top: -1px;
 }
-.marKDown .control-pane .control-button.language {
+.kodelectures .control-pane .control-button.language {
   margin-top: -1px;
 }
-.marKDown .control-pane .code {
+.kodelectures .control-pane .code {
   margin-top: 5px;
   vertical-align:top;
 }
 
-.marKDown .control-pane .control-button.transp {
+.kodelectures .control-pane .control-button.transp {
   text-indent: -9999px;
   background: url(transparent.png) center center;
 }
 
-.marKDown .control-pane .control-button.transp.transparented {
+.kodelectures .control-pane .control-button.transp.transparented {
   background-image: none;
   background-color: white;
 }
 
-.marKDown .control-pane label {
+.kodelectures .control-pane label {
   margin-left: 5px;
   line-height: 37px;
 }
 
-.marKDown .editor {
-  background-color: #272822;
-}
 
-.marKDown .css-editor {
-  border-top: 5px solid #fff !important;
-}
-
-.marKDown .markdown-preview {
-  overflow : auto;
-  padding : 20px;
-  box-sizing : border-box;
-  }
-  
-  
-.marKDown .markdown-preview > div > pre {
-  background-color: rgba(255,255,255,0.5);
-  color: #444;
-}
-.marKDown .markdown-preview > .error {
-  background-color: #cc0000;  
-}
-.marKDown .markdown-preview > .success {
-  background-color: #00cc00;
-}
-.marKDown .markdown-preview > .info {
-  background-color: #00cccc;
-}
-.marKDown .md-help-view {
-  background-color : #e8e8e8;
-  border : 2px solid #e8e8e8;
-  padding : 20px;
-  box-sizing:border-box;
-}
-
-.marKDown .task-view {
-  background-color : white;
-  //padding:40px;
-  padding:0px;
-  box-sizing:border-box;
-  overflow-y : auto;
-}
-
-.marKDown .result-view {
-  height : auto;
-  border-bottom:1px solid #c00;
-  background-color : rgba(200,0,0,0.5);
-  margin-bottom : 10px;
-  padding : 10px;
-  box-sizing:border-box;
-  //border-radius:4px;
-  margin-bottom: 40px;
-}
-
-.marKDown .result-view.success {
-  border-color: #0c0;
-  background-color : rgba(0,200,0,0.5);
-  width : auto;
-}
-
-.marKDown .task-next-button {
-  width:100%;
-}
-
-.marKDown .hint-view {
-  //border-radius : 4px;
-  //border-bottom : 1px solid #e8e8e8;
-  background-color : #fbfbfb;
-  height : auto;
-  //padding :10px 10px 0 10px;
-  cursor : pointer;
-  width : auto;
-}
-
-.marKDown button.run {
-  z-index: 20000;
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  left: 10px;
-  width:auto;
-}
-.marKDown .text{
-  display:block;
-  border-bottom:1px solid #e8e8e8;
-  color : #444;
-  font-weight :400;
-  //margin-bottom: 10px;
-  padding : 10px 15px;
-  background-color:#f5f5f5;
-}
-
-.marKDown .hint-view span.data, .marKDown .hint-code-view span.data, .marKDown .task-text-view span.data, .marKDown .lecture-text-view span.data{
-  display : block;
-  padding: 10px 20px 0 20px;
-  border-bottom:1px solid #e8e8e8;
-}
-
-/*.marKDown .hint-view .text{
-  display:block;
-  border-bottom:1px solid #aaa;
-  margin-bottom : 10px;
-  font-weight : bold;
-}*/
-.marKDown .hint-code-view {
-  //border-radius : 4px;
-  //border-bottom : 1px solid #e8e8e8;
-  background-color : #fbfbfb;
-  height : auto;
-  //padding : 10px 10px 0 10px;
-  cursor: pointer;
-  width : auto;
-}
-
-.marKDown .embed {
-  height:20em;
-  padding: 10px;
-  box-sizing: border-box;
-  background-color: rgba(0,0,0,0.25);
-}
-
-.marKDown .embed iframe {
-  height:100%;
-  width:100%;
-}
-.marKDown .task-text-view {
-  height : auto;
-  //padding : 10px 10px 0 10px;
-  padding:0px;
-  //margin-bottom:10px;
-  //border-radius:4px;
-  //border-bottom:1px solid #e8e8e8;
-  background-color:#fbfbfb;
-  width:auto;
-}
-
-.marKDown .task-splitview .panel-1 {
-  box-shadow:10px 0px 20px 18px rgba(0,0,0,0.15);
-}
-
-.marKDown .task-overview {
-  background-color: white;
-  //padding:40px 40px 40px 0;
-  border-left:1px solid #e8e8e8;
-  padding:0;
-  box-sizing:border-box;
-  //box-shadow:inset 10px 0px 20px -10px rgba(0,0,0,0.3);
-}
-
-.marKDown .task-overview-item.active .summary{
-  display:block;
-}
-.marKDown .task-overview-item.active {
-  font-weight : bold;
-  background-color:#fff;
-  color:#444;
-}
-
-.marKDown .task-overview-item .title-text{
-  padding:10px;
-  //background-color:rgba(255,255,255,0.05);
-  box-sizing:border-box;
-}
-.marKDown .task-overview-item .summary{
-  display:none;
-  // transition: all 0.2s linear;
-  font-weight : 300;
-  padding : 10px;
-  box-sizing:border-box;
-  font-size : 12px;
-}
-
-.marKDown .task-overview-item {
-  cursor:pointer;
-  color:#ccc;
-  font-weight:bold;
-  //border:1px solid red;
-  //padding: 5px 10px;
-  //border-top: 1px solid #e8e8e8;
-  border-bottom: 1px solid #e8e8e8!important;
-  margin: 0px 0px 0px 0px;
-  //border-radius: 4px;
-  background-color: #f5f5f5;
-  box-sizing: border-box; 
-  width: auto;
-  line-height: 20px;
-}
-
-.marKDown .selection-view {
-  left: 100%;
-  //display: inline-block;
-  top: 0;
-  position: absolute;
-  background-color: white;
-  border-left: 1px solid #e8e8e8;
-  transition: left 0.5s ease;
-  text-align : center;
-  
-  background-image:url(http://ford3.com/portfolio/ford3img.php?i=image_1363900487.jpg&vsize=768);
-  background-repeat:norepeat;
-  background-position:center center;
-  background-size:cover;
-  
-}
-.marKDown .selection-view.in {
-  left : 0;
-}
-
-.marKDown .selection-view > .listview-wrapper > .kdscrollview > .kdlistview {
-  width : 100%;
-  height: 100%;
-  margin: 0px auto;
-  background-image:-webkit-radial-gradient(50% 50%,ellipse cover,transparent 0%,rgba(255,255,255,0.5) 80%);
-}
-
-.marKDown .selection-listitem {
-  width : 300px;
-  height :200px;
-  display : inline-block;
-  margin : 10px;
-  //padding : 10px;
-  border: 1px solid #e8e8e8!important;
-  background-color:rgba(255,255,255,0.75);
-  border-radius:4px;
-  vertical-align:top;
-  cursor : pointer;
-  overflow:hidden;
-  transition:background-color 0.2s linear;
-}
-
-.marKDown .selection-listitem:hover {
-  box-shadow:0 5px 15px -10px black, 0 0px 20px -5px rgba(0,0,0,0.25);
-  background-color:rgba(255,255,255,0.9);
-}
-
-
-.marKDown .selection-listitem .title {
-  height : auto;
-  padding : 10px 10px 10px 10px;
-  background-color : rgba(255,255,255,0.75);
-  font-size: 18px;
-  box-sizing:border-box;
-  border-bottom: 1px solid #f5f5f5;
-  color : #444;
-  
-}
-.marKDown .selection-listitem .lectures{
-  font-size:12px;
-  margin-left:10px;
-  color:#aaa;
-
-}
-.marKDown .selection-listitem .description{
-  height : auto;
-  padding: 20px 20px 10px 20px;
-  box-sizing:border-box;
-  text-align : left;
-  color: #5f5f5f;
-}
-
-.marKDown .lecture-listitem:hover{
-  color:#ff9200;
-}
-.marKDown .lecture-listitem {
-  height:auto;
-  cursor:pointer;
-  
-}
-
-.marKDown .course-header {
-  height:auto;
-  padding-top:40px;
-  padding-bottom:30px;
-  background-color:rgba(255,255,255,0.5);
-  
-}
-
-.marKDown .kodepad-editors {
+.kodelectures .kodepad-editors {
   transition : left 0.5s ease;
 }
 
-.marKDown .kodepad-editors.out {
+.kodelectures .kodepad-editors.out {
   left : -100%;
 }
-.marKDown .selection-listitem:hover .course-settings-menu{
-  opacity:1;
-}
-.marKDown .course-settings-menu {
-  border : none;
-  background-color:transparent;
-  transition:opacity 0.2s linear;
-  opacity:0.25;
-  position:absolute;
-  top:0px;
-  right:0px;
-}
 
-.marKDown .course-details {
-  height:100%;
-  overflow:auto;
-}
 
-.marKDown .course-details .listview-wrapper {
-  height:auto;
-}
-
-.marKDown .result-frame > iframe {
-  width:100%;
-  height:100%;
-}
-.marKDown .result-frame  {
-  background-color: white;
-  width : 100%;
-  height : 100%;
-}
-
-body.dragInAction .marKDown .md-help-view {
+body.dragInAction .kodelectures .md-help-view {
     // border : 2px dashed blue;
     // background-color : blue;
     // color : white;

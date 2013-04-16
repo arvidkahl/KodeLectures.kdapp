@@ -164,7 +164,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
         unless err
           courses = res.trim().split "\n"
           for course in courses
-            @kiteController.run "cat #{coursePath}/#{course}/manifest.json", (err,manifest)=>
+            if course then @kiteController.run "cat #{coursePath}/#{course}/manifest.json", (err,manifest)=>
               try
                 newCourse = JSON.parse manifest
                 @emit 'NewCourseImported', newCourse

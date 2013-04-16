@@ -57,7 +57,7 @@ class KodeLectures.Views.MainView extends JView
     @ioController.emit 'CourseImportRequested'
     
     @ioController.on 'NewCourseImported', (course)=>
-      console.log 'Forwarding new Course to view'
+      #console.log 'Forwarding new Course to view'
       @selectionView.emit 'NewCourseImported', course
       @courses.push course
     
@@ -74,7 +74,7 @@ class KodeLectures.Views.MainView extends JView
     
     # OVERFLOW FIX
     overflowFix = ->
-      height = ($ ".kdview.marKDown").height() - 39
+      height = ($ ".kdview.kodelectures").height() - 39
       ($ ".kodepad-editors").height height
       #
     ($ window).on "resize", overflowFix
@@ -397,7 +397,7 @@ class KodeLectures.Views.MainView extends JView
           win   : 'Ctrl-S'
           mac   : 'Command-S'
         exec    : (event)=>
-          console.log event
+          #console.log event
           @editor.setValue @ace.getSession().getValue()
           @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @ace.getSession().getValue()
       

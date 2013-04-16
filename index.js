@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Apr 16 2013 12:53:39 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Tue Apr 16 2013 15:10:44 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -185,7 +185,7 @@ KodeLectures.Core.LiveViewer = (function() {
             }
           });
         } else if (type === 'terminal') {
-          console.log('Terminal requested');
+          console.log('Terminal requested.');
           window.appView = _this.previewView;
           sendCommand = function(command) {
             var _ref3, _ref4, _ref5, _ref6;
@@ -206,29 +206,33 @@ KodeLectures.Core.LiveViewer = (function() {
             }
           };
           if (!_this.terminal) {
-            console.log('Adding terminal');
+            console.log('Adding terminal. This should only happen once.');
             appStorage = new AppStorage('WebTerm', '1.0');
             return appStorage.fetchStorage(function(storage) {
               var _ref3;
 
               _this.previewView.addSubView(_this.terminal = new WebTermView(appStorage));
               _this.terminal.setClass('webterm');
-              console.log('Terminal added');
+              console.log('Terminal added successfully.');
               _this.terminal.show();
               if ((_ref3 = _this.mdPreview) != null) {
                 _ref3.hide();
               }
               delete window.appView;
               return KD.utils.wait(2000, function() {
-                console.log('Sending initial command to terminal');
-                sendCommand("cd 'Applications/KodeLectures.kdapp/courses/" + coursePath + "'");
+                var initialCommand;
+
+                initialCommand = "cd 'Applications/KodeLectures.kdapp/courses/" + coursePath + "'";
+                console.log('Sending initial command to terminal', initialCommand);
+                sendCommand(initialCommand);
                 return KD.utils.defer(function() {
+                  console.log('Sending command to terminal', code);
                   return sendCommand(code);
                 });
               });
             });
           } else {
-            console.log('Send cmd to terminal');
+            console.log('Send command to terminal', code);
             sendCommand(code);
             if ((_ref3 = _this.terminal) != null) {
               _ref3.show();
@@ -728,12 +732,95 @@ KodeLectures.Views.CourseSelectionItemView = (function(_super) {
 
 })(KDListItemView);
 
+KodeLectures.Views.ImportCourseRecommendedListItemView = (function(_super) {
+  __extends(ImportCourseRecommendedListItemView, _super);
+
+  function ImportCourseRecommendedListItemView() {
+    var _this = this;
+
+    ImportCourseRecommendedListItemView.__super__.constructor.apply(this, arguments);
+    this.setClass('recommended-listitem');
+    this.importButton = new KDButtonView({
+      cssClass: 'green-cupid',
+      title: 'Import this Course',
+      callback: function() {
+        return _this.getDelegate().emit(_this.getData());
+      }
+    });
+  }
+
+  ImportCourseRecommendedListItemView.prototype.viewAppended = function() {
+    this.setTemplate(this.pistachio());
+    return this.template.update();
+  };
+
+  ImportCourseRecommendedListItemView.prototype.pistachio = function() {
+    return "\n{{#(title)}}\n{{> this.importButton}}";
+  };
+
+  return ImportCourseRecommendedListItemView;
+
+})(KDListItemView);
+
+KodeLectures.Views.ImportCourseBar = (function(_super) {
+  var ImportCourseRecommendedListItemView;
+
+  __extends(ImportCourseBar, _super);
+
+  ImportCourseRecommendedListItemView = KodeLectures.Views.ImportCourseRecommendedListItemView;
+
+  function ImportCourseBar() {
+    var _this = this;
+
+    ImportCourseBar.__super__.constructor.apply(this, arguments);
+    this.apiURL = 'http://arvidkahl.koding.com/lectures';
+    this.recommendedListController = new KDListViewController({
+      itemClass: ImportCourseRecommendedListItemView
+    });
+    this.recommendedList = this.recommendedListController.getView();
+    this.recommendedListController.listView.on('ImportClicked', function(data) {
+      return _this.getDelegate().emit('ImportRequested', data);
+    });
+    this.getSingleton('kiteController').run("curl -kL '" + this.apiURL + "'", function(error, data) {
+      var course, json, _i, _len, _ref, _ref1, _results;
+
+      if (error || !data) {
+        json = $.ajax({
+          url: "" + apiURL,
+          data: {},
+          dataType: "jsonp",
+          success: callback
+        });
+      }
+      try {
+        json = JSON.parse(data);
+      } catch (_error) {}
+      if ((_ref = json.courses) != null ? _ref.length : void 0) {
+        _ref1 = json.courses;
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          course = _ref1[_i];
+          _results.push(_this.recommendedListController.addItem(course));
+        }
+        return _results;
+      }
+    });
+  }
+
+  ImportCourseBar.prototype.pistachio = function() {
+    return "<div class='recommended-courses'>Recommended Courses</div>\n{{> this.recommendedList}}\n  ";
+  };
+
+  return ImportCourseBar;
+
+})(JView);
+
 KodeLectures.Views.CourseSelectionView = (function(_super) {
-  var CourseSelectionItemView;
+  var CourseSelectionItemView, ImportCourseBar, _ref;
 
   __extends(CourseSelectionView, _super);
 
-  CourseSelectionItemView = KodeLectures.Views.CourseSelectionItemView;
+  _ref = KodeLectures.Views, CourseSelectionItemView = _ref.CourseSelectionItemView, ImportCourseBar = _ref.ImportCourseBar;
 
   function CourseSelectionView() {
     var courses,
@@ -790,9 +877,24 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
         }
       });
     });
+    this.on('ImportRequested', function(data) {
+      var title, type, url;
+
+      title = data.title, type = data.type, url = data.url;
+      if (type === 'git') {
+        console.log('Starting import');
+        return _this.mainView.ioController.importCourseFromRepository(url, type, function() {
+          return console.log('Import finished.');
+        });
+      }
+    });
     this.courseHeader = new KDView({
       cssClass: 'course-header',
       partial: '<h1>Select a  course:</h1>'
+    });
+    this.importCourseBar = new ImportCourseBar({
+      cssClass: 'import-course-bar',
+      delegate: this
     });
   }
 
@@ -801,7 +903,7 @@ KodeLectures.Views.CourseSelectionView = (function(_super) {
   };
 
   CourseSelectionView.prototype.pistachio = function() {
-    return "{{> this.courseHeader}}\n{{> this.courseView}}";
+    return "{{> this.courseHeader}}\n{{> this.courseView}}\n{{> this.importCourseBar}}";
   };
 
   return CourseSelectionView;
@@ -916,7 +1018,6 @@ KodeLectures.Views.MainView = (function(_super) {
     this.ioController = new KodeLectures.Controllers.FileIOController;
     this.ioController.emit('CourseImportRequested');
     this.ioController.on('NewCourseImported', function(course) {
-      console.log('Forwarding new Course to view');
       _this.selectionView.emit('NewCourseImported', course);
       return _this.courses.push(course);
     });
@@ -934,7 +1035,7 @@ KodeLectures.Views.MainView = (function(_super) {
     overflowFix = function() {
       var height;
 
-      height = ($(".kdview.marKDown")).height() - 39;
+      height = ($(".kdview.kodelectures")).height() - 39;
       return ($(".kodepad-editors")).height(height);
     };
     ($(window)).on("resize", overflowFix);
@@ -1312,7 +1413,6 @@ KodeLectures.Views.MainView = (function(_super) {
           mac: 'Command-S'
         },
         exec: function(event) {
-          console.log(event);
           _this.editor.setValue(_this.ace.getSession().getValue());
           return _this.ioController.saveFile(_this.courses, _this.lastSelectedCourse, _this.lastSelectedItem, _this.currentFile, _this.ace.getSession().getValue());
         }
@@ -1576,17 +1676,21 @@ KodeLectures.Controllers.FileIOController = (function(_super) {
           _results = [];
           for (_i = 0, _len = courses.length; _i < _len; _i++) {
             course = courses[_i];
-            _results.push(_this.kiteController.run("cat " + coursePath + "/" + course + "/manifest.json", function(err, manifest) {
-              var e, newCourse;
+            if (course) {
+              _results.push(_this.kiteController.run("cat " + coursePath + "/" + course + "/manifest.json", function(err, manifest) {
+                var e, newCourse;
 
-              try {
-                newCourse = JSON.parse(manifest);
-                return _this.emit('NewCourseImported', newCourse);
-              } catch (_error) {
-                e = _error;
-                return console.log('Reading and/or parsing manifest.json failed with : ', e, err);
-              }
-            }));
+                try {
+                  newCourse = JSON.parse(manifest);
+                  return _this.emit('NewCourseImported', newCourse);
+                } catch (_error) {
+                  e = _error;
+                  return console.log('Reading and/or parsing manifest.json failed with : ', e, err);
+                }
+              }));
+            } else {
+              _results.push(void 0);
+            }
           }
           return _results;
         }
@@ -1615,7 +1719,7 @@ KD.enableLogs();
 console.log('Development version of KodeLectures starting...');
 
 loader = new KDView({
-  cssClass: "KodeLectures loading",
+  cssClass: "kodelectures loading",
   partial: "Loading KodeLectures..."
 });
 
@@ -1625,7 +1729,7 @@ require(["ace/ace"], function(Ace) {
   var mainView;
 
   mainView = new MainView({
-    cssClass: "marKDown",
+    cssClass: "kodelectures",
     ace: Ace
   });
   appView.removeSubView(loader);

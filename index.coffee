@@ -7,7 +7,7 @@
   console.log 'Development version of KodeLectures starting...'  
     #
   loader     = new KDView
-    cssClass : "KodeLectures loading"
+    cssClass : "kodelectures loading"
     partial  : "Loading KodeLectures..."  
   
   appView.addSubView loader
@@ -54,7 +54,7 @@
   require ["ace/ace"], (Ace)=>
             
       mainView   = new MainView
-        cssClass : "marKDown"
+        cssClass : "kodelectures"
         ace      : Ace
 
       #markdownModal.removeSubView loader
