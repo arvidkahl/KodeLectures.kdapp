@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Apr 16 2013 16:38:09 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Tue Apr 16 2013 16:43:43 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -797,7 +797,7 @@ KodeLectures.Views.ImportCourseBar = (function(_super) {
       try {
         json = JSON.parse(data);
       } catch (_error) {}
-      if ((_ref = json.courses) != null ? _ref.length : void 0) {
+      if (json != null ? (_ref = json.courses) != null ? _ref.length : void 0 : void 0) {
         _ref1 = json.courses;
         _results = [];
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {

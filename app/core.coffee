@@ -570,7 +570,7 @@ class KodeLectures.Views.ImportCourseBar extends JView
       try json = JSON.parse data
       #console.log json
       
-      if json.courses?.length 
+      if json?.courses?.length 
         for course in json.courses
           @recommendedListController.addItem course
       
