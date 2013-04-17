@@ -596,9 +596,15 @@ class KodeLectures.Views.CourseSelectionView extends JView
   
     @courseView = @courseController.getView()
     
+    @courseEmptyMessage = new KDCustomHTMLView
+      tagName : 'span'
+      cssClass : 'course-empty-message'
+      partial : """Hmm, you don't have any courses here yet. <span>You can import them from the list below or manually with the 'Import Course' button.</span>"""
+    
     @on 'NewCourseImported', (course)=>
       @courseController.addItem course
       courses.push course
+      @courseEmptyMessage.hide()
     
     @courseController.listView.on 'LectureSelected', ({course,lecture})=>
       @mainView.emit 'CourseChanged', courses.indexOf course
@@ -612,6 +618,7 @@ class KodeLectures.Views.CourseSelectionView extends JView
       @mainView.ioController.removeCourse courses, courses.indexOf(course), (err,res)=>
         unless err then view.destroy()
         courses.splice courses.indexOf(course),1
+        if courses.length is 0 then @courseEmptyMessage.show()
     
     @courseController.listView.on 'ResetCourseClicked', ({course,view})=>
       console.log course
@@ -671,6 +678,7 @@ class KodeLectures.Views.CourseSelectionView extends JView
   pistachio:->
     """
     {{> @courseHeader}}
+    {{> @courseEmptyMessage}}
     {{> @courseView}}
     {{> @importCourseBar}}
     """

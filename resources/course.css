@@ -3,6 +3,7 @@
   padding: 20px;
   font-size: 18px;
   color: #444;  
+  text-shadow:1px 1px 1px rgba(255,255,255,0.75);
 }
 
 .kodelectures .import-course-bar {
@@ -27,6 +28,27 @@
   height:auto;
   text-align:left;
   padding-top:15px;
+}
+
+.kodelectures .course-empty-message span{
+  font-size:14px;
+  display:block;
+  color:#aaa;
+}
+.kodelectures .course-empty-message {
+  position: absolute;
+  top: 105px;
+  height: auto;
+  left: 0;
+  right: 0;
+  width: 100%;
+  font-size: 20px;
+  padding: 0 40px;
+  color: #888;
+  background-color: rgba(255,255,255,0.5);
+  line-height: 200%;
+  z-index: 1;
+  text-shadow:1px 1px 1px rgba(255,255,255,0.75);
 }
 
 .kodelectures .recommended-listitem .recommended-import-button {
@@ -171,4 +193,5 @@
   padding-top:40px;
   padding-bottom:30px;
   background-color:rgba(255,255,255,0.5);
+  text-shadow:1px 1px 1px rgba(255,255,255,0.75);
 }
