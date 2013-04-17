@@ -1,1 +1,0 @@
-cd "Applications/KodeLectures.kdapp/courses/BasicBashCommands.kdlecture"
