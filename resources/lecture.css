@@ -59,6 +59,7 @@
 
 .kodelectures .result-view {
   height : auto;
+  border-top:1px solid #c00;
   border-bottom:1px solid #c00;
   background-color : rgba(200,0,0,0.5);
   padding : 10px;

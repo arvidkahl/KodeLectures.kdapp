@@ -298,19 +298,23 @@ class KodeLectures.Views.MainView extends JView
    
     @attachListeners()
    
-    @utils.defer => ($ window).resize()
+    @utils.defer => 
+      ($ window).resize()
+
     @utils.wait 50, => 
-        ($ window).resize()
-        @ace?.resize()
-    @utils.wait 1000, =>
+      ($ window).resize()
+      @ace?.resize()
+      @selectionView.setClass 'animate'
+      @splitView.setClass 'animate'
     
+    @utils.wait 1000, =>
       @ace.renderer.scrollBar.on 'scroll', =>
-          if @autoScroll is yes
-            @setPreviewScrollPercentage @getEditScrollPercentage()
+        if @autoScroll is yes
+          @setPreviewScrollPercentage @getEditScrollPercentage()
 
   attachListeners :->
-    @on 'LectureChanged', (lecture=0)=>
-      
+   
+   @on 'LectureChanged', (lecture=0)=>   
       @lastSelectedItem = lecture        
       {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
       
@@ -318,7 +322,6 @@ class KodeLectures.Views.MainView extends JView
       
       @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
         unless err
-          #console.log contents
           @ace.getSession().setValue contents 
         else 
           console.log 'Reading from lecture file failed with error: ',err
@@ -330,9 +333,13 @@ class KodeLectures.Views.MainView extends JView
       @currentLang = language
       @languageSelect.setValue language
       @currentLecture = @lastSelectedItem
-      
-      if expectedResults is null
+            
+      if expectedResults is null and @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
         @taskView.emit 'ReadyForNextLecture'
+        console.log 'emit ready'
+      else 
+        @taskView.emit 'HideNextLectureButton'
+        console.log 'emit hide'
     
       if previewType is 'terminal' 
         @liveViewer.active = yes

@@ -188,7 +188,7 @@
 }
 
 
-.kodelectures .kodepad-editors {
+.kodelectures .kodepad-editors.animate {
   transition : left 0.5s ease;
 }
 
@@ -216,7 +216,8 @@ body.dragInAction .kodelectures .md-help-view {
 }
 
 .lecture-modal.kdmodal .kdmodal-content {
-  padding : 30px;
+  padding: 20px;
+  line-height: 120%;
 }
 
 .kdview.content-area-pane.kodelectures.kdtabpaneview .application-page {

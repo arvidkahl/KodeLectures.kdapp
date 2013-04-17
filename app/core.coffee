@@ -235,6 +235,7 @@ class KodeLectures.Views.TaskView extends JView
       content       : @lectureText
       cssClass      : 'lecture-text-view has-markdown'
       contentHidden : no
+      headerHidden  : yes
     
     @subItemTaskText = @subItemController.addItem
       type          : 'taskText'
@@ -311,8 +312,10 @@ class KodeLectures.Views.TaskView extends JView
         @resultView.unsetClass 'success'  
  
     @on 'ReadyForNextLecture', =>
-      console.log 'shwoing button'
       @nextLectureButton.show()
+  
+    @on 'HideNextLectureButton', =>
+      @nextLectureButton.hide()
  
   pistachio:->
     """
@@ -549,6 +552,15 @@ class KodeLectures.Views.ImportCourseBar extends JView
     
     @apiURL = 'http://arvidkahl.koding.com/lectures'
     
+    @recommendedHeader = new KDView
+      cssClass : 'recommended-courses'
+      partial:"<h1>Recommended Courses</h1>"
+      click :=>
+        if @$().hasClass 'minimized'
+          @unsetClass 'minimized'
+        else @setClass 'minimized'
+      
+    
     @recommendedListController = new KDListViewController
       itemClass : ImportCourseRecommendedListItemView
     
@@ -576,7 +588,7 @@ class KodeLectures.Views.ImportCourseBar extends JView
       
   pistachio:->
     """
-    <div class='recommended-courses'><h1>Recommended Courses</h1></div>
+    {{> @recommendedHeader}}
     {{> @recommendedList}}
       
     """
@@ -668,7 +680,7 @@ class KodeLectures.Views.CourseSelectionView extends JView
     @courseHeader = new KDView
       cssClass : 'course-header'
       partial : '<h1>Your Courses</h1>'
-      
+
     @importCourseBar = new ImportCourseBar
       cssClass : 'import-course-bar'
       delegate : @

@@ -1,3 +1,16 @@
+@import url(http://fonts.googleapis.com/css?family=Patrick+Hand+SC);
+@font-face {
+  font-family: 'Patrick Hand SC';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Patrick Hand SC'), local('PatrickHandSC-Regular'), url(http://themes.googleusercontent.com/static/fonts/patrickhandsc/v1/OYFWCgfCR-7uHIovjUZXscR6S2I7R_2PmaFugZazRjg.woff) format('woff');
+}
+
+.kodelectures .recommended-courses {
+  height:auto;
+  cursor:pointer;
+}
+
 .kodelectures .recommended-courses > h1 {
   background-color: rgba(255,255,255,0.25);  
   padding: 20px;
@@ -6,6 +19,10 @@
   text-shadow:1px 1px 1px rgba(255,255,255,0.75);
 }
 
+.kodelectures .import-course-bar.minimized {
+  height:63px;
+  margin-bottom:39px;
+}
 .kodelectures .import-course-bar {
   position: absolute;
   bottom:0;
@@ -62,7 +79,10 @@
 
 .kodelectures .recommended-listitem span.data[data-paths="title"] {
   font-weight:bold;
+  line-height:100%;
+  display:block;  
 }
+
 .kodelectures .recommended-listitem span.data[data-paths="description"] {
   display:block;
   color:#888;
@@ -70,7 +90,7 @@
 }
 
 .kodelectures .recommended-listitem span.data {
-  margin-right : 120px;
+  margin-right : 150px;
 }
 
 .kodelectures .recommended-listitem {
@@ -81,7 +101,19 @@
   width:50%; 
   height:auto;
   transition:background-color 0.2s linear;
-  
+  vertical-align:top;
+}
+
+@media (max-width: 1024px) { 
+  .kodelectures .recommended-listitem {
+    width:100%;
+  }
+}
+
+@media (min-width: 1600px) { 
+  .kodelectures .recommended-listitem {
+    width:33.333333%;
+  }
 }
 
 .kodelectures .course-settings-menu {
@@ -97,16 +129,26 @@
 .kodelectures .course-details {
   height:100%;
   overflow:auto;
+  background-image:url(http://petapixel.com/assets/uploads/2012/11/blackboard-7.jpg);
+  background-size:cover;
+  background-position:center center;
 }
 
 .kodelectures .course-details .listview-wrapper {
+  //box-shadow:inset 0 10px 15px -5px rgba(255, 255, 255, 0.8);
   height:auto;
+  padding-top:10px;
+  box-sizing:border-box;
 }
 
 .kodelectures .selection-listitem:hover .course-settings-menu{
   opacity:1;
 }
 
+
+.kodelectures .selection-view.animate {
+  transition: left 0.5s ease;
+}
 
 .kodelectures .selection-view {
   left: 100%;
@@ -115,11 +157,9 @@
   position: absolute;
   background-color: white;
   border-left: 1px solid #e8e8e8;
-  transition: left 0.5s ease;
   text-align : center;
-  
-  background-image:url(http://ford3.com/portfolio/ford3img.php?i=image_1363900487.jpg&vsize=768);
-  background-repeat:norepeat;
+  background-image:url('http://ford3.com/portfolio/ford3img.php?i=image_1363900487.jpg&vsize=768');
+  background-repeat: norepeat;
   background-position:center center;
   background-size:cover;
   
@@ -161,22 +201,25 @@
   background-color : rgba(255,255,255,0.75);
   font-size: 18px;
   box-sizing:border-box;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #e8e8e8;
   color : #444;
+  box-shadow:inset 0 -15px 20px -15px rgba(0,0,0,0.1);
   
 }
 .kodelectures .selection-listitem .lectures{
-  font-size:12px;
+  font-size:14px;
   margin-left:10px;
-  color:#aaa;
-
+  color:#ccc;
+  //font-family: 'Patrick Hand SC', cursive;
 }
 .kodelectures .selection-listitem .description{
   height : auto;
-  padding: 20px 20px 10px 20px;
+  padding: 15px 20px 15px 20px;
   box-sizing:border-box;
   text-align : left;
-  color: #5f5f5f;
+  color: #f5f5f5;
+  font-size:16px;
+  font-family: 'Patrick Hand SC', cursive;
 }
 
 .kodelectures .lecture-listitem:hover{
@@ -185,8 +228,10 @@
 .kodelectures .lecture-listitem {
   height:auto;
   cursor:pointer;
-  
-}
+  color:rgba(255,255,255,0.6);
+  font-family: 'Patrick Hand SC', cursive;
+  font-size:14px;
+} 
 
 .kodelectures .course-header {
   height:auto;
