@@ -52,6 +52,11 @@
   overflow-y : auto;
 }
 
+.kodelectures .task-view > .listview-wrapper{
+  height:auto;
+  overflow-y:auto;
+}
+
 .kodelectures .result-view {
   height : auto;
   border-bottom:1px solid #c00;
@@ -71,6 +76,7 @@
 
 .kodelectures .task-next-button {
   width:100%;
+  border-radius:0;
 }
 
 .kodelectures .hint-view {
@@ -195,4 +201,13 @@
   box-sizing: border-box; 
   width: auto;
   line-height: 20px;
+}
+
+.kodelectures .webterm .console {
+  overflow-y:auto!important;
+  
+}
+.kodelectures .webterm .kdbuttonwithmenu-wrapper.editor-advanced-settings-menu {
+  bottom :0px;
+  right:0px;
 }

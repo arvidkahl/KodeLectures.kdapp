@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Apr 16 2013 17:10:44 GMT-0700 (PDT) in server time
+// Compiled by Koding Servers at Tue Apr 16 2013 17:33:02 GMT-0700 (PDT) in server time
 
 (function() {
 
@@ -207,7 +207,7 @@ KodeLectures.Core.LiveViewer = (function() {
           };
           if (!_this.terminal) {
             console.log('Adding terminal. This should only happen once.');
-            appStorage = new AppStorage('WebTerm', '1.0');
+            appStorage = new AppStorage('KodeLectures', '1.0');
             return appStorage.fetchStorage(function(storage) {
               var _ref3;
 

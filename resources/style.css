@@ -23,7 +23,8 @@
   -webkit-transition-duration: 200ms;
   background-image : -webkit-radial-gradient(50% 50%,ellipse cover,#444 0%,#272822 100%);
   background-image : radial-gradient(50% 50%,ellipse cover,#444 0%,#272822 100%);
-  border-top : 5px solid #ccc;
+  border-top : 1px solid rgba(255,255,255,0.25);
+  
 }
 
 .kodelectures .preview-pane.transparented {
@@ -216,6 +217,10 @@ body.dragInAction .kodelectures .md-help-view {
 
 .lecture-modal.kdmodal .kdmodal-content {
   padding : 30px;
+}
+
+.kdview.content-area-pane.kodelectures.kdtabpaneview .application-page {
+  padding: 0;
 }
 
 .modal-warning.formline {

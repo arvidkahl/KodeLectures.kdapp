@@ -116,7 +116,7 @@ class KodeLectures.Core.LiveViewer
             else console.log 'There is a connectivity problem with the terminal'  
           unless @terminal
               console.log 'Adding terminal. This should only happen once.'
-              appStorage = new AppStorage 'WebTerm', '1.0'
+              appStorage = new AppStorage 'KodeLectures', '1.0'
               appStorage.fetchStorage (storage)=>
                 @previewView.addSubView @terminal = new WebTermView appStorage
                 @terminal.setClass 'webterm'
