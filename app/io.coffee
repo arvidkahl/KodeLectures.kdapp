@@ -1,5 +1,10 @@
 class KodeLectures.Controllers.FileIOController extends KDController
 
+  daisy = (args, fn) ->
+    setTimeout args.next = ->
+      if (f = args.shift()) then !!f(args) or yes else no
+    , 0
+
   constructor:->
     super
     
@@ -11,6 +16,84 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @basePath     = "#{@appPath}/#{@name}.kdapp"
     
     @attachListeners()
+  
+  checkAppIntegrity:(callback=->)->
+    
+    courses = null
+    error = null
+    daisy queue = [
+      =>
+        console.log 'Checking for courses directory'
+        @kiteController.run "stat '#{@basePath}/courses'", (err,res)=>
+          if err
+            callback "Course directory could not be found at #{@basePath/courses}"
+          else
+            queue.next()
+      =>
+        console.log 'Checking for courses inside courses directory'
+        @kiteController.run "ls #{@basePath}/courses", (err,res)=> 
+          courses = res.trim().split "\n"
+          if not courses.length or courses[0] is ""
+            console.log 'No courses found. Skipping manifest check.'
+            queue.next()
+          else   
+            console.log "#{courses.length} courses found."
+            console.log 'Scanning course directories for manifest.json'
+            remainingCount = courses.length
+            for course in courses
+              do =>
+                filePath = "#{@basePath}/courses/#{course}/manifest.json"
+                if course then @kiteController.run "cat #{filePath}", (err,manifest)=>
+                  try
+                    newCourse = JSON.parse manifest
+                  catch e
+                    callback error = "Unable to parse #{filePath} with exception: #{e}"
+                                  
+                  if newCourse then @checkManifestIntegrity newCourse, (err)=>
+                    if err
+                      callback error = "Malformed data in #{filePath}: #{err}"
+                    else 
+                      if --remainingCount is 0 then queue.next()
+      -> 
+        unless error
+          console.log "%c✓ Integrity Check has finished successfully. App is starting.", 'color:#00bb00'
+          callback()
+        else 
+          console.log "%c✗ Integrity Check has finished with errors. Please fix them.", 'color:#bb0000;'
+      ]
+    
+  checkManifestIntegrity:(manifest,callback=->)->
+    console.log "Checking manifest for #{manifest.title}"
+    
+    courseErrorMatrix =
+      "title":'Course Title is missing (title)'
+      "description":'Course description is missing (description)'
+      "path":'Course Path is missing (path). It should specify the path of the lecture, including any file extension (e.g. "CoffeeScript.kdlecture")'
+      "originType":'Course origin type is missing (originType). Please specify either "url" or "git".'
+      "originUrl":'Course origin url is missing (originUrl). Please specify a URL to either a repository or a manifest.json file.'
+      "lectures":'Course has no lectures (lectures).'
+      
+    lectureErrorMatrix =
+      "title":"Lecture Title is missing (title).",
+      "summary":"Lecture Summary is missing (summary).",
+      "expectedResults":"Lecture expected result is missing (expectedResults). Set to null if there is no expected result.",
+      "submitSuccess":"Lecture success message is missing (submitSuccess). Set to empty string if not needed.",
+      "submitFailure":"Lecture failure message is missing (submitFailure). Set to empty string if not needed.",
+      "language":"Lecture language is missing (language). Set to 'text' if you don't want to specify a language.",
+      "previewType":"Lecture preview type is missing (previewType). Set to either 'code-preview', 'terminal' or 'execute-html'.",        
+      "execute": "Lecture execute command is missing (execute). Set to empty string if not needed.",
+      "files" : "Lecture files are missing (files). This needs to be an array of at least one string, pointing to the files of the lecture. The first file will be loaded into the editor.",
+      
+    for check,errorMessage of courseErrorMatrix
+      unless manifest[check] isnt undefined
+        callback errorMessage
+    
+    for lecture,lectureIndex in manifest.lectures
+      for check,errorMessage of lectureErrorMatrix
+        unless lecture[check] isnt undefined
+          callback "In lecture #{lectureIndex}: #{errorMessage}"
+  
+    callback null
   
   generateSymlinkedPreview:(previewPath,coursePath,callback=->)->
     
@@ -158,7 +241,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     @on 'CourseImportRequested', =>
       
-      command = "ls #{coursePath}" 
+      command = "ls -t #{coursePath}" 
      
       @kiteController.run command, (err, res)=>
         unless err

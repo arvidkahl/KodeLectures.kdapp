@@ -674,7 +674,7 @@ class KodeLectures.Views.CourseSelectionView extends JView
         if type in ['git']
           console.log 'Attempting import from ',url
           @mainView.ioController.importCourseFromRepository url, type, =>
-            console.log 'Import started.'
+            console.log 'Import completed successfully.'
 
     
     @courseHeader = new KDView

@@ -64,8 +64,7 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseFilesReset', (course)=>
       # make sure the lecture gets reloaded 
       @emit 'LectureChanged', @lastSelectedItem
-      
-    
+
     @courses = []
     
   delegateElements:->
