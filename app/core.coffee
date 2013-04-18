@@ -758,7 +758,7 @@ class KodeLectures.Views.CourseSelectionView extends JView
     
     <div class="hero">
       <div class="content">
-        <span class='video'><iframe width="100%" height="100%" src="http://www.youtube.com/embed/fvsKkwbhfs8" frameborder="0" allowfullscreen></iframe></span>
+        <span class='video'><!--<iframe width="100%" height="100%" src="http://www.youtube.com/embed/fvsKkwbhfs8" frameborder="0" allowfullscreen></iframe>--></span>
         <span class='title'>Learn. Teach. Code.</span>
         <span class='subtitle'>KodeLectures will allow you to chose from a variety of user-submitted lectures or submit them yourself!</span>
       </div>
