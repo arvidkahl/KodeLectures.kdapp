@@ -680,9 +680,23 @@ class KodeLectures.Views.CourseSelectionView extends JView
         if courses.length is 0 then @courseEmptyMessage.show()
     
     @courseController.listView.on 'ResetCourseClicked', ({course,view})=>
-      console.log course
       @mainView.ioController.resetCourseFiles courses, courses.indexOf(course), course.originType, (err,res)=>
         unless err then new KDNotificationView {title:'Files successfully reset'}
+    
+    @on 'CoursesLinkClicked', =>
+      @$().animate
+         scrollTop: $(".page > div.course-header").offset().top-100
+      , 1000
+          
+    @on 'AboutLinkClicked', =>
+      @$().animate
+         scrollTop: $(".page > div.about").offset().top-100
+      , 1000
+    
+    @on 'RecommendedLinkClicked', =>
+      @$().animate
+         scrollTop: $(".page > div.import-course-bar").offset().top-100
+      , 1000
     
     @on 'ImportRequested', (data)=>
       
@@ -722,9 +736,6 @@ class KodeLectures.Views.CourseSelectionView extends JView
           console.log 'Attempting import from ',url
           @mainView.ioController.importCourseFromRepository url, type, =>
             console.log 'Import completed successfully.'
-
-    @on 'CoursesLinkClicked', => 
-      console.log 'Courses Link Clicked'
     
     @courseHeader = new KDView
       cssClass : 'course-header'
@@ -768,5 +779,6 @@ class KodeLectures.Views.CourseSelectionView extends JView
       {{> @courseView}}
       <hr/>
       {{> @importCourseBar}}
+      <hr/>
     </div>
     """

@@ -22,7 +22,9 @@
   }
 .kodelectures .page {
   max-width:800px;
-  margin:30px auto 0 auto;
+  margin:30px auto 50px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .kodelectures .page hr {

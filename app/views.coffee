@@ -260,7 +260,7 @@ class KodeLectures.Views.MainView extends JView
       title       : 'Lecture'
       tooltip:
         title : 'Go to the current lecture'
-      callback    : (event)=> @emit 'LectureRequested'
+      callback    : (event)=> @emit 'LectureRequested' if @lastSelectedCourse
 
     @languageSelect = new KDSelectBox
       label: new KDLabelView
