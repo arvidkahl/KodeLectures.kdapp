@@ -31,8 +31,11 @@
     "type": "tab"
   },
   "icns": {
-    "128": "./resources/icon.128.cloud.png"
+    "128": "./resources/iconbook.orange.png"
   },
+  "images": [
+    "./resources/images/hr.png"
+  ],
   "screenshots": [
     "./resources/screenshots/kodepad1.png",
     "./resources/screenshots/kodepad2.png",

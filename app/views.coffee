@@ -335,10 +335,8 @@ class KodeLectures.Views.MainView extends JView
             
       if expectedResults is null and @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
         @taskView.emit 'ReadyForNextLecture'
-        console.log 'emit ready'
       else 
         @taskView.emit 'HideNextLectureButton'
-        console.log 'emit hide'
     
       if previewType is 'terminal' 
         @liveViewer.active = yes

@@ -501,7 +501,13 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
                     modal.destroy()
             else new KDNotificationView {title:'This Course can not be reset. Try deleting and re-importing it.'}
                 
-
+    @firstLectureLink = new KDCustomHTMLView
+      partial : 'Get started!'
+      cssClass : 'get-started-link'
+      click   : (event)=>
+        event.preventDefault()
+        event.stopPropagation()
+        @getDelegate().emit 'LectureSelected', {lecture:@getData().lectures[0], course:@getData()}
       
   
   viewAppended :->
@@ -514,11 +520,13 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
     @getDelegate().emit 'CourseSelected', @getData()
   
   pistachio:->
+   
+    # {{> @lectureList }}
     """
     {{> @titleText}}
     <div class="course-details">
     {{> @descriptionText}}
-    {{> @lectureList }}
+    {{> @firstLectureLink}}
     </div>
     """
 class KodeLectures.Views.ImportCourseRecommendedListItemView extends KDListItemView    
@@ -534,12 +542,18 @@ class KodeLectures.Views.ImportCourseRecommendedListItemView extends KDListItemV
       callback :=>
         @getDelegate().emit 'ImportClicked',@getData()
     
+    @iconView = new KDView
+     cssClass : 'recommended-icon'
+    
+    
+    
   viewAppended :->
     @setTemplate @pistachio()
     @template.update()
       
   pistachio:->
     """
+    {{> @iconView}}
     {{> @importButton}}
     {{ #(title)}}
     {{ #(description)}}
@@ -554,7 +568,7 @@ class KodeLectures.Views.ImportCourseBar extends JView
     
     @recommendedHeader = new KDView
       cssClass : 'recommended-courses'
-      partial:"<h1>Recommended Courses</h1>"
+      partial:"<h1><strong>Recommended</strong> Courses</h1>"
       click :=>
         if @$().hasClass 'minimized'
           @unsetClass 'minimized'
@@ -594,8 +608,41 @@ class KodeLectures.Views.ImportCourseBar extends JView
     """
     
 
+class KodeLectures.Views.NavBar extends JView
+
+  constructor:->
+    super
+    @setClass 'nav-bar'
+    
+    
+    @aboutLink = new KDCustomHTMLView
+      partial : 'About'
+      cssClass : 'nav-link about'
+      click:=>
+        @getDelegate().emit 'AboutLinkClicked'
+        
+    @coursesLink = new KDCustomHTMLView
+      partial : 'My Courses'
+      cssClass : 'nav-link courses'
+      click:=>
+        @getDelegate().emit 'CoursesLinkClicked'
+        
+    @recommendedLink = new KDCustomHTMLView
+      partial : 'Recommended Courses'
+      cssClass : 'nav-link recommended'
+      click:=>
+        @getDelegate().emit 'RecommendedLinkClicked'
+    
+  pistachio:->
+    """
+    <div class='logo'><span class='icon'></span>Kode<span>Lectures</span></div>
+      {{> @aboutLink}}
+      {{> @coursesLink}}
+      {{> @recommendedLink}}
+    """
+
 class KodeLectures.Views.CourseSelectionView extends JView
-  {CourseSelectionItemView, ImportCourseBar} = KodeLectures.Views
+  {CourseSelectionItemView, ImportCourseBar, NavBar} = KodeLectures.Views
   
   constructor:->
     super
@@ -676,21 +723,50 @@ class KodeLectures.Views.CourseSelectionView extends JView
           @mainView.ioController.importCourseFromRepository url, type, =>
             console.log 'Import completed successfully.'
 
+    @on 'CoursesLinkClicked', => 
+      console.log 'Courses Link Clicked'
     
     @courseHeader = new KDView
       cssClass : 'course-header'
-      partial : '<h1>Your Courses</h1>'
+      partial : '<h1><strong>Your</strong> Courses</h1>'
 
     @importCourseBar = new ImportCourseBar
       cssClass : 'import-course-bar'
+      delegate : @
+
+    @navBar = new NavBar
       delegate : @
 
   setMainView:(@mainView)->
 
   pistachio:->
     """
-    {{> @courseHeader}}
-    {{> @courseEmptyMessage}}
-    {{> @courseView}}
-    {{> @importCourseBar}}
+    {{> @navBar}}
+    
+    <div class="hero">
+      <div class="content">
+        <span class='video'><iframe width="100%" height="100%" src="http://www.youtube.com/embed/fvsKkwbhfs8" frameborder="0" allowfullscreen></iframe></span>
+        <span class='title'>Learn. Teach. Code.</span>
+        <span class='subtitle'>KodeLectures will allow you to chose from a variety of user-submitted lectures or submit them yourself!</span>
+      </div>
+    </div>
+    <div class="cta-header">
+   
+    </div>
+    <div class="page">
+      <div class='about'>
+        <h1><strong>About</strong> <span>/ How to use KodeLectures</span></h1>
+        <p>Welcome to KodeLectures! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <h2>How do I learn?</h2>
+        <p>Welcome to KodeLectures! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <h2>How do I teach?</h2>
+        <p>Welcome to KodeLectures! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+      <hr/>
+      {{> @courseHeader}}
+      {{> @courseEmptyMessage}}
+      {{> @courseView}}
+      <hr/>
+      {{> @importCourseBar}}
+    </div>
     """
