@@ -56,7 +56,7 @@ class KodeLectures.Core.LiveViewer
           window.appView = @previewView
         
           if res is '' then text = '<div class="info"><pre>KodeLectures received an empty response but no error.</pre></div>'
-          else text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{res}</pre></div>"
+          else text = if err then "<div class='error'><pre>#{err.message}</pre></div>" else "<div class='success'><pre>#{Encoder.XSSEncode res}</pre></div>"
           try
             unless @mdPreview
               @previewView.addSubView @mdPreview = new KDView
@@ -402,7 +402,7 @@ class KodeLectures.Views.CourseLectureListItemView extends KDListItemView
     
     @lectureTitle = new KDView 
       cssClass : 'lecture-listitem'
-      partial : @getData().title
+      partial : Encoder.XSSEncode @getData().title
   
   viewAppended :->
     @setTemplate @pistachio()
@@ -427,12 +427,14 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
 
     lectureCount = @getData().lectures.length
     
+    author = @getData().author or 'unknown author'
+    
     @titleText = new KDView
-      partial   : "<span>#{@getData().title}</span><span class='lectures'>#{lectureCount} lecture#{if lectureCount is 1 then '' else 's'}</span>"
+      partial   : "<span>#{Encoder.XSSEncode @getData().title}</span><span class='lectures'>#{lectureCount} lecture#{if lectureCount is 1 then '' else 's'} by #{Encoder.XSSEncode author}</span>"
       cssClass  : 'title'
       
     @descriptionText = new KDView
-      partial   : @getData().description
+      partial   : Encoder.XSSEncode  @getData().description
       cssClass  : 'description'
   
     @lectureController = new KDListViewController
