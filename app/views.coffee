@@ -136,16 +136,6 @@ class KodeLectures.Views.MainView extends JView
         resizable : yes
         sizes     : ["50%","50%"]
         views     : [@editorSplitView, @taskSplitView]
-        
-    # Resize hack for nested splitviews    
-        
-    @splitView.on 'ResizeDidStart', =>
-      @resizeInterval = KD.utils.repeat 100, =>
-        @taskSplitView._windowDidResize {}
-        
-    @splitView.on 'ResizeDidStop', =>
-      KD.utils.killRepeat @resizeInterval
-      @taskSplitView._windowDidResize {}
 
     @splitViewWrapper.addSubView @splitView
     
@@ -366,6 +356,16 @@ class KodeLectures.Views.MainView extends JView
     @on 'NextLectureRequested', =>
       @emit 'LectureChanged',@lastSelectedItem+1 if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
     @on 'PreviousLectureRequested', =>
+        
+    # Resize hack for nested splitviews    
+        
+    @splitView.on 'ResizeDidStart', =>
+      @resizeInterval = KD.utils.repeat 100, =>
+        @taskSplitView._windowDidResize {}
+        
+    @splitView.on 'ResizeDidStop', =>
+      KD.utils.killRepeat @resizeInterval
+      @taskSplitView._windowDidResize {}
 
   getEditScrollPercentage:->
 

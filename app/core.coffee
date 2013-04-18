@@ -687,17 +687,17 @@ class KodeLectures.Views.CourseSelectionView extends JView
     
     @on 'CoursesLinkClicked', =>
       @$().animate
-         scrollTop: $(".page > div.course-header").offset().top-100
+         scrollTop: $(".page > div.course-header").offset().top
       , 1000
           
     @on 'AboutLinkClicked', =>
       @$().animate
-         scrollTop: $(".page > div.about").offset().top-100
+         scrollTop: $(".page > div.about").offset().top
       , 1000
     
     @on 'RecommendedLinkClicked', =>
       @$().animate
-         scrollTop: $(".page > div.import-course-bar").offset().top-100
+         scrollTop: $(".page > div.import-course-bar").offset().top
       , 1000
     
     @on 'ImportRequested', (data)=>
@@ -769,12 +769,27 @@ class KodeLectures.Views.CourseSelectionView extends JView
     <div class="page">
       <div class='about'>
         <h1><strong>About</strong> <span>/ How to use KodeLectures</span></h1>
-        <p>Welcome to KodeLectures! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>
+        Hey there! Welcome to KodeLectures! 
+        With this Koding app, you can learn from the community and give back by creating courses and lectures yourself. 
+        Under <strong>Recommended Courses</strong> you will find a few basic (example) courses. Go ahead, try them out!
+        </p>
         <h2>How do I learn?</h2>
-        <p>Welcome to KodeLectures! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>The <strong>Course</strong> is the basic unit of learning. It contains a certain number of <strong>Lectures</strong>, that may have assignments attached to them.
+        You can chose to try the assignment, and should you run into trouble, the Course author can provide hints and a solution for each assignment.
+        Otherwise, you can read or watch (providing the author has supplied a video) the lectures.</p>
+        <p>To be able to start learning, you have to get a hold of courses first. You can do that by importing them from the list further down or
+        via the <strong>Import Course</strong> button on the top right. Providing a working URL to a <code>kdlecture</code> course will immediately import the Course, ready for action!
+        </p>
         <h2>How do I teach?</h2>
-        <p>Welcome to KodeLectures! Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-      </div>
+        <p>If you are interested in creating Courses, please check out the example repositories of the courses provided further down this page. 
+        They will provide you with a fully functional file structure and a <code>manifest.json</code> file, containing all the fields that you just have to modify to create your won courses.
+        I created a repository at <a target="_blank" href="https://github.com/arvidkahl/CoffeeScript.kdlecture">https://github.com/arvidkahl/CoffeeScript.kdlecture</a> with a README file that will be constantly updated with any added/modified feature or behavior.
+        This repository will always contain a <code>manifest.json</code> file that uses every possible feature of this app. Please feel free to clone the repository, rename it to something unique, write your own lectures and then pass the repository URL to me. 
+        I will then include it into the <strong>Recommended Courses</strong> part of this page. 
+        <h2>Feedback</h2>
+        <p>If you run into trouble using the app, have feature requests, bug reports or anything else, please contact me at <a href='mailto:arvid@koding.com' target='_blank'>arvid@koding.com</a> or at <a href='//twitter.com/arvidkahldev' target='_blank'>@arvidkahldev</a>. My Koding username is <a href="/arvidkahl">@arvidkahl</a>.</p>
+        </div>
       <hr/>
       {{> @courseHeader}}
       {{> @courseEmptyMessage}}

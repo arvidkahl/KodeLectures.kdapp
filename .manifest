@@ -1,13 +1,13 @@
 {
   "devMode": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "name": "KodeLectures",
   "identifier": "com.koding.apps.kodelectures",
   "path": "~/Applications/KodeLectures.kdapp",
-  "homepage": "arvidkahl.koding.com/kodelectures",
+  "homepage": "https://github.com/arvidkahl/KodeLectures.kdapp",
   "author": "Arvid Kahl",
   "repository": "git@github.com:arvidkahl/KodeLectures.git",
-  "description": "KodeLectures. Learning to code, one command at a time.",
+  "description": "KodeLectures. Learn. Teach. Code.",
   "category": "web-app",
   "source": {
     "blocks": {
@@ -34,13 +34,15 @@
     "128": "./resources/iconbook.orange.png"
   },
   "images": [
-    "./resources/images/hr.png"
+    "./resources/images/hr.png",
+    "./resources/images/iconbook.white.png",
+    "./resources/images/ico.128.book.transparent.png",
+    "./resources/images/iconbook.white.64.png"
   ],
   "screenshots": [
-    "./resources/screenshots/kodepad1.png",
-    "./resources/screenshots/kodepad2.png",
-    "./resources/screenshots/kodepad3.png",
-    "./resources/screenshots/kodepad4.png"
+    "./resources/screenshots/screenshotCourseHeader.png",
+    "./resources/screenshots/screenshotTerminalLecture1020.png",
+    "./resources/screenshots/screenshotCourses.png"
   ],
   "authorNick": "arvidkahl"
 }

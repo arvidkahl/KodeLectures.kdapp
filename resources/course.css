@@ -44,6 +44,19 @@
   width:100%;
 } 
 
+.kodelectures .page p a:hover{
+  text-decoration:underline;
+}
+.kodelectures .page p a{
+  color:#db7e2c;
+  text-decoration:none;
+}
+
+.kodelectures .page p code {
+  border:1px solid #e8e8e8;
+  border-radius:3px;
+  padding:2px 4px;
+}
 .kodelectures .page p {
   color: #999;
   font-size: 14px;
