@@ -31,7 +31,9 @@
     "type": "tab"
   },
   "icns": {
-    "128": "./resources/iconbook.orange.png"
+    "128": "./resources/iconbook.orange.png",
+    "160": "./resources/bookorange160.png",
+    "256": "./resources/bookorange256.png"
   },
   "images": [
     "./resources/images/hr.png",
