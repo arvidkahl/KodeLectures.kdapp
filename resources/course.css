@@ -488,7 +488,7 @@ opacity:0.25;
 
 .kodelectures .selection-listitem .title {
   height : auto;
-  padding : 20px 30px;
+  padding : 20px 10px;
   //background-color : rgba(255,255,255,0.75);
   font-size: 16px;
   box-sizing:border-box;
