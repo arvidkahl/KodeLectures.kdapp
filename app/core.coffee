@@ -638,9 +638,9 @@ class KodeLectures.Views.NavBar extends JView
   pistachio:->
     """
     <div class='logo'><span class='icon'></span>Kode<span>Lectures</span></div>
-      {{> @aboutLink}}
       {{> @coursesLink}}
       {{> @recommendedLink}}
+      {{> @aboutLink}}
     """
 
 class KodeLectures.Views.CourseSelectionView extends JView
@@ -686,18 +686,21 @@ class KodeLectures.Views.CourseSelectionView extends JView
         unless err then new KDNotificationView {title:'Files successfully reset'}
     
     @on 'CoursesLinkClicked', =>
+      console.log 'courses',$(".page > div.course-header.page-item").offset().top
       @$().animate
-         scrollTop: $(".page > div.course-header").offset().top
+         scrollTop: $(".page > div.course-header.page-item").offset().top-100
       , 1000
           
     @on 'AboutLinkClicked', =>
+      console.log 'about',  $(".page > div.about.page-item").offset().top
       @$().animate
-         scrollTop: $(".page > div.about").offset().top
+         scrollTop: $(".page > div.about.page-item").offset().top-100
       , 1000
     
     @on 'RecommendedLinkClicked', =>
+      console.log 'recommended', $(".page > div.import-course-bar.page-item").offset().top
       @$().animate
-         scrollTop: $(".page > div.import-course-bar").offset().top
+         scrollTop: $(".page > div.import-course-bar.page-item").offset().top-100
       , 1000
     
     @on 'ImportRequested', (data)=>
@@ -740,11 +743,11 @@ class KodeLectures.Views.CourseSelectionView extends JView
             console.log 'Import completed successfully.'
     
     @courseHeader = new KDView
-      cssClass : 'course-header'
+      cssClass : 'course-header page-item'
       partial : '<h1><strong>Your</strong> Courses</h1>'
 
     @importCourseBar = new ImportCourseBar
-      cssClass : 'import-course-bar'
+      cssClass : 'import-course-bar page-item'
       delegate : @
 
     @navBar = new NavBar
@@ -767,7 +770,14 @@ class KodeLectures.Views.CourseSelectionView extends JView
    
     </div>
     <div class="page">
-      <div class='about'>
+
+      {{> @courseHeader}}
+      {{> @courseEmptyMessage}}
+      {{> @courseView}}
+      <hr/>
+      {{> @importCourseBar}}
+      <hr/>
+      <div class='about page-item'>
         <h1><strong>About</strong> <span>/ How to use KodeLectures</span></h1>
         <p>
         Hey there! Welcome to KodeLectures! 
@@ -789,13 +799,8 @@ class KodeLectures.Views.CourseSelectionView extends JView
         I will then include it into the <strong>Recommended Courses</strong> part of this page. 
         <h2>Feedback</h2>
         <p>If you run into trouble using the app, have feature requests, bug reports or anything else, please contact me at <a href='mailto:arvid@koding.com' target='_blank'>arvid@koding.com</a> or at <a href='//twitter.com/arvidkahldev' target='_blank'>@arvidkahldev</a>. My Koding username is <a href="/arvidkahl">@arvidkahl</a>.</p>
-        </div>
+      </div>
       <hr/>
-      {{> @courseHeader}}
-      {{> @courseEmptyMessage}}
-      {{> @courseView}}
-      <hr/>
-      {{> @importCourseBar}}
-      <hr/>
+
     </div>
     """

@@ -293,13 +293,16 @@ class KodeLectures.Views.MainView extends JView
     @utils.wait 50, => 
       ($ window).resize()
       @ace?.resize()
-      @selectionView.setClass 'animate'
-      @splitView.setClass 'animate'
-    
+
     @utils.wait 1000, =>
       @ace.renderer.scrollBar.on 'scroll', =>
         if @autoScroll is yes
           @setPreviewScrollPercentage @getEditScrollPercentage()
+    
+    @utils.wait 2000, =>
+      @selectionView.setClass 'animate'
+      @splitView.setClass 'animate'
+    
 
   attachListeners :->
    
