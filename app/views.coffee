@@ -394,8 +394,8 @@ class KodeLectures.Views.MainView extends JView
       value = Encoder.htmlDecode content 
       unless @editor.getValue() is value
         @contentFromRemote = yes
-        @ace.getSession().setValue value
         @editor.setValue value
+        @ace.getSession().setValue value
       
     # Resize hack for nested splitviews    
         
@@ -422,8 +422,9 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
-        @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
-        @editor.setValue @ace.getSession().getValue()
+        unless @editor.getValue() is @ace.getSession().getValue()
+          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @ace.getSession().getValue()} 
+          @editor.setValue @ace.getSession().getValue()
         @editor.getView().domElement.trigger "keyup"
       , Settings.aceThrottle
       
