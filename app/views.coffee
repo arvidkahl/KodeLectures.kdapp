@@ -108,7 +108,7 @@ class KodeLectures.Views.MainView extends JView
       callback: (event) =>
         unless @contentFromRemote 
           @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
-        @contentsFromRemote = no
+        @contentFromRemote = no
 
     @editor.getView().hide()
       
