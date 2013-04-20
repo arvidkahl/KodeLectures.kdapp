@@ -14,6 +14,9 @@
       "app": {
         "files": [
           "./app/lib/firebase.all.js",          
+          "./app/lib/firepad/examples/codemirror/lib/codemirror.js",
+          "./app/lib/firepad/examples/codemirror/mode/javascript/javascript.js",
+          "./app/lib/firepad.js",
           "./app/settings.coffee",
           "./app/core.coffee",
           "./app/views.coffee",
@@ -25,7 +28,8 @@
     "stylesheets": [
       "./resources/style.css",
       "./resources/course.css",
-      "./resources/lecture.css"
+      "./resources/lecture.css",
+      "./resources/twilight.css"
     ]
   },
   "options": {

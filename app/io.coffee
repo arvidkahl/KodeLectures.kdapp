@@ -32,7 +32,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
       return null
       
     @previousSessionKey = @currentSessionKey if @currenSessionKey
-    @currentSessionKey = sessionKey or "#{KD.utils.generatePassword 18, no}#{KD.utils.getRandomNumber 9999}#{KD.utils.generatePassword 18, no}"
+    @currentSessionKey = sessionKey or "#{KD.utils.generatePassword 6, no}#{KD.utils.getRandomNumber 99}#{KD.utils.generatePassword 2, no}"
   
     if @firebaseRef then console.warn 'Overwriting instance of firebase.'
     
