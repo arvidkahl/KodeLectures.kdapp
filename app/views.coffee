@@ -106,12 +106,15 @@ class KodeLectures.Views.MainView extends JView
     @editor = new Editor
       defaultValue: ''          
       callback: (event) => 
-        if @ace.getSession().getValue() isnt @latestEditorText
+        ace = @ace.getSession().getValue()
+        console.log 'Latest is',@latestEditorText
+        console.log 'Ace',ace
+        if ace isnt @latestEditorText
           @ioController.broadcastMessage 
             editorContent:
               origin : KD.whoami().profile.nickname
-              text : Encoder.htmlEncode @ace.getSession().getValue()
-          @latestEditorText = @ace.getSession().getValue()
+              text : Encoder.htmlEncode ace
+          @latestEditorText = ace
           console.log 'Broadcasted'
 
     @editor.getView().hide()
