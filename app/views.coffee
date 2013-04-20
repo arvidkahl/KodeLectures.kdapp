@@ -106,7 +106,9 @@ class KodeLectures.Views.MainView extends JView
     @editor = new Editor
       defaultValue: ''          
       callback: (event) =>
-        @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
+        unless @contentFromRemote 
+          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
+        @contentsFromRemote = no
 
     @editor.getView().hide()
       
@@ -393,8 +395,9 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'EditorContentChanged', (content)=> 
       value = Encoder.htmlDecode content 
       unless @editor.getValue() is value
+        @contentFromRemote = yes
         @ace.getSession().setValue value
-        @utils.defer => @editor.setValue value
+        @editor.setValue value
       
     # Resize hack for nested splitviews    
         
