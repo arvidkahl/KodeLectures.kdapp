@@ -106,6 +106,7 @@ class KodeLectures.Views.MainView extends JView
     @editor = new Editor
         defaultValue: ''
         callback: =>
+          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
 
     @editor.getView().hide()
       
@@ -389,8 +390,12 @@ class KodeLectures.Views.MainView extends JView
     
     @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
-    
-    
+    @ioController.on 'EditorContentChanged', (content)=> 
+      value = Encoder.htmlDecode content 
+      unless @editor.getValue() is value
+        @editor.setValue value
+        @ace.getSession().setValue value
+      
     # Resize hack for nested splitviews    
         
     @splitView.on 'ResizeDidStart', =>

@@ -90,12 +90,14 @@ class KodeLectures.Controllers.FileIOController extends KDController
       console.log 'Firebase transmitted this message (child_moved):',name,message
 
   handleMessage:(name,message)->
-    if name is 'location'
-      console.log 'Found new location. Changing.'
-      if message is 'lectures' then @emit 'LectureRequested' 
-      if message is 'courses' then @emit 'CourseRequested' 
+    switch name
+      when 'location'
+        console.log 'Found new location. Changing.'
+        if message is 'lectures' then @emit 'LectureRequested' 
+        if message is 'courses' then @emit 'CourseRequested' 
+      when 'editorContent'
+        @emit 'EditorContentChanged', message
 
-  
   checkAppIntegrity:(callback=->)->
     
     courses = null
