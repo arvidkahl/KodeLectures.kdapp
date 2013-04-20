@@ -403,7 +403,7 @@ class KodeLectures.Views.MainView extends JView
       
       @broadcastLock = yes
       if lock then @utils.killWait lock
-      lock = @utils.wait 1000, => @broadcastlock = no 
+      lock = @utils.wait 1000, => @broadcastLock = no 
       
       value = Encoder.htmlDecode text 
       #console.log 'Comparing',@latestEditorText, value
