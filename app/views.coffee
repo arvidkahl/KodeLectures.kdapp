@@ -408,7 +408,7 @@ class KodeLectures.Views.MainView extends JView
       if origin isnt KD.whoami().profile.nickname #or @latestEditorText isnt value
         @broadcastLock = yes
         if lock then @utils.killWait lock
-        lock = @utils.wait 1000, => 
+        lock = @utils.wait 2000, => 
           console.log 'unlocking'
           @broadcastLock = no 
         @latestEditorText = value
