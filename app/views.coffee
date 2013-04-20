@@ -401,8 +401,9 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
       value = Encoder.htmlDecode text 
-      console.log 'Comparing',@latestEditorText, value
+      #console.log 'Comparing',@latestEditorText, value
       if origin isnt KD.whoami().profile.nickname or @latestEditorText isnt value
+        @latestEditorText = value
         @ace.getSession().setValue value
       
 
