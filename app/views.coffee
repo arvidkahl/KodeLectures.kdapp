@@ -393,8 +393,6 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'EditorContentChanged', (content)=> 
       value = Encoder.htmlDecode content 
       unless @editor.getValue() is value
-        @contentFromRemote = yes
-        console.log 'Adding content to editor'
         @editor.setValue value
         @ace.getSession().setValue value
       
@@ -423,11 +421,10 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
-        console.log 'updating ace view',@contentFromRemote
+        if @editor.getValue isnt @ace.getSession().getValue()
+          @utils.defer => @editor.getView().domElement.trigger "keyup"
+        
         @editor.setValue @ace.getSession().getValue()
-        unless @contentFromRemote
-          @editor.getView().domElement.trigger "keyup"
-          @contentFromRemote = no
       , Settings.aceThrottle
       
       @ace = ace.edit @aceView.domElement.get 0
