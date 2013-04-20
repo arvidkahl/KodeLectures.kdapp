@@ -395,7 +395,7 @@ class KodeLectures.Views.MainView extends JView
         @contentFromRemote = yes
         @editor.setValue value
         console.log 'ed val set after io event'
-        @utils.defer => 
+        @utils.wait 50, => 
           @ace.getSession().setValue value
           console.log 'ace val set after io ev + def'
     # Resize hack for nested splitviews    
