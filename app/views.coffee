@@ -211,9 +211,7 @@ class KodeLectures.Views.MainView extends JView
       tooltip:
         title : 'Go to the course list'
       callback    : (event)=> 
-        @ioController.broadcastMessage {location:'courses'}
         @emit 'CourseRequested'
-
         
     @controlButtons.addSubView @lectureButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button previous"
@@ -221,7 +219,6 @@ class KodeLectures.Views.MainView extends JView
       tooltip:
         title : 'Go to the current lecture'
       callback    : (event)=> 
-        @ioController.broadcastMessage {location:'lectures'}
         @emit 'LectureRequested' if @lastSelectedCourse
 
      @languageSelect = new KDSelectBox
@@ -297,6 +294,7 @@ class KodeLectures.Views.MainView extends JView
   attachListeners :->
    
    @on 'LectureChanged', (lecture=0)=>   
+      console.log '@LectureChanged',lecture
       @lastSelectedItem = lecture        
       {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
       
@@ -314,7 +312,8 @@ class KodeLectures.Views.MainView extends JView
       
       @languageSelect.setValue language
       @emit 'LanguageChanged', language
- 
+      log 'Broadcasting language'
+
       @currentLecture = @lastSelectedItem
             
       if expectedResults is null and @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
@@ -332,10 +331,12 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.terminal?.hide()
 
     @on 'CourseChanged', (course)=>     
+        console.log '@CourseChanged',course
         @lastSelectedCourse = course
         @emit 'LectureRequested'
     
     @on 'CourseRequested', =>
+        @ioController.broadcastMessage {location:'courses'}
         @viewState = 'courses'
         @splitView.setClass 'out'
         @selectionView.setClass 'in'
@@ -343,6 +344,7 @@ class KodeLectures.Views.MainView extends JView
         @courseButton.hide()
     
     @on 'LectureRequested',=>
+        @ioController.broadcastMessage {location:'lectures'}
         @viewState = 'lectures'
         @splitView.unsetClass 'out'
         @selectionView.unsetClass 'in'
@@ -365,6 +367,36 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
       
+    @ioController.on 'CourseChanged', (course)=>
+      courseIndex = @courses.indexOf course
+      log 'Checking if this course is already active'
+      log 'Index of changed course',courseIndex,'Last Course',@lastSelectedCourse,'Course',course
+      unless course is @courses[@lastSelectedCourse] 
+        console.log 'Oh, a remote course. Lets see if I already have this one'
+        if courseIndex isnt -1 
+          console.log 'Got it.'
+          @lastSelectedCourse = courseIndex
+        else
+          console.log 'Nope, adding it to my courses temporarily.'
+          @courses.push course
+          @lastSelectedCourse = @courses.length-1
+        
+        @utils.wait 0, => 
+          @emit 'CourseChanged', @lastSelectedCourse
+      else 
+        console.log 'This is where I am already.'
+
+    @ioController.on 'LectureChanged', (lecture)=>
+      console.log 'Checking if I already am at the lecture.'
+      console.log lecture, @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
+      unless lecture.title is @courses[@lastSelectedCourse].lectures[@lastSelectedItem].title
+        console.log 'Nope, changing to the lecture'
+        @utils.wait 0, => 
+          @lastSelectedItem = @courses[@lastSelectedCourse].lectures.indexOf lecture
+          @emit 'LectureChanged', @lastSelectedItem
+      else 
+        console.log 'I am already there'
+    
 
     @on "KDObjectWillBeDestroyed", =>
       #@utils.killRepeat @userListCheckInterval

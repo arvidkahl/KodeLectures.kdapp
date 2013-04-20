@@ -445,6 +445,7 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
   
     @lectureController.listView.on 'LectureSelected', (data)=>
       @getDelegate().emit 'LectureSelected', {lecture:data, course:@getData()}
+      #@getDelegate().ioController.broadcastMessage {lecture:data, course:@getData()}
       
     @titleText.addSubView @settingsButton = new KDButtonView
       style               : 'course-settings-menu editor-advanced-settings-menu fr'
@@ -510,7 +511,7 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
         event.preventDefault()
         event.stopPropagation()
         @getDelegate().emit 'LectureSelected', {lecture:@getData().lectures[0], course:@getData()}
-      
+        #@getDelegate().ioController.broadcastMessage {'lecture':@getData().lectures[0], 'course': @getData()}
   
   viewAppended :->
     @setTemplate @pistachio()
@@ -520,6 +521,7 @@ class KodeLectures.Views.CourseSelectionItemView extends KDListItemView
     event.stopPropagation()
     event.preventDefault()
     @getDelegate().emit 'CourseSelected', @getData()
+    #@getDelegate().ioController.broadcastMessage {'course':@getData()}
   
   pistachio:->
    
@@ -669,11 +671,15 @@ class KodeLectures.Views.CourseSelectionView extends JView
     
     @courseController.listView.on 'LectureSelected', ({course,lecture})=>
       @mainView.emit 'CourseChanged', courses.indexOf course
-      KD.utils.defer => @mainView.emit 'LectureChanged', course.lectures.indexOf lecture
-    
+      KD.utils.defer => 
+        @mainView.emit 'LectureChanged', course.lectures.indexOf lecture
+        @mainView.ioController.broadcastMessage {course,lecture}
+        
     @courseController.listView.on 'CourseSelected', (course)=>
       @mainView.emit 'CourseChanged', courses.indexOf course
-      KD.utils.defer => @mainView.emit 'LectureChanged', 0
+      KD.utils.defer => 
+        @mainView.emit 'LectureChanged', 0
+        @mainView.ioController.broadcastMessage {course, lecture:course.lectures[0]}
 
     @courseController.listView.on 'RemoveCourseClicked', ({course,view})=>
       @mainView.ioController.removeCourse courses, courses.indexOf(course), (err,res)=>
