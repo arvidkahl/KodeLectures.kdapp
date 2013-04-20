@@ -391,11 +391,10 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', (content)=> 
       value = Encoder.htmlDecode content 
-      @lastSubmission = value
+      @ace.getSession().setValue value
 
-      unless @editor.getValue() is value
-        @ace.getSession().setValue value
-    # Resize hack for nested splitviews    
+
+# Resize hack for nested splitviews    
         
     @splitView.on 'ResizeDidStart', =>
       @resizeInterval = KD.utils.repeat 100, =>
@@ -420,10 +419,11 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
-        console.log @lastSubmission, @ace.getSession().getValue(), @editor.getValue()
-        unless @lastSubmission is @ace.getSession().getValue()
+        console.log 'ace',@ace.getSession().getValue()
+        console.log 'editor',@editor.getValue()
+        unless @editor.getValue() is @ace.getSession().getValue()
           @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @ace.getSession().getValue()} if @ace.getSession().getValue()
-        @editor.setValue @ace.getSession().getValue()
+          @editor.setValue @ace.getSession().getValue()
         @editor.getView().domElement.trigger "keyup"
       , Settings.aceThrottle
       
