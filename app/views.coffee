@@ -109,7 +109,7 @@ class KodeLectures.Views.MainView extends JView
         ace = @ace.getSession().getValue()
         console.log 'Latest is',@latestEditorText
         console.log 'Ace',ace
-        if ace isnt @latestEditorText
+        if ace isnt @latestEditorText and ace isnt ''
           @ioController.broadcastMessage 
             editorContent:
               origin : KD.whoami().profile.nickname
