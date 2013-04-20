@@ -20,6 +20,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @attachListeners()
   
   broadcastMessage:(message,callback=->)->
+    console.log 'Broadcasting.'
     if @firebaseRef
       @firebaseRef.update message, callback
 
@@ -44,7 +45,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @firebaseRef.on 'value', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
-      console.log 'Firebase transmitted this message (value):',name,message
+      #console.log 'Firebase transmitted this message (value):',name,message
       
       # first check for owner 
       unless @instantiated
@@ -79,24 +80,24 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @firebaseRef.on 'child_added', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
-      console.log 'Firebase transmitted this message (child_added):',name,message
+     # console.log 'Firebase transmitted this message (child_added):',name,message
       @handleMessage name, message
      
     @firebaseRef.on 'child_changed', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
-      console.log 'Firebase transmitted this message (child_changed):',name,message
+      #console.log 'Firebase transmitted this message (child_changed):',name,message
       @handleMessage name, message
        
     @firebaseRef.on 'child_removed', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
-      console.log 'Firebase transmitted this message (child_removed):',name,message     
+      #console.log 'Firebase transmitted this message (child_removed):',name,message     
       
     @firebaseRef.on 'child_moved', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
-      console.log 'Firebase transmitted this message (child_moved):',name,message
+     # console.log 'Firebase transmitted this message (child_moved):',name,message
 
   handleMessage:(name,message)->
     switch name

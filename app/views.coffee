@@ -108,7 +108,9 @@ class KodeLectures.Views.MainView extends JView
       callback: (event) =>
         unless @contentFromRemote 
           @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
-        @utils.wait 100, => @contentFromRemote = no
+        else if wait then @utils.killWait wait
+        
+        wait = @utils.wait 50, => @contentFromRemote = no
 
     @editor.getView().hide()
       
