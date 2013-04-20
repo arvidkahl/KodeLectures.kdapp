@@ -15,11 +15,13 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @appPath      = "/Users/#{@nickname}/Applications"
     @basePath     = "#{@appPath}/#{@name}.kdapp"
     
+    @isInstructor = yes
+    
     @attachListeners()
   
   broadcastMessage:(message,callback=->)->
     if @firebaseRef
-      @firebaseRef.set message, callback
+      @firebaseRef.update message, callback
 
   attachFirebase:(sessionKey,callback=->)->
   
@@ -51,25 +53,31 @@ class KodeLectures.Controllers.FileIOController extends KDController
           owner       : @nickname
           messages    : ['This session is now available.']
         
-        , => callback @currentSessionKey, 'fresh'
+        , => 
+          @isInstructor = yes
+          callback @currentSessionKey, 'fresh'
       
       else 
         if message.owner is @nickname
           console.log 'Neat, this is my Firebase.'
+          @isInstructor = yes
           callback @currentSessionKey
         else 
           console.log 'This is someone elses Firebase. Cool!'
+          @isInstructor = no
           callback @currentSessionKey
           
     @firebaseRef.on 'child_added', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
       console.log 'Firebase transmitted this message (child_added):',name,message
-      
+      @handleMessage name, message
+     
     @firebaseRef.on 'child_changed', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
       console.log 'Firebase transmitted this message (child_changed):',name,message
+      @handleMessage name, message
        
     @firebaseRef.on 'child_removed', (snapshot)=>
       name = snapshot.name()
@@ -80,7 +88,13 @@ class KodeLectures.Controllers.FileIOController extends KDController
       name = snapshot.name()
       message = snapshot.val()
       console.log 'Firebase transmitted this message (child_moved):',name,message
-      
+
+  handleMessage:(name,message)->
+    if name is 'location'
+      console.log 'Found new location. Changing.'
+      if message is 'lectures' then @emit 'LectureRequested' 
+      if message is 'courses' then @emit 'CourseRequested' 
+
   
   checkAppIntegrity:(callback=->)->
     

@@ -52,6 +52,7 @@ class KodeLectures.Views.MainView extends JView
     @currentLecture = 0
     @currentFile = ''
     @lastSelectedCourse = 0
+    @viewState = 'courses'
     
     @ioController = new KodeLectures.Controllers.FileIOController
     @ioController.emit 'CourseImportRequested'
@@ -246,7 +247,9 @@ class KodeLectures.Views.MainView extends JView
       title       : 'Courses'
       tooltip:
         title : 'Go to the course list'
-      callback    : (event)=> @emit 'CourseRequested'
+      callback    : (event)=> 
+        @ioController.broadcastMessage {location:'courses'}
+        @emit 'CourseRequested'
 
         
     @controlButtons.addSubView @lectureButton = new KDButtonView
@@ -254,7 +257,9 @@ class KodeLectures.Views.MainView extends JView
       title       : 'Lecture'
       tooltip:
         title : 'Go to the current lecture'
-      callback    : (event)=> @emit 'LectureRequested' if @lastSelectedCourse
+      callback    : (event)=> 
+        @ioController.broadcastMessage {location:'lectures'}
+        @emit 'LectureRequested' if @lastSelectedCourse
 
      @languageSelect = new KDSelectBox
       label: new KDLabelView
@@ -358,17 +363,19 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.mdPreview?.show()
         @liveViewer.terminal?.hide()
 
-    @on 'CourseChanged', (course)=>              
+    @on 'CourseChanged', (course)=>     
         @lastSelectedCourse = course
         @emit 'LectureRequested'
     
     @on 'CourseRequested', =>
+        @viewState = 'courses'
         @splitView.setClass 'out'
         @selectionView.setClass 'in'
         @lectureButton.show()
         @courseButton.hide()
     
     @on 'LectureRequested',=>
+        @viewState = 'lectures'
         @splitView.unsetClass 'out'
         @selectionView.unsetClass 'in'
         @courseButton.show()
@@ -377,7 +384,13 @@ class KodeLectures.Views.MainView extends JView
     @on 'NextLectureRequested', =>
       @emit 'LectureChanged',@lastSelectedItem+1 if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
     @on 'PreviousLectureRequested', =>
-        
+    
+    # iocontroller event bindings
+    
+    @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
+    @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
+    
+    
     # Resize hack for nested splitviews    
         
     @splitView.on 'ResizeDidStart', =>
