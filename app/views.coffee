@@ -110,11 +110,11 @@ class KodeLectures.Views.MainView extends JView
         console.log 'Latest is',@latestEditorText
         console.log 'Ace',ace
         if ace isnt @latestEditorText and ace isnt ''
+          @latestEditorText = ace
           @ioController.broadcastMessage 
             editorContent:
               origin : KD.whoami().profile.nickname
               text : Encoder.htmlEncode ace
-          @latestEditorText = ace
           console.log 'Broadcasted'
 
     @editor.getView().hide()
@@ -401,6 +401,7 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
       value = Encoder.htmlDecode text 
+      console.log 'Comparing',@latestEditorText, value
       if origin isnt KD.whoami().profile.nickname or @latestEditorText isnt value
         @ace.getSession().setValue value
       
