@@ -378,15 +378,24 @@ class KodeLectures.Views.MainView extends JView
         if courseIndex isnt -1 
           console.log 'Got it.'
           @lastSelectedCourse = courseIndex
+          @utils.wait 0, => 
+            @emit 'CourseChanged', @lastSelectedCourse
+            @utils.wait 100, =>
+              @emit 'LectureChanged', 0
+          
         else
-          console.log 'Nope, adding it to my courses temporarily.'
-          @courses.push course
-          @lastSelectedCourse = @courses.length-1
-        
-        @utils.wait 0, => 
-          @emit 'CourseChanged', @lastSelectedCourse
-          @utils.wait 100, =>
-            @emit 'LectureChanged', 0
+          console.log 'Nope, adding it to my courses.'
+          console.log 'Starting Import'
+          
+          @ioController.importCourseFromRepository course.originUrl, course.originType, (importedCourse)=>
+            @courses.push importedCourse
+          
+            @lastSelectedCourse = @courses.length-1
+            @utils.wait 0, => 
+              @emit 'CourseChanged', @lastSelectedCourse
+              @utils.wait 100, =>
+                @emit 'LectureChanged', 0
+      
       else 
         console.log 'This is where I am already.'
 
