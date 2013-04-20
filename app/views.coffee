@@ -105,8 +105,7 @@ class KodeLectures.Views.MainView extends JView
   
     @editor = new Editor
       defaultValue: ''          
-      callback: (event) =>
-       
+      callback: (event) => 
 
     @editor.getView().hide()
       
@@ -395,8 +394,10 @@ class KodeLectures.Views.MainView extends JView
       unless @editor.getValue() is value
         @contentFromRemote = yes
         @editor.setValue value
-        @ace.getSession().setValue value
-      
+        console.log 'ed val set after io event'
+        @utils.defer => 
+          @ace.getSession().setValue value
+          console.log 'ace val set after io ev + def'
     # Resize hack for nested splitviews    
         
     @splitView.on 'ResizeDidStart', =>
@@ -423,6 +424,7 @@ class KodeLectures.Views.MainView extends JView
       
       update = KD.utils.throttle =>
         unless @editor.getValue() is @ace.getSession().getValue()
+          console.log 'ace and ed vals differ, boradcasting'
           @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @ace.getSession().getValue()} 
           @editor.setValue @ace.getSession().getValue()
         @editor.getView().domElement.trigger "keyup"
