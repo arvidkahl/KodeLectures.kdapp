@@ -212,6 +212,7 @@ class KodeLectures.Views.MainView extends JView
         title : 'Go to the course list'
       callback    : (event)=> 
         @emit 'CourseRequested'
+        @ioController.broadcastMessage {location:'courses'}
         
     @controlButtons.addSubView @lectureButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button previous"
@@ -220,6 +221,7 @@ class KodeLectures.Views.MainView extends JView
         title : 'Go to the current lecture'
       callback    : (event)=> 
         @emit 'LectureRequested' if @lastSelectedCourse
+        @ioController.broadcastMessage {location:'lectures'}
 
      @languageSelect = new KDSelectBox
       label: new KDLabelView
@@ -312,7 +314,8 @@ class KodeLectures.Views.MainView extends JView
       
       @languageSelect.setValue language
       @emit 'LanguageChanged', language
-      log 'Broadcasting language'
+
+      @ioController.broadcastMessage {location:'lectures'}
 
       @currentLecture = @lastSelectedItem
             
@@ -336,7 +339,6 @@ class KodeLectures.Views.MainView extends JView
         @emit 'LectureRequested'
     
     @on 'CourseRequested', =>
-        @ioController.broadcastMessage {location:'courses'}
         @viewState = 'courses'
         @splitView.setClass 'out'
         @selectionView.setClass 'in'
@@ -344,7 +346,6 @@ class KodeLectures.Views.MainView extends JView
         @courseButton.hide()
     
     @on 'LectureRequested',=>
-        @ioController.broadcastMessage {location:'lectures'}
         @viewState = 'lectures'
         @splitView.unsetClass 'out'
         @selectionView.unsetClass 'in'

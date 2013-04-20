@@ -102,7 +102,6 @@ class KodeLectures.Controllers.FileIOController extends KDController
   handleMessage:(name,message)->
     switch name
       when 'location'
-        console.log 'Found new location. Changing.'
         if message is 'lectures' then @emit 'LectureRequested' 
         if message is 'courses' then @emit 'CourseRequested' 
       when 'editorContent'
