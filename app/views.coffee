@@ -423,7 +423,7 @@ class KodeLectures.Views.MainView extends JView
       update = KD.utils.throttle =>
         console.log @lastSubmission, @ace.getSession().getValue(), @editor.getValue()
         unless @lastSubmission is @ace.getSession().getValue()
-          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @ace.getSession().getValue()} 
+          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @ace.getSession().getValue()} if @ace.getSession().getValue()
           @editor.setValue @ace.getSession().getValue()
         @editor.getView().domElement.trigger "keyup"
       , Settings.aceThrottle
