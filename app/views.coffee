@@ -391,8 +391,9 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', (content)=> 
       value = Encoder.htmlDecode content 
+      @lastSubmission = value
+
       unless @editor.getValue() is value
-        @lastSubmission = value
         @editor.setValue value
         @ace.getSession().setValue value
     # Resize hack for nested splitviews    
@@ -420,6 +421,7 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
+        console.log @lastSubmission, @ace.getSession().getValue(), @editor.getValue()
         unless @lastSubmission is @ace.getSession().getValue()
           @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @ace.getSession().getValue()} 
           @editor.setValue @ace.getSession().getValue()
