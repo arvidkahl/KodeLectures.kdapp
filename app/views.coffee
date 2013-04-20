@@ -423,6 +423,7 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
+        console.log 'updating ace view',@contentFromRemote
         @editor.setValue @ace.getSession().getValue()
         unless @contentFromRemote
           @editor.getView().domElement.trigger "keyup"

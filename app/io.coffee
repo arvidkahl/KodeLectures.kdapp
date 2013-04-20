@@ -38,34 +38,43 @@ class KodeLectures.Controllers.FileIOController extends KDController
     console.log 'Attaching Firebase with session key:',@currentSessionKey
     
     @firebaseRef = new Firebase("https://kodelectures.firebaseIO.com/").child @currentSessionKey
-  
+    
+    @instantiated = no
+    
     @firebaseRef.on 'value', (snapshot)=>
       name = snapshot.name()
       message = snapshot.val()
       console.log 'Firebase transmitted this message (value):',name,message
       
-      unless message?.owner?
-        console.log 'This Firebase has no owner, must be mine!'
-  
-        console.log 'Well then, setting default data to Firebase'  
-        @broadcastMessage
-          createdAt   : new Date().getTime()
-          owner       : @nickname
-          messages    : ['This session is now available.']
+      # first check for owner 
+      unless @instantiated
+        unless message?.owner?
+          console.log 'This Firebase has no owner, must be mine!'
+    
+          console.log 'Well then, setting default data to Firebase'  
+          @broadcastMessage
+            createdAt   : new Date().getTime()
+            owner       : @nickname
+            messages    : ['This session is now available.']
+          
+          , => 
+            @isInstructor = yes
+            callback @currentSessionKey, 'fresh'
+            @instantiated = yes 
         
-        , => 
-          @isInstructor = yes
-          callback @currentSessionKey, 'fresh'
-      
-      else 
-        if message.owner is @nickname
-          console.log 'Neat, this is my Firebase.'
-          @isInstructor = yes
-          callback @currentSessionKey
         else 
-          console.log 'This is someone elses Firebase. Cool!'
-          @isInstructor = no
-          callback @currentSessionKey
+          if message.owner is @nickname
+            console.log 'Neat, this is my Firebase.'
+            @isInstructor = yes
+            callback @currentSessionKey
+            @instantiated = yes 
+
+          else 
+            console.log 'This is someone elses Firebase. Cool!'
+            @isInstructor = no
+            callback @currentSessionKey
+            @instantiated = yes 
+      
           
     @firebaseRef.on 'child_added', (snapshot)=>
       name = snapshot.name()
