@@ -104,9 +104,9 @@ class KodeLectures.Views.MainView extends JView
     @liveViewer.setPreviewView @preview
   
     @editor = new Editor
-        defaultValue: ''
-        callback: =>
-          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
+      defaultValue: ''          
+      callback: (event) =>
+        @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
 
     @editor.getView().hide()
       
@@ -393,6 +393,8 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'EditorContentChanged', (content)=> 
       value = Encoder.htmlDecode content 
       unless @editor.getValue() is value
+        @contentFromRemote = yes
+        console.log 'Adding content to editor'
         @editor.setValue value
         @ace.getSession().setValue value
       
@@ -422,7 +424,9 @@ class KodeLectures.Views.MainView extends JView
       
       update = KD.utils.throttle =>
         @editor.setValue @ace.getSession().getValue()
-        @editor.getView().domElement.trigger "keyup"
+        unless @contentFromRemote
+          @editor.getView().domElement.trigger "keyup"
+          @contentFromRemote = no
       , Settings.aceThrottle
       
       @ace = ace.edit @aceView.domElement.get 0
