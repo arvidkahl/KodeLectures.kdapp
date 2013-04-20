@@ -17,6 +17,71 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     @attachListeners()
   
+  broadcastMessage:(message,callback=->)->
+    if @firebaseRef
+      @firebaseRef.set message, callback
+
+  attachFirebase:(sessionKey,callback=->)->
+  
+    if sessionKey is @currentSessionKey 
+      callback sessionKey
+      console.log 'You are trying to attach the session you are currently in.'
+      return null
+      
+    @previousSessionKey = @currentSessionKey if @currenSessionKey
+    @currentSessionKey = sessionKey or "#{KD.utils.generatePassword 18, no}#{KD.utils.getRandomNumber 9999}#{KD.utils.generatePassword 18, no}"
+  
+    if @firebaseRef then console.warn 'Overwriting instance of firebase.'
+    
+    console.log 'Attaching Firebase with session key:',@currentSessionKey
+    
+    @firebaseRef = new Firebase("https://kodelectures.firebaseIO.com/").child @currentSessionKey
+  
+    @firebaseRef.on 'value', (snapshot)=>
+      name = snapshot.name()
+      message = snapshot.val()
+      console.log 'Firebase transmitted this message (value):',name,message
+      
+      unless message?.owner?
+        console.log 'This Firebase has no owner, must be mine!'
+  
+        console.log 'Well then, setting default data to Firebase'  
+        @broadcastMessage
+          createdAt   : new Date().getTime()
+          owner       : @nickname
+          messages    : ['This session is now available.']
+        
+        , => callback @currentSessionKey, 'fresh'
+      
+      else 
+        if message.owner is @nickname
+          console.log 'Neat, this is my Firebase.'
+          callback @currentSessionKey
+        else 
+          console.log 'This is someone elses Firebase. Cool!'
+          callback @currentSessionKey
+          
+    @firebaseRef.on 'child_added', (snapshot)=>
+      name = snapshot.name()
+      message = snapshot.val()
+      console.log 'Firebase transmitted this message (child_added):',name,message
+      
+    @firebaseRef.on 'child_changed', (snapshot)=>
+      name = snapshot.name()
+      message = snapshot.val()
+      console.log 'Firebase transmitted this message (child_changed):',name,message
+       
+    @firebaseRef.on 'child_removed', (snapshot)=>
+      name = snapshot.name()
+      message = snapshot.val()
+      console.log 'Firebase transmitted this message (child_removed):',name,message     
+      
+    @firebaseRef.on 'child_moved', (snapshot)=>
+      name = snapshot.name()
+      message = snapshot.val()
+      console.log 'Firebase transmitted this message (child_moved):',name,message
+      
+  
   checkAppIntegrity:(callback=->)->
     
     courses = null

@@ -540,7 +540,7 @@ class KodeLectures.Views.ImportCourseRecommendedListItemView extends KDListItemV
     
     @importButton = new KDButtonView
       cssClass : 'cupid-green recommended-import-button'
-      title :'Import this Course'
+      title :'Install this Course'
       callback :=>
         @getDelegate().emit 'ImportClicked',@getData()
     
@@ -710,8 +710,6 @@ class KodeLectures.Views.CourseSelectionView extends JView
       {title,type,url} = data
 
       if courseExists
-        #new KDNotificationView
-          #title : 'Course already exists.'
         modal = new KDModalView
           cssClass : 'lecture-modal'
           title : 'Import a Course'
@@ -788,11 +786,11 @@ class KodeLectures.Views.CourseSelectionView extends JView
         <p>The <strong>Course</strong> is the basic unit of learning. It contains a certain number of <strong>Lectures</strong>, that may have assignments attached to them.
         You can chose to try the assignment, and should you run into trouble, the Course author can provide hints and a solution for each assignment.
         Otherwise, you can read or watch (providing the author has supplied a video) the lectures.</p>
-        <p>To be able to start learning, you have to get a hold of courses first. You can do that by importing them from the list further down or
+        <p>To be able to start learning, you have to get a hold of courses first. You can do that by importing them from <strong>Recommended Courses</strong> or
         via the <strong>Import Course</strong> button on the top right. Providing a working URL to a <code>kdlecture</code> course will immediately import the Course, ready for action!
         </p>
         <h2>How do I teach?</h2>
-        <p>If you are interested in creating Courses, please check out the example repositories of the courses provided further down this page. 
+        <p>If you are interested in creating Courses, please check out the example repositories of the courses in the <strong>Recommended Courses</strong> section. 
         They will provide you with a fully functional file structure and a <code>manifest.json</code> file, containing all the fields that you just have to modify to create your won courses.
         I created a repository at <a target="_blank" href="https://github.com/arvidkahl/CoffeeScript.kdlecture">https://github.com/arvidkahl/CoffeeScript.kdlecture</a> with a README file that will be constantly updated with any added/modified feature or behavior.
         This repository will always contain a <code>manifest.json</code> file that uses every possible feature of this app. Please feel free to clone the repository, rename it to something unique, write your own lectures and then pass the repository URL to me. 

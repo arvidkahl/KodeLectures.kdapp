@@ -65,6 +65,11 @@ class KodeLectures.Views.MainView extends JView
       # make sure the lecture gets reloaded 
       @emit 'LectureChanged', @lastSelectedItem
 
+    @ioController.attachFirebase null, (sessionKey,state)=>
+      if state is 'fresh'
+        console.log 'Firebase successfully attached and instantiated.'
+        @sessionInput.setValue sessionKey
+
     @courses = []
     
   delegateElements:->
@@ -97,7 +102,6 @@ class KodeLectures.Views.MainView extends JView
       
     @liveViewer.setPreviewView @preview
   
-
     @editor = new Editor
         defaultValue: ''
         callback: =>
@@ -252,28 +256,41 @@ class KodeLectures.Views.MainView extends JView
         title : 'Go to the current lecture'
       callback    : (event)=> @emit 'LectureRequested' if @lastSelectedCourse
 
-    @languageSelect = new KDSelectBox
+     @languageSelect = new KDSelectBox
       label: new KDLabelView
-        title: 'Language: '
-        
-      selectOptions : [
-        {value:'javascript',title:'JavaScript'}
-        {value:'coffee',title:'CoffeeScript'}
-        {value:'php',title:'PHP'}
-        {value:'ruby',title:'Ruby'}
-        {value:'python',title:'Python'}
-        ]
+        title: 'Language: '      
+      selectOptions : __aceSettings.getSyntaxOptions()
       title : 'Language Selection'
-      defaultValue : 'javascript'
+      defaultValue : 'text'
       cssClass: 'control-button language'
       callback:(item)=>
+        console.log "ace/mode/#{item}"
         @currentLang = item
         @ace.getSession().setMode "ace/mode/#{item}"
         
-    @currentLang = @courses[@lastSelectedCourse or 0]?.lectures?[0]?.language or 'javascript'
+    @currentLang = @courses[@lastSelectedCourse or 0]?.lectures?[0]?.language or 'text'
+    
+    @sessionInput = new KDInputView
+      label : new KDLabelView
+        title : 'Session: '
+      cssClass : 'session-input'
+      callback :=>
+        console.log 'Session input clicked'
+        @ioController.attachFirebase @sessionInput.getValue()
+    
+    @sessionJoinButton = new KDButtonView
+      cssClass : 'editor-button clean-gray join-session-button'
+      title : 'Join Session'
+      callback :=>
+        console.log 'Session Join Button clicked'
+        @ioController.attachFirebase @sessionInput.getValue(), (sessionKey)=>
+          console.log 'Joined ',sessionKey
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
+    @controlView.addSubView @sessionInput.options.label
+    @controlView.addSubView @sessionInput
+    @controlView.addSubView @sessionJoinButton
    
     @aceWrapperView.addSubView runButton 
     @controlView.addSubView @controlButtons
@@ -321,6 +338,7 @@ class KodeLectures.Views.MainView extends JView
       @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
       @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
       
+      console.log 'setting mode to',"ace/mode/#{language}"
       @ace.getSession().setMode "ace/mode/#{language}"
       @currentLang = language
       @languageSelect.setValue language
@@ -391,12 +409,12 @@ class KodeLectures.Views.MainView extends JView
       
       @ace = ace.edit @aceView.domElement.get 0
       @ace.setTheme Settings.theme
-      @ace.getSession().setMode "ace/mode/javascript"
+      @ace.getSession().setMode "ace/mode/text"
       @ace.getSession().setTabSize 2
       @ace.getSession().setUseSoftTabs true
       @ace.getSession().setValue @editor.getValue()
       @ace.getSession().on "change", -> do update
-            
+  
       @editor.setValue @ace.getSession().getValue()
       @ace.commands.addCommand
         name    : 'save'
@@ -411,4 +429,4 @@ class KodeLectures.Views.MainView extends JView
   viewAppended:->
     @delegateElements()
     @setTemplate do @pistachio
-    @buildAce()
+    #@buildAce()

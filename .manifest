@@ -13,6 +13,7 @@
     "blocks": {
       "app": {
         "files": [
+          "./app/lib/firebase.all.js",          
           "./app/settings.coffee",
           "./app/core.coffee",
           "./app/views.coffee",

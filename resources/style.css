@@ -227,3 +227,12 @@ body.dragInAction .kodelectures .md-help-view {
 .modal-warning.formline {
   background-color : rgba(200,0,0,0.2)
 }
+
+.kodelectures input.kdinput.text.session-input {
+  display : inline;
+}
+
+.kodelectures button.kdbutton.join-session-button {
+  margin-top:7px;
+  margin-left:5px;
+}
