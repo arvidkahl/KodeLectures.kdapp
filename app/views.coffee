@@ -106,11 +106,12 @@ class KodeLectures.Views.MainView extends JView
     @editor = new Editor
       defaultValue: ''          
       callback: (event) => 
-        if @ace.getSession().getValue()
+        if @ace.getSession().getValue() isnt @latestEditorText
           @ioController.broadcastMessage 
             editorContent:
               origin : KD.whoami().profile.nickname
               text : Encoder.htmlEncode @ace.getSession().getValue()
+          @latestEditorText = @ace.getSession().getValue()
           console.log 'Broadcasted'
 
     @editor.getView().hide()
@@ -397,8 +398,9 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
       value = Encoder.htmlDecode text 
-      if origin isnt KD.whoami().profile.nickname then @ace.getSession().setValue value
-
+      if origin isnt KD.whoami().profile.nickname or @latestEditorText isnt value
+        @ace.getSession().setValue value
+      
 
 # Resize hack for nested splitviews    
         
