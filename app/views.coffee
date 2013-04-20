@@ -106,11 +106,7 @@ class KodeLectures.Views.MainView extends JView
     @editor = new Editor
       defaultValue: ''          
       callback: (event) =>
-        unless @contentFromRemote 
-          @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
-        else if wait then @utils.killWait wait
-        
-        wait = @utils.wait 50, => @contentFromRemote = no
+       
 
     @editor.getView().hide()
       
@@ -426,6 +422,7 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
+        @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
         @editor.setValue @ace.getSession().getValue()
         @editor.getView().domElement.trigger "keyup"
       , Settings.aceThrottle
