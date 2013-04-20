@@ -5,7 +5,7 @@ KodeLectures =
   Settings:
     theme      : "ace/theme/monokai"
     exampleCode: null
-    aceThrottle: 400
+    aceThrottle: 10
   Core:
     Utils      : null
     LiveViewer : null

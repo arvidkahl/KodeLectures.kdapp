@@ -116,6 +116,7 @@ class KodeLectures.Views.MainView extends JView
               origin : KD.whoami().profile.nickname
               text : Encoder.htmlEncode ace
           console.log 'Broadcasted'
+        @latestEditorText = ace
 
     @editor.getView().hide()
       
