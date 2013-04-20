@@ -281,9 +281,7 @@ class KodeLectures.Views.MainView extends JView
       callback :=>
         console.log 'Session input clicked'
         @ioController.attachFirebase @sessionInput.getValue(), =>
-          @firepad.dispose()
-          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
-
+  
     
     @sessionJoinButton = new KDButtonView
       cssClass : 'editor-button clean-gray join-session-button'
@@ -292,7 +290,9 @@ class KodeLectures.Views.MainView extends JView
         console.log 'Session Join Button clicked'
         @ioController.attachFirebase @sessionInput.getValue(), (sessionKey)=>
           console.log 'Joined ',sessionKey
-    
+          @firepad.dispose()
+          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
+  
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
     @controlView.addSubView @sessionInput.options.label
