@@ -393,8 +393,8 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'EditorContentChanged', (content)=> 
       value = Encoder.htmlDecode content 
       unless @editor.getValue() is value
-        @editor.setValue value
         @ace.getSession().setValue value
+        @utils.defer => @editor.setValue value
       
     # Resize hack for nested splitviews    
         
