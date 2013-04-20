@@ -68,7 +68,7 @@ class KodeLectures.Views.MainView extends JView
     @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
       lineNumbers : true
       mode        : "javascript"
-      theme       : "twilight"
+      theme       : "monokai"
 
     @utils.wait 500, =>
         @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
@@ -84,44 +84,14 @@ class KodeLectures.Views.MainView extends JView
                 console.log(message);
               }
             """
-          
-          #@utils.wait 10, =>
-            #firepadEl = @getDomElement().find ".firepad"
-            #firepadEl.height appView.getHeight() - 48
-            #firepadEl.width  appView.getWidth()
-
-    #@editor = new Editor
-      #defaultValue: ''          
-      #callback: (event) => 
-        #ace = @ace.getSession().getValue()
-        #console.log 'Latest is',@latestEditorText
-        #console.log 'Ace',ace
-        #unless @broadcastLock 
-          #@latestEditorText = ace
-          #if ace then @ioController.broadcastMessage 
-            #editorContent:
-              #origin : KD.whoami().profile.nickname
-              #text : Encoder.htmlEncode ace
-          #console.log 'Broadcasted'
-
-    #@editor.getView().hide()
       
     @taskView = new TaskView {},@courses[@lastSelectedCourse or 0]?.lectures?[0] or {}
     @taskOverview = new TaskOverview {}, @courses[@lastSelectedCourse or 0]?.lectures or []
-      
-    #@aceView = new KDView
-        #cssClass: 'editor code-editor'
-#
-    #@aceWrapperView = new KDView
-        #cssClass : 'ace-wrapper-view'
-    #
-    #@aceWrapperView.addSubView @aceView
 
     @editorSplitView = new KDSplitView
         type      : "horizontal"
         resizable : yes
         sizes     : ["62%","38%"]
-        #views     : [@aceWrapperView,@preview]    
         views     : [@editorContainer,@preview]    
     
     @taskSplitViewWrapper = new KDView
@@ -145,11 +115,6 @@ class KodeLectures.Views.MainView extends JView
     @splitViewWrapper.addSubView @selectionView = new CourseSelectionView
       cssClass : 'selection-view in'
     ,Settings.lectures
-    
-    #@buildAce()
-    #
-    #@splitView.on 'ResizeDidStop', =>
-        #@ace?.resize()
 
     @controlButtons = new KDView
       cssClass    : 'header-buttons'
@@ -234,7 +199,6 @@ class KodeLectures.Views.MainView extends JView
       callback    : (event)=>
         @liveViewer.active = yes
         
-        #@ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @ace.getSession().getValue(), =>
         @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @codeMirrorEditor.getValue(), =>
           @liveViewer.previewCode @codeMirrorEditor.getValue(), @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
             type: @courses[@lastSelectedCourse].lectures[@lastSelectedItem].previewType            
@@ -263,14 +227,20 @@ class KodeLectures.Views.MainView extends JView
      @languageSelect = new KDSelectBox
       label: new KDLabelView
         title: 'Language: '      
-      selectOptions : __aceSettings.getSyntaxOptions()
+      selectOptions : [
+        {title:'JavaScript',value:'javascript'}
+        {title:'CoffeeScript',value:'coffeescript'}
+        {title:'Shell',value:'shell'}
+        {title:'PHP',value:'php'}
+        {title:'Python',value:'python'}
+        {title:'Ruby',value:'ruby'}
+      ]
       title : 'Language Selection'
-      defaultValue : 'text'
+      defaultValue : 'JavaScript'
       cssClass: 'control-button language'
       callback:(item)=>
-        console.log "ace/mode/#{item}"
-        @currentLang = item
-        #@ace.getSession().setMode "ace/mode/#{item}"
+        @emit 'LanguageChanged', item
+        @ioController.broadcastMessage {'language':item}
         
     @currentLang = @courses[@lastSelectedCourse or 0]?.lectures?[0]?.language or 'text'
     
@@ -289,16 +259,17 @@ class KodeLectures.Views.MainView extends JView
       callback :=>
         console.log 'Session Join Button clicked'
         @ioController.attachFirebase @sessionInput.getValue(), (sessionKey)=>
+        
           console.log 'Joined ',sessionKey
-          #@firepad.dispose()
-        @editorContainer.$().html ''
+
+          @editorContainer.$().html ''
         
-        @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
-          lineNumbers : true
-          mode        : "javascript"
-          theme       : "twilight"
+          @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
+            lineNumbers : true
+            mode        : "javascript"
+            theme       : "monokai"
         
-        @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
+          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
   
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
@@ -318,18 +289,6 @@ class KodeLectures.Views.MainView extends JView
    
     @attachListeners()
    
-    @utils.defer => 
-      ($ window).resize()
-
-    @utils.wait 50, => 
-      ($ window).resize()
-      #@ace?.resize()
-
-    #@utils.wait 1000, =>
-      #@ace.renderer.scrollBar.on 'scroll', =>
-        #if @autoScroll is yes
-          #@setPreviewScrollPercentage @getEditScrollPercentage()
-    
     @utils.wait 2000, =>
       @selectionView.setClass 'animate'
       @splitView.setClass 'animate'
@@ -353,10 +312,9 @@ class KodeLectures.Views.MainView extends JView
       @taskView.emit 'LectureChanged',@courses[@lastSelectedCourse].lectures[@lastSelectedItem]
       @taskOverview.emit 'LectureChanged',{course:@courses[@lastSelectedCourse],index:@lastSelectedItem}   
       
-      console.log 'setting mode to',"ace/mode/#{language}"
-      #@ace.getSession().setMode "ace/mode/#{language}"
-      @currentLang = language
       @languageSelect.setValue language
+      @emit 'LanguageChanged', language
+ 
       @currentLecture = @lastSelectedItem
             
       if expectedResults is null and @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
@@ -393,10 +351,16 @@ class KodeLectures.Views.MainView extends JView
    
     @on 'NextLectureRequested', =>
       @emit 'LectureChanged',@lastSelectedItem+1 if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
+  
     @on 'PreviousLectureRequested', =>
+    
+    @on 'LanguageChanged', (language) =>
+      @currentLang = language
+      @codeMirrorEditor.setOption 'mode', language
     
     # iocontroller event bindings
     
+    @ioController.on 'LanguageChanged', (language)=> @emit 'LanguageChanged', language
     @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
@@ -405,18 +369,7 @@ class KodeLectures.Views.MainView extends JView
     @on "KDObjectWillBeDestroyed", =>
       #@utils.killRepeat @userListCheckInterval
       #@firepad.dispose()
-
-      
-      #value = Encoder.htmlDecode text 
-      #console.log 'Comparing',@latestEditorText, value
-      #if origin isnt KD.whoami().profile.nickname #or @latestEditorText isnt value
-        #@broadcastLock = yes
-        #if lock then @utils.killWait lock
-        #lock = @utils.wait 2000, => 
-          #console.log 'unlocking'
-          #@broadcastLock = no 
-        #@latestEditorText = value
-        #@ace.getSession().setValue value      
+    
 
 # Resize hack for nested splitviews    
         

@@ -16,6 +16,11 @@
           "./app/lib/firebase.all.js",          
           "./app/lib/firepad/examples/codemirror/lib/codemirror.js",
           "./app/lib/firepad/examples/codemirror/mode/javascript/javascript.js",
+          "./app/lib/firepad/examples/codemirror/mode/coffeescript/coffeescript.js",
+          "./app/lib/firepad/examples/codemirror/mode/php/php.js",
+          "./app/lib/firepad/examples/codemirror/mode/shell/shell.js",
+          "./app/lib/firepad/examples/codemirror/mode/python/python.js",
+          "./app/lib/firepad/examples/codemirror/mode/ruby/ruby.js",
           "./app/lib/firepad.js",
           "./app/settings.coffee",
           "./app/core.coffee",
@@ -29,7 +34,7 @@
       "./resources/style.css",
       "./resources/course.css",
       "./resources/lecture.css",
-      "./resources/twilight.css"
+      "./resources/monokai.css"
     ]
   },
   "options": {

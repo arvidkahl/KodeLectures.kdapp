@@ -107,6 +107,8 @@ class KodeLectures.Controllers.FileIOController extends KDController
         if message is 'courses' then @emit 'CourseRequested' 
       when 'editorContent'
         @emit 'EditorContentChanged', message
+      when 'language'
+        @emit 'LanguageChanged', message
 
   checkAppIntegrity:(callback=->)->
     
