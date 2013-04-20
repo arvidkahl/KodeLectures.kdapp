@@ -290,8 +290,15 @@ class KodeLectures.Views.MainView extends JView
         console.log 'Session Join Button clicked'
         @ioController.attachFirebase @sessionInput.getValue(), (sessionKey)=>
           console.log 'Joined ',sessionKey
-          @firepad.dispose()
-          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
+          #@firepad.dispose()
+        @editorContainer.$().html ''
+        
+        @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
+          lineNumbers : true
+          mode        : "javascript"
+          theme       : "twilight"
+        
+        @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
   
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
@@ -397,7 +404,7 @@ class KodeLectures.Views.MainView extends JView
 
     @on "KDObjectWillBeDestroyed", =>
       #@utils.killRepeat @userListCheckInterval
-      @firepad.dispose()
+      #@firepad.dispose()
 
       
       #value = Encoder.htmlDecode text 

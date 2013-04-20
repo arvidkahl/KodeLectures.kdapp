@@ -60,21 +60,21 @@ class KodeLectures.Controllers.FileIOController extends KDController
           
           , => 
             @isInstructor = yes
-            callback @currentSessionKey, 'fresh'
             @instantiated = yes 
+            callback @currentSessionKey, 'fresh'
         
         else 
           if message.owner is @nickname
             console.log 'Neat, this is my Firebase.'
             @isInstructor = yes
-            callback @currentSessionKey
             @instantiated = yes 
+            callback @currentSessionKey
 
           else 
             console.log 'This is someone elses Firebase. Cool!'
             @isInstructor = no
-            callback @currentSessionKey
             @instantiated = yes 
+            callback @currentSessionKey
       
           
     @firebaseRef.on 'child_added', (snapshot)=>
