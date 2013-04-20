@@ -297,6 +297,8 @@ class KodeLectures.Views.MainView extends JView
    
    @on 'LectureChanged', (lecture=0)=>   
       console.log '@LectureChanged',lecture
+    
+      
       @lastSelectedItem = lecture        
       {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
       
@@ -383,6 +385,8 @@ class KodeLectures.Views.MainView extends JView
         
         @utils.wait 0, => 
           @emit 'CourseChanged', @lastSelectedCourse
+          @utils.wait 100, =>
+            @emit 'LectureChanged', 0
       else 
         console.log 'This is where I am already.'
 
