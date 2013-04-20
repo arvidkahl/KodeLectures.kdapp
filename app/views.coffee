@@ -108,7 +108,7 @@ class KodeLectures.Views.MainView extends JView
       callback: (event) =>
         unless @contentFromRemote 
           @ioController.broadcastMessage {editorContent:Encoder.htmlEncode @editor.getValue()}
-        @contentFromRemote = no
+        @utils.wait 100, => @contentFromRemote = no
 
     @editor.getView().hide()
       
@@ -424,10 +424,8 @@ class KodeLectures.Views.MainView extends JView
     try
       
       update = KD.utils.throttle =>
-        if @editor.getValue isnt @ace.getSession().getValue()
-          @utils.defer => @editor.getView().domElement.trigger "keyup"
-        
         @editor.setValue @ace.getSession().getValue()
+        @editor.getView().domElement.trigger "keyup"
       , Settings.aceThrottle
       
       @ace = ace.edit @aceView.domElement.get 0
