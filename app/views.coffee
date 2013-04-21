@@ -412,8 +412,9 @@ class KodeLectures.Views.MainView extends JView
       unless lecture.title is @courses?[@lastSelectedCourse]?.lectures?[@lastSelectedItem]?.title
         console.log 'Nope, changing to the lecture'
         @utils.wait 500, => 
-          @lastSelectedItem = @courses[@lastSelectedCourse]?.lectures.indexOf lecture or 0
-          @emit 'LectureChanged', @lastSelectedItem
+          index = 0
+          if @courses[@lastSelectedCourse]? then index = i for lecture_,i in @courses[@lastSelectedCourse].lectures when lecture.title is lecture_.title
+          @emit 'LectureChanged', index
       else 
         console.log 'I am already there'
     
