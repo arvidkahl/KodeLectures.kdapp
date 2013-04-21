@@ -116,6 +116,8 @@ class KodeLectures.Controllers.FileIOController extends KDController
         @emit 'LectureChanged', message
       when 'join'
         @emit 'UserJoined', message
+      when 'leave'
+        @emit 'UserLeft', message
       
 
   checkAppIntegrity:(callback=->)->

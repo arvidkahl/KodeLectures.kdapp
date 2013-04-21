@@ -829,7 +829,14 @@ class KodeLectures.Views.SessionStatusView extends JView
     
     @on "UserJoined", (user)=>
       @setClass 'join'
-      @text.updatePartial "#{++@userCount} people connected to this session Last join: #{user}"
+      @text.updatePartial "#{++@userCount} people connected to this session Last join: #{user}"    
+    
+    @on "UserLeft", (user)=>
+      if --@userCount is 0
+        @unsetClass 'join'
+        @text.updatePartial "Everyone has left this session"
+      else 
+        @text.updatePartial "#{--@userCount} people connected to this session Last join: #{user}"
     
     @on "FirebaseAttached", =>
       @setClass 'ready'
