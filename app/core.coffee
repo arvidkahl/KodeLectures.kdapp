@@ -385,6 +385,8 @@ class KodeLectures.Views.TaskOverview extends JView
       @lectureListController.removeAllItems()
       @lectureListController.instantiateListItems course.lectures
       
+      @getDelegate().ioController.broadcastMessage {lecture:course.lectures[index],course:course}
+      
       item.unsetClass 'active' for item in @lectureListController.itemsOrdered 
       @lectureListController.itemsOrdered[index].setClass 'active'
   

@@ -85,8 +85,13 @@ class KodeLectures.Views.MainView extends JView
               }
             """
       
-    @taskView = new TaskView {},@courses[@lastSelectedCourse or 0]?.lectures?[0] or {}
-    @taskOverview = new TaskOverview {}, @courses[@lastSelectedCourse or 0]?.lectures or []
+    @taskView = new TaskView 
+      delegate : @
+    ,@courses[@lastSelectedCourse or 0]?.lectures?[0] or {}
+   
+    @taskOverview = new TaskOverview 
+      delegate : @
+    , @courses[@lastSelectedCourse or 0]?.lectures or []
 
     @editorSplitView = new KDSplitView
         type      : "horizontal"
