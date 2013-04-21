@@ -438,7 +438,7 @@ class KodeLectures.Views.MainView extends JView
         title = "#{user} joined this session"
         content = "Happy collaboration!"
       
-      new KDNotificationView
+      if title and content then new KDNotificationView
         title : title 
         content : content
         duration : 5000
