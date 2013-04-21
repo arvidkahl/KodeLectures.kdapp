@@ -395,9 +395,15 @@ class KodeLectures.Views.MainView extends JView
         else
           console.log 'Nope, adding it to my courses.'
           console.log 'Starting Import'
-          
+          importNotification = new KDNotificationView
+            title : 'Importing course used in this session'
+            content : 'Please wait until the course is saved to your app. This will only take a few seconds'
+            duration : 60000
+            
           @ioController.importCourseFromRepository course.originUrl, course.originType, (importedCourse)=>
             @courses.push importedCourse
+            
+            importNotification.destroy()
           
             @lastSelectedCourse = @courses.length-1
             @utils.wait 0, => 
