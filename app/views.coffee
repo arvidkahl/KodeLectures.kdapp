@@ -381,7 +381,7 @@ class KodeLectures.Views.MainView extends JView
       unless course.title is @courses[@lastSelectedCourse]?.title 
         console.log 'Oh, a remote course. Lets see if I already have this one'
         index = -1
-        index = i for course_,i in @courses when course_.title is course.title
+        if @courses then index = i for course_,i in @courses when course_.title is course.title
         
         if index isnt -1 
           console.log 'Got it.'
@@ -409,7 +409,7 @@ class KodeLectures.Views.MainView extends JView
 
     @ioController.on 'LectureChanged', (lecture)=>
       console.log 'Checking if I already am at the lecture.'
-      unless lecture.title is @courses[@lastSelectedCourse]?.lectures[@lastSelectedItem].title
+      unless lecture.title is @courses?[@lastSelectedCourse]?.lectures?[@lastSelectedItem]?.title
         console.log 'Nope, changing to the lecture'
         @utils.wait 500, => 
           @lastSelectedItem = @courses[@lastSelectedCourse]?.lectures.indexOf lecture or 0
