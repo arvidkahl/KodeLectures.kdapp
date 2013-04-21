@@ -823,6 +823,10 @@ class KodeLectures.Views.SessionStatusView extends JView
       @setClass 'host'
       @text.updatePartial "#{++@userCount} people connected to your lecture. Last join: #{user}"
     
+    @on "UserJoinedSelf", (key)=>
+      @setClass 'join'
+      @text.updatePartial "You are connected to session #{key}"
+    
     @on "UserJoined", (user)=>
       @setClass 'join'
       @text.updatePartial "#{++@userCount} people connected to this session Last join: #{user}"

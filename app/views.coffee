@@ -463,7 +463,8 @@ class KodeLectures.Views.MainView extends JView
           title : title 
           content : content
           duration : 5000
-          
+      else 
+        @sessionStatus.emit 'UserJoinedSelf', @ioController.currentSessionKey
     @on "KDObjectWillBeDestroyed", =>
       #@firepad.dispose()
     
