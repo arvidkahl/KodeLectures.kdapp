@@ -322,7 +322,7 @@ class KodeLectures.Views.MainView extends JView
       @languageSelect.setValue language
       @emit 'LanguageChanged', language
 
-      @ioController.broadcastMessage {location:'lectures'}
+      @ioController.broadcastMessage {location:'lectures',language}
 
       @currentLecture = @lastSelectedItem
             
