@@ -465,8 +465,9 @@ class KodeLectures.Views.MainView extends JView
           duration : 5000
       else 
         @sessionStatus.emit 'UserJoinedSelf', @ioController.currentSessionKey
+        
     @on "KDObjectWillBeDestroyed", =>
-      @ioController.broadcastMessage {leaving:KD.whoami().profile.nickname}
+      @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
       #@firepad.dispose()
     
 
