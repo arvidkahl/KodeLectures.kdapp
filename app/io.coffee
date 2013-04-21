@@ -46,7 +46,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
       console.log 'FIREBASE: You are trying to attach the session you are currently in.'
       return null
       
-    @previousSessionKey = @currentSessionKey if @currenSessionKey
+    @previousSessionKey = @currentSessionKey if @currenSessionKey and @currentSessionKey isnt @previousSessionKey
     @currentSessionKey = sessionKey or "kl-#{KD.utils.generatePassword 6, no}"
   
     if @firebaseRef then console.warn 'Overwriting instance of firebase.'
@@ -132,6 +132,8 @@ class KodeLectures.Controllers.FileIOController extends KDController
         @emit 'UserJoined', message
       when 'leave'
         @emit 'UserLeft', message
+      when 'chat'
+        @emit 'ChatMessageArrived', message
       
 
   checkAppIntegrity:(callback=->)->

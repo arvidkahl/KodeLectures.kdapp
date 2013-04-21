@@ -844,10 +844,88 @@ class KodeLectures.Views.SessionStatusView extends JView
     @on "FirebaseAttached", =>
       @setClass 'ready'
       @userCount = 0
-      @text.updatePartial "You can now share your sessionId"
+      @text.updatePartial "You can now share your Session"
       
   pistachio:->  
     """
     <span class="icon"></span>
     {{> @text}}
     """
+class KodeLectures.Views.ChatParticipantView extends KDListItemView  
+  constructor:->
+    super
+    
+class KodeLectures.Views.ChatMessageView extends KDListItemView
+  constructor:->
+    super
+    
+    console.log 'CHAT: Adding message to chat.'
+    
+    @setClass 'chat-message-item'
+    
+    @nickname = new KDCustomHTMLView
+      cssClass : 'chat-nickname'
+      partial : @getData().nickname
+    
+    @message = new KDCustomHTMLView
+      cssClass : 'chat-message'
+      partial : @getData().message
+  
+  viewAppended :->
+    @setTemplate @pistachio()
+    @template.update()
+    
+  pistachio:->
+    """
+      {{> @nickname}}
+      {{> @message}}
+    """
+     
+class KodeLectures.Views.ChatView extends JView    
+  {ChatParticipantView, ChatMessageView} = KodeLectures.Views
+  constructor :->
+    super
+    
+    messagesController = new KDListViewController
+      view : @messagesList = new KDListView
+        cssClass : 'chat-messages'
+        itemClass : ChatMessageView
+      delegate : @
+      
+    participantsController = new KDListViewController
+      itemClass : ChatParticipantView
+      delegate : @
+    
+    @messageInput = new KDHitEnterInputView
+      cssClass : 'chat-input'
+      callback : (value)=> 
+        @emit 'ChatMessageComposed',value if value
+        @messageInput.blur()
+        @messageInput.setValue ''
+        @utils.defer => @messageInput.focus()
+    
+    @header = new KDView
+      cssClass : 'chat-header'
+      partial : 'Session Chat'
+      click:=>
+        if @$().hasClass 'minimized' 
+          @header.unsetClass 'new-message'
+          @unsetClass 'minimized' 
+        else @setClass 'minimized'
+    
+    @on 'ChatMessageArrived', (message)=>
+      console.log 'CHAT: Message arrived', message
+      messagesController.addItem message
+      if @$().hasClass 'minimized'
+        @header.setClass 'new-message'
+    
+    @on 'UserJoined', (user)=>
+    @on 'UserLeft', (user)=>
+      
+  pistachio:->
+    """
+      {{> @header}}
+      {{> @messagesList}}
+      {{> @messageInput}}
+    """
+    

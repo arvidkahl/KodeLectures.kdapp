@@ -21,7 +21,7 @@ require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
 
 class KodeLectures.Views.MainView extends JView
 
-  {TaskView,TaskOverview,CourseSelectionView,SessionStatusView} = KodeLectures.Views
+  {TaskView,TaskOverview,CourseSelectionView,SessionStatusView,ChatView} = KodeLectures.Views
   
   constructor: ()->
     super
@@ -93,7 +93,7 @@ class KodeLectures.Views.MainView extends JView
 
     @buildCodeMirror()
 
-    @utils.wait 500, =>
+    @utils.wait 10, =>
         @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
         
         @firepad.on "ready", =>
@@ -310,7 +310,12 @@ class KodeLectures.Views.MainView extends JView
         
     @sessionStatus = new SessionStatusView
       cssClass : 'session-status'
-        
+    
+    @chatView = new ChatView
+      cssClass : 'chat-view'
+       
+    @chatView.hide()
+    
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
     
@@ -468,6 +473,9 @@ class KodeLectures.Views.MainView extends JView
         console.log 'SYNC: I am already there'
     
     @ioController.on 'UserJoined', (user)=>
+
+      @chatView.show()
+
       console.log 'FIREBASE: User Joined:',user
       unless KD.whoami().profile.nickname is user
         if @ioController.isInstructor
@@ -489,7 +497,17 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'UserLeft', (user)=>
       console.log 'FIREBASE: User Left:',user
       @sessionStatus.emit 'UserLeft', user
-      
+    
+    @ioController.on 'ChatMessageArrived', (data)=>
+      console.log 'CHAT: Received Message'
+      @chatView.emit 'ChatMessageArrived', data
+    
+    @chatView.on 'ChatMessageComposed', (message)=>
+      console.log 'CHAT: Broadcasting message'
+      @ioController.broadcastMessage {chat:{message,nickname:KD.whoami().profile.nickname}}
+    
+    # cleanup
+    
     @on "KDObjectWillBeDestroyed", =>
       @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
       #@firepad.dispose()
@@ -508,6 +526,7 @@ class KodeLectures.Views.MainView extends JView
   pistachio: -> 
     """
     {{> @controlView}}
+    {{> @chatView}}
     {{> @splitViewWrapper}}
     """
 #
