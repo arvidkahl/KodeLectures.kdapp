@@ -54,6 +54,31 @@ class KodeLectures.Views.MainView extends JView
 
     @courses = []
     
+  save:->
+    console.log 'Saving editor contents to file.'
+    @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @codeMirrorEditor.getValue()  
+  
+  buildCodeMirror:->
+    @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
+      lineNumbers : true
+      mode        : "javascript"
+      tabSize                    : options.tabSize            or 2
+      lineNumbers                : options.lineNumbers        or yes
+      #autofocus                  : options.autofocus          or yes
+      theme                      : options.theme              or "monokai"
+      value                      : options.value              or ""
+      styleActiveLine            : options.highlightLine      or yes
+      highlightSelectionMatches  : options.highlightSelection or yes
+      matchBrackets              : options.matchBrackets      or yes
+      autoCloseBrackets          : options.closeBrackets      or yes
+      autoCloseTags              : options.closeTags          or yes
+      extraKeys                  : 
+        "Cmd-S"                  : => @save()
+        "Ctrl-S"                 : => @save()
+        "Shift-Alt-R"            : => 
+          @save()
+          @runButton.options.callback()
+  
   delegateElements:->
 
     @splitViewWrapper = new KDView
@@ -66,10 +91,7 @@ class KodeLectures.Views.MainView extends JView
     @editorContainer = new KDView
       domId : "firekode-container#{KD.utils.getRandomNumber()}"
 
-    @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
-      lineNumbers : true
-      mode        : "javascript"
-      theme       : "monokai"
+    @buildCodeMirror()
 
     @utils.wait 500, =>
         @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
@@ -197,7 +219,7 @@ class KodeLectures.Views.MainView extends JView
                       itemClass   : KDInputView 
                       name        : 'url'
       
-    runButton = new KDButtonView
+    @runButton = new KDButtonView
       cssClass    : "cupid-green control-button run"
       title       : 'Save and Run your code'
       tooltip:
@@ -274,10 +296,7 @@ class KodeLectures.Views.MainView extends JView
 
           @editorContainer.$().html ''
         
-          @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
-            lineNumbers : true
-            mode        : "javascript"
-            theme       : "monokai"
+          @buildCodeMirror()
         
           @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
   
@@ -304,7 +323,7 @@ class KodeLectures.Views.MainView extends JView
    
     @controlView.addSubView @sessionStatus
    
-    @editorContainer.addSubView runButton 
+    @editorContainer.addSubView @runButton 
     @controlView.addSubView @controlButtons
     
     @liveViewer.setSplitView @splitView
