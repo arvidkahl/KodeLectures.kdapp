@@ -926,6 +926,8 @@ class KodeLectures.Views.ChatView extends JView
     """
       {{> @header}}
       {{> @messagesList}}
+      <div class="chat-input-wrapper">
       {{> @messageInput}}
+      </div>
     """
     

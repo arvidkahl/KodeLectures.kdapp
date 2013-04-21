@@ -32,15 +32,22 @@
 }
 .kodelectures .chat-view .chat-message{
   box-sizing:border-box;
-  padding: 3px 3px 8px 3px;
+  padding: 5px 3px 5px 3px;
 }
 .kodelectures .chat-view .chat-nickname{
   float:left;
-  margin:5px 10px 5px 5px;
+  margin:5px 10px 0 5px;
   font-weight:bold;
 }
+
+.kodelectures .chat-view .chat-input-wrapper{
+  height: 25px;
+  box-sizing: border-box;
+  padding: 2px;
+}
+
 .kodelectures .chat-view .chat-input{
-  height:25px;
+  height:21px;
   width:100%;
   box-sizing:border-box;
   padding:5px;
@@ -49,7 +56,6 @@
 
 .kodelectures .chat-view .chat-messages{
   height: 250px;
-    
 }
 
 .kodelectures .chat-view .chat-header.new-message {
@@ -81,6 +87,8 @@
   background-color:rgba(255,255,255,0.95);
   z-index:200;
   border:1px solid rgba(0,0,0,0.1);
+  margin: 20px 0 0 20px;
+  box-shadow: 0 0px 20px 0px rgba(0,0,0,0.3);
 }
 
 .kodelectures .preview-pane.transparented {
