@@ -371,13 +371,16 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
       
     @ioController.on 'CourseChanged', (course)=>
-      courseIndex = @courses.indexOf course
+      #courseIndex = @courses.indexOf course
       log 'Checking if this course is already active'
       unless course.title is @courses[@lastSelectedCourse]?.title 
         console.log 'Oh, a remote course. Lets see if I already have this one'
-        if courseIndex isnt -1 
+        index = -1
+        index = i for course_,i in @courses when course_.title is course.title
+        
+        if index isnt -1 
           console.log 'Got it.'
-          @lastSelectedCourse = courseIndex
+          @lastSelectedCourse = index
           @utils.wait 0, => 
             @emit 'CourseChanged', @lastSelectedCourse
             @utils.wait 100, =>
