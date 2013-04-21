@@ -431,18 +431,19 @@ class KodeLectures.Views.MainView extends JView
         console.log 'SYNC: I am already there'
     
     @ioController.on 'UserJoined', (user)=>
-      if @ioController.isInstructor
-        title = "#{user} joined your shared session."
-        content = "All your changes will show up for every in your session as long as you have broadcasting enabled."
-      else if KD.whoami().profile.nickname isnt user
-        title = "#{user} joined this session"
-        content = "Happy collaboration!"
-      
-      if title and content then new KDNotificationView
-        title : title 
-        content : content
-        duration : 5000
+      unless KD.whoami().profile.nickname is user
+        if @ioController.isInstructor
+          title = "#{user} joined your shared session."
+          content = "All your changes will show up for every in your session as long as you have broadcasting enabled."
+        else 
+          title = "#{user} joined this session"
+          content = "Happy collaboration!"
         
+        new KDNotificationView
+          title : title 
+          content : content
+          duration : 5000
+          
     @on "KDObjectWillBeDestroyed", =>
       #@firepad.dispose()
     
