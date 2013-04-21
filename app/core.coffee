@@ -810,3 +810,29 @@ class KodeLectures.Views.CourseSelectionView extends JView
 
     </div>
     """
+    
+class KodeLectures.Views.SessionStatusView extends JView
+  constructor:->
+    super
+    @text = new KDView
+      partial : 'Initializing…'
+    
+    @userCount = 0
+    
+    @on "UserJoinedHost", (user)=>
+      @setClass 'host'
+      @text.updatePartial "#{++@userCount} people connected to your lecture. Last join: #{user}"
+    
+    @on "UserJoined", (user)=>
+      @setClass 'join'
+      @text.updatePartial "#{++@userCount} people connected to this session Last join: #{user}"
+    
+    @on "FirebaseAttached", =>
+      @setClass 'ready'
+      @text.updatePartial "You can now share your sessionId"
+      
+  pistachio:->  
+    """
+    <span class="icon"></span>
+    {{> @text}}
+    """

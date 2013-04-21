@@ -16,12 +16,13 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @basePath     = "#{@appPath}/#{@name}.kdapp"
     
     @isInstructor = yes
+    @allowBroadcast = yes
     
     @attachListeners()
   
   broadcastMessage:(message,callback=->)->
     console.log 'FIREBASE: Broadcasting:',message
-    if @firebaseRef
+    if @firebaseRef and @allowBroadcast
       @firebaseRef.update message, callback
 
   attachFirebase:(sessionKey,callback=->)->
@@ -32,7 +33,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
       return null
       
     @previousSessionKey = @currentSessionKey if @currenSessionKey
-    @currentSessionKey = sessionKey or "#{KD.utils.generatePassword 6, no}#{KD.utils.getRandomNumber 99}#{KD.utils.generatePassword 2, no}"
+    @currentSessionKey = sessionKey or "kl-#{KD.utils.generatePassword 6, no}"
   
     if @firebaseRef then console.warn 'Overwriting instance of firebase.'
     

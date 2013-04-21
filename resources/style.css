@@ -1,5 +1,5 @@
 .kodelectures.kdview {
-  background: #fff url(transparent.png) top left fixed;
+  background: #fff;
 }
 
 .kodelectures.loading {
@@ -32,12 +32,59 @@
   box-shadow: inset 2px 2px 10px rgba(0,0,0,0.5);
 }
 
+.kodelectures .session-status {
+  width: auto;
+  border: 0px solid rgba(255, 255, 255, 0.5);
+  display: inline-block;
+  height: 19px;
+  padding: 2px 4px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  line-height: 14px;
+  font-size: 11px;
+  margin: 0 5px;
+  background-color: #aaa;
+  box-shadow: 0 0 3px rgba(255,255,255,0.7),inset 0 0 5px rgba(0,0,0,0.3);
+  color: white;
+}
+
+.kodelectures .session-status.ready {
+  background-color: rgb(99, 189, 113);
+}
+
+@keyframes bg-pulsate {
+    0%   { background-color: rgba(219, 126, 44, 1); }
+    50% { background-color: rgba(219, 126, 44, 0.5); }
+    100%   { background-color: rgba(219, 126, 44, 1); }
+}
+@-webkit-keyframes bg-pulsate {
+    0%   { background-color: rgba(219, 126, 44, 1); }
+    50% { background-color: rgba(219, 126, 44, 0.5); }
+    100%   { background-color: rgba(219, 126, 44, 1); }
+}
+
+.kodelectures .session-status.host {
+  background-color: rgba(219, 126, 44, 0.7);
+  color: white;
+  animation: bg-pulsate 2s infinite;
+  -webkit-animation: bg-pulsate 2s infinite;
+  -moz-animation: bg-pulsate 2s infinite;
+
+}
+
+.kodelectures .session-status.join {
+background-color: rgba(22, 140, 170, 0.7);
+color: white;
+}
+
+
 .kodelectures .control-pane {
 }
 
 .kodelectures .control-pane .on-off {
-  float: right;
+  width : auto;
   margin-right: 5px;
+  display:inline-block;
 }
 
 .kodelectures .control-pane .icon.docs {
@@ -81,13 +128,6 @@
   background-position: 0 -60px;
 }
 
-.kodelectures .control-pane .on-off .on {
-  width: 90px;
-}
-
-.kodelectures .control-pane .on-off .off {
-  width: 55px;
-}
 
 .kodelectures .control-pane .header-buttons {
   width: 411px;
@@ -174,7 +214,6 @@
 
 .kodelectures .control-pane .control-button.transp {
   text-indent: -9999px;
-  background: url(transparent.png) center center;
 }
 
 .kodelectures .control-pane .control-button.transp.transparented {

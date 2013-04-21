@@ -21,7 +21,7 @@ require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
 
 class KodeLectures.Views.MainView extends JView
 
-  {TaskView,TaskOverview,CourseSelectionView} = KodeLectures.Views
+  {TaskView,TaskOverview,CourseSelectionView,SessionStatusView} = KodeLectures.Views
   
   constructor: ()->
     super
@@ -50,6 +50,7 @@ class KodeLectures.Views.MainView extends JView
       if state is 'fresh'
         console.log 'Firebase successfully attached and instantiated.'
         @sessionInput.setValue sessionKey
+        @sessionStatus.emit 'FirebaseAttached'
 
     @courses = []
     
@@ -280,11 +281,28 @@ class KodeLectures.Views.MainView extends JView
         
           @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
   
+    @broadcastSwitch = new KDOnOffSwitch
+      label : new KDLabelView
+        title : "Broadcast: "
+      size: "tiny"
+      defaultValue : yes
+      callback:(state)=>
+        @ioController.allowBroadcast = state
+        
+    @sessionStatus = new SessionStatusView
+      cssClass : 'session-status'
+        
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
+    
+    #@controlView.addSubView @broadcastSwitch.options.label    
+    #@controlView.addSubView @broadcastSwitch 
+    
     @controlView.addSubView @sessionInput.options.label
     @controlView.addSubView @sessionInput
     @controlView.addSubView @sessionJoinButton
+   
+    @controlView.addSubView @sessionStatus
    
     @editorContainer.addSubView runButton 
     @controlView.addSubView @controlButtons
@@ -433,9 +451,11 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'UserJoined', (user)=>
       unless KD.whoami().profile.nickname is user
         if @ioController.isInstructor
+          @sessionStatus.emit 'UserJoinedHost', user
           title = "#{user} joined your shared session."
           content = "All your changes will show up for every in your session as long as you have broadcasting enabled."
         else 
+          @sessionStatus.emit 'UserJoined', user
           title = "#{user} joined this session"
           content = "Happy collaboration!"
         
