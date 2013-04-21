@@ -365,6 +365,7 @@ class KodeLectures.Views.MainView extends JView
     @on 'PreviousLectureRequested', =>
     
     @on 'LanguageChanged', (language) =>
+      console.log 'Setting language to:',language
       @currentLang = language
       @codeMirrorEditor.setOption 'mode', language
     
