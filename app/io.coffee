@@ -20,7 +20,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @attachListeners()
   
   broadcastMessage:(message,callback=->)->
-    console.log 'Broadcasting.'
+    console.log 'FIREBASE: Broadcasting:',message
     if @firebaseRef
       @firebaseRef.update message, callback
 
@@ -28,7 +28,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
   
     if sessionKey is @currentSessionKey 
       callback sessionKey
-      console.log 'You are trying to attach the session you are currently in.'
+      console.log 'FIREBASE: You are trying to attach the session you are currently in.'
       return null
       
     @previousSessionKey = @currentSessionKey if @currenSessionKey
@@ -36,7 +36,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
   
     if @firebaseRef then console.warn 'Overwriting instance of firebase.'
     
-    console.log 'Attaching Firebase with session key:',@currentSessionKey
+    console.log 'FIREBASE: Attaching with session key:',@currentSessionKey
     
     @firebaseRef = new Firebase("https://kodelectures.firebaseIO.com/").child @currentSessionKey
     
@@ -50,9 +50,9 @@ class KodeLectures.Controllers.FileIOController extends KDController
       # first check for owner 
       unless @instantiated
         unless message?.owner?
-          console.log 'This Firebase has no owner, must be mine!'
+          console.log 'FIREBASE: This Firebase has no owner, must be mine!'
     
-          console.log 'Well then, setting default data to Firebase'  
+          console.log 'FIREBASE: Well then, setting default data to Firebase'  
           @broadcastMessage
             createdAt   : new Date().getTime()
             owner       : @nickname
@@ -65,13 +65,13 @@ class KodeLectures.Controllers.FileIOController extends KDController
         
         else 
           if message.owner is @nickname
-            console.log 'Neat, this is my Firebase.'
+            console.log 'FIREBASE: Neat, this is my Firebase.'
             @isInstructor = yes
             @instantiated = yes 
             callback @currentSessionKey
 
           else 
-            console.log 'This is someone elses Firebase. Cool!'
+            console.log 'FIREBASE: This is someone elses Firebase. Cool!'
             @isInstructor = no
             @instantiated = yes 
             callback @currentSessionKey
@@ -111,7 +111,6 @@ class KodeLectures.Controllers.FileIOController extends KDController
       when 'course'
         @emit 'CourseChanged', message
       when 'lecture'
-        console.log 'Received LectureChanged'
         @emit 'LectureChanged', message
 
   checkAppIntegrity:(callback=->)->
