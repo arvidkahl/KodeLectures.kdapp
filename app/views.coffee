@@ -449,6 +449,7 @@ class KodeLectures.Views.MainView extends JView
         console.log 'SYNC: I am already there'
     
     @ioController.on 'UserJoined', (user)=>
+      console.log 'FIREBASE: User Joined:',user
       unless KD.whoami().profile.nickname is user
         if @ioController.isInstructor
           @sessionStatus.emit 'UserJoinedHost', user
@@ -467,6 +468,7 @@ class KodeLectures.Views.MainView extends JView
         @sessionStatus.emit 'UserJoinedSelf', @ioController.currentSessionKey
         
     @ioController.on 'UserLeft', (user)=>
+      console.log 'FIREBASE: User Left:',user
       @sessionStatus.emit 'UserLeft', user
       
     @on "KDObjectWillBeDestroyed", =>

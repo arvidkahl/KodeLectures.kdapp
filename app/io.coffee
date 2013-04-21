@@ -23,7 +23,21 @@ class KodeLectures.Controllers.FileIOController extends KDController
   broadcastMessage:(message,callback=->)->
     console.log 'FIREBASE: Broadcasting:',message
     if @firebaseRef and @allowBroadcast
-      @firebaseRef.update message, callback
+      @firebaseRef.update message, =>
+        callback arguments
+        @utils.defer =>
+          if message.join
+            @firebaseRef.child('join').remove =>
+              console.log 'removed join'
+          if message.leave
+            @firebaseRef.child('leave').remove =>
+              console.log 'remove leave'
+          #
+      
+  removeChild:(key,callback=->)->
+    console.log 'FIREBASE: Removing:',key
+    if @firebaseRef and @allowBroadcast
+      @firebaseRef.remove key
 
   attachFirebase:(sessionKey,callback=->)->
   

@@ -825,7 +825,7 @@ class KodeLectures.Views.SessionStatusView extends JView
     
     @on "UserJoinedSelf", (key)=>
       @setClass 'join'
-      @text.updatePartial "You are connected to session #{key}"
+      @text.updatePartial "You are connected to session #{key} (#{++@userCount})"
     
     @on "UserJoined", (user)=>
       @setClass 'join'
@@ -834,12 +834,16 @@ class KodeLectures.Views.SessionStatusView extends JView
     @on "UserLeft", (user)=>
       if --@userCount is 0
         @unsetClass 'join'
+        @unsetClass 'host'
         @text.updatePartial "Everyone has left this session"
       else 
-        @text.updatePartial "#{--@userCount} people connected to this session Last join: #{user}"
+        @text.updatePartial "#{@userCount} people connected to this session Last join: #{user}"
+      
+      @utils.defer => if @userCount < 0 then @userCount = 0
     
     @on "FirebaseAttached", =>
       @setClass 'ready'
+      @userCount = 0
       @text.updatePartial "You can now share your sessionId"
       
   pistachio:->  
