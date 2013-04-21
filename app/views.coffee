@@ -466,6 +466,9 @@ class KodeLectures.Views.MainView extends JView
       else 
         @sessionStatus.emit 'UserJoinedSelf', @ioController.currentSessionKey
         
+    @ioController.on 'UserLeft', (user)=>
+      @sessionStatus.emit 'UserLeft', user
+      
     @on "KDObjectWillBeDestroyed", =>
       @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
       #@firepad.dispose()
