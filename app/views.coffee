@@ -365,8 +365,9 @@ class KodeLectures.Views.MainView extends JView
         @lectureButton.hide()
    
     @on 'NextLectureRequested', =>
-      @emit 'LectureChanged',@lastSelectedItem+1 if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
-  
+      if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
+        @emit 'LectureChanged',@lastSelectedItem+1 
+        @ioController.broadcastMessage {lecture:@courses[@lastSelectedCourse].lectures[@lastSelectedItem+1],course:@courses[@lastSelectedCourse]}
     @on 'PreviousLectureRequested', =>
     
     @on 'LanguageChanged', (language) =>
@@ -382,10 +383,9 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'EditorContentChanged', ({text,origin})=> 
       
     @ioController.on 'CourseChanged', (course)=>
-      #courseIndex = @courses.indexOf course
-      log 'Checking if this course is already active'
+      log 'SYNC: Checking if this course is already active'
       unless course.title is @courses[@lastSelectedCourse]?.title 
-        console.log 'Oh, a remote course. Lets see if I already have this one'
+        console.log 'SYNC: Oh, a remote course. Lets see if I already have this one'
         index = -1
         if @courses then index = i for course_,i in @courses when course_.title is course.title
         
@@ -398,13 +398,13 @@ class KodeLectures.Views.MainView extends JView
               @emit 'LectureChanged', 0
           
         else
-          console.log 'Nope, adding it to my courses.'
-          console.log 'Starting Import'
+          console.log 'SYNC: Nope, adding it to my courses. Starting Import'
+           
           importNotification = new KDNotificationView
-            title : 'Importing course used in this session'
-            content : 'Please wait until the course is saved to your app. This will only take a few seconds'
-            duration : 60000
-            
+            title     : 'Importing course used in this session'
+            content   : 'Please wait until the course is saved to your app. This will only take a few seconds'
+            duration  : 60000
+          
           @ioController.importCourseFromRepository course.originUrl, course.originType, (importedCourse)=>
             @courses.push importedCourse
             
@@ -417,20 +417,20 @@ class KodeLectures.Views.MainView extends JView
                 @emit 'LectureChanged', 0
       
       else 
-        console.log 'This is where I am already.'
+        console.log 'SYNC: This is where I am already.'
 
     @ioController.on 'LectureChanged', (lecture)=>
-      console.log 'Checking if I already am at the lecture.'
+      console.log 'SYNC: Checking if I already am at the lecture.'
       unless lecture.title is @courses?[@lastSelectedCourse]?.lectures?[@lastSelectedItem]?.title
-        console.log 'Nope, changing to the lecture'
+        console.log 'SYNC: Nope, changing to the lecture'
         @utils.wait 0, => 
           index = 0
           if @courses[@lastSelectedCourse]? then index = i for lecture_,i in @courses[@lastSelectedCourse].lectures when lecture.title is lecture_.title
           @emit 'LectureChanged', index
       else 
-        console.log 'I am already there'
+        console.log 'SYNC: I am already there'
     
-    @ioController.on 'SessionJoin', (user)=>
+    @ioController.on 'UserJoined', (user)=>
       if @ioController.isInstructor
         title = "#{user} joined your shared session."
         content = "All your changes will show up for every in your session as long as you have broadcasting enabled."
@@ -444,11 +444,10 @@ class KodeLectures.Views.MainView extends JView
         duration : 5000
         
     @on "KDObjectWillBeDestroyed", =>
-      #@utils.killRepeat @userListCheckInterval
       #@firepad.dispose()
     
 
-# Resize hack for nested splitviews    
+    # Resize hack for nested splitviews    
         
     @splitView.on 'ResizeDidStart', =>
       @resizeInterval = KD.utils.repeat 100, =>
@@ -458,10 +457,6 @@ class KodeLectures.Views.MainView extends JView
       KD.utils.killRepeat @resizeInterval
       @taskSplitView._windowDidResize {}
 
-  getEditScrollPercentage:->
-
-  setPreviewScrollPercentage:(percentage)->
-  
   pistachio: -> 
     """
     {{> @controlView}}
