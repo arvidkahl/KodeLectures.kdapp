@@ -221,9 +221,9 @@ class KodeLectures.Views.MainView extends JView
       
     @runButton = new KDButtonView
       cssClass    : "cupid-green control-button run"
-      title       : 'Save and Run your code'
+      title       : 'Save and Run your code (Shift-Alt-R)'
       tooltip:
-        title : 'Save and Run your code'
+        title : 'Save and Run your code (Shift-Alt-R)'
       callback    : (event)=>
         @liveViewer.active = yes
         
