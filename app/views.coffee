@@ -264,7 +264,12 @@ class KodeLectures.Views.MainView extends JView
         console.log 'Session Join Button clicked'
         @ioController.attachFirebase @sessionInput.getValue(), (sessionKey)=>
         
-          console.log 'Joined ',sessionKey
+          console.log 'FIREBASE: Joined ',sessionKey
+
+          new KDNotificationView
+            title : 'You joined a KodeLecture session'
+            content : 'Now, you will be able to collaborate with everyone else in this session.'
+            duration : 5000
 
           @editorContainer.$().html ''
         
@@ -425,7 +430,19 @@ class KodeLectures.Views.MainView extends JView
       else 
         console.log 'I am already there'
     
-
+    @ioController.on 'SessionJoin', (user)=>
+      if @ioController.isInstructor
+        title = "#{user} joined your shared session."
+        content = "All your changes will show up for every in your session as long as you have broadcasting enabled."
+      else if KD.whoami().profile.nickname isnt user
+        title = "#{user} joined this session"
+        content = "Happy collaboration!"
+      
+      new KDNotificationView
+        title : title 
+        content : content
+        duration : 5000
+        
     @on "KDObjectWillBeDestroyed", =>
       #@utils.killRepeat @userListCheckInterval
       #@firepad.dispose()

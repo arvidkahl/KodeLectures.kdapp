@@ -72,6 +72,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
 
           else 
             console.log 'FIREBASE: This is someone elses Firebase. Cool!'
+            @broadcastMessage {join:KD.whoami().profile.nickname}
             @isInstructor = no
             @instantiated = yes 
             callback @currentSessionKey
@@ -112,6 +113,9 @@ class KodeLectures.Controllers.FileIOController extends KDController
         @emit 'CourseChanged', message
       when 'lecture'
         @emit 'LectureChanged', message
+      when 'join'
+        @emit 'UserJoined', message
+      
 
   checkAppIntegrity:(callback=->)->
     
