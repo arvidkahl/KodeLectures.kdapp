@@ -324,6 +324,8 @@ class KodeLectures.Views.MainView extends JView
     @ownTerminal = new KDButtonView
       title : 'My Terminal'
       cssClass : 'clean-gray editor-button my-terminal active'
+      tooltip : 
+        title : 'This terminal runs on your own file system. Be careful what you enter here, it will affect your files.'
       callback :=>
         console.log 'Swapping Terminal to OWN'
         @ownTerminal.setClass 'active'
@@ -333,7 +335,9 @@ class KodeLectures.Views.MainView extends JView
     
     @hostTerminal = new KDButtonView
       title : 'Host Terminal'
-      cssClass  : 'clean-gray editor-button host-terminal'
+      tooltip:
+        title : 'This is the terminal of the host of this session. Be careful what you type here, it will affect the hosts files.'
+      cssClass  : 'clean-gray editor-button host-terminal hidden'
       callback :=>
         console.log 'Swapping Terminal to HOST'
         @hostTerminal.setClass 'active'
@@ -420,7 +424,9 @@ class KodeLectures.Views.MainView extends JView
      
         unless @ioController.isInstructor 
           @terminalButtons.show()
+          @hostTerminal.show()
           @liveViewer.previewStreamedTerminal 'Loading Remote Terminal...'
+        else @hostTerminal.hide()
       else 
         @terminalButtons.hide()
         @liveViewer.mdPreview?.show()
@@ -467,7 +473,9 @@ class KodeLectures.Views.MainView extends JView
       unless @ioController.isInstructor 
         @liveViewer.previewStreamedTerminal JSON.parse lines
     
-    @ioController.on 'LanguageChanged', (language)=> @emit 'LanguageChanged', language
+    @ioController.on 'LanguageChanged', (language)=> 
+      @languageSelect.setValue language
+      @emit 'LanguageChanged', language
     @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     @ioController.on 'EditorContentChanged', ({text,origin})=> 

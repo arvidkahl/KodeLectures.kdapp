@@ -135,8 +135,7 @@
 }
 
 .kodelectures button.run {
-  z-index: 20000;
-  position: absolute;
+  z-index: 500;
   padding: 5px;
   width:auto;
   margin:5px;
