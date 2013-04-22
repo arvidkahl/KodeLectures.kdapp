@@ -22,7 +22,10 @@
   padding : 20px;
   box-sizing : border-box;
   }
-  
+
+.kodelectures .terminal-stream-preview .console {
+  height :100%;
+}
   
 .kodelectures .markdown-preview > div > pre {
   background-color: rgba(255,255,255,0.5);
@@ -87,13 +90,57 @@
   width : auto;
 }
 
+.kodelectures .terminal-buttons {
+  height:auto;
+  width:auto;
+  display:inline-block;
+  box-sizing:border-box;
+  padding:2px;
+}
+
+.kodelectures .preview-buttons .terminal-buttons button {
+  
+  background-color:#db7e2c;
+  background-image:none;
+  font-family: 'Raleway', Arial, Helvetica, sans-serif!important;
+  border:none;
+  box-shadow:none;
+  text-shadow:none;
+  transition:background-color 0.2s linear;
+  padding:5px;
+  margin: 3px;
+  height: 21px;
+  color:rgba(255,255,255,0.75);
+
+}
+.kodelectures .preview-buttons .terminal-buttons button:hover {
+  background-color:rgba(219, 126, 44, 0.8);
+  box-shadow:none;
+  text-shadow:none;  
+  background-image:none;
+  
+}
+.kodelectures .preview-buttons .terminal-buttons button.active{
+  font-weight:bold!important;
+  color:white;
+}
+
+.kodelectures .preview-buttons {
+  height:auto;
+  position:absolute;
+  top:0;
+  z-index:500;
+  background-color:#272822;
+  min-height:30px;
+}
+
 .kodelectures button.run {
   z-index: 20000;
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  left: 10px;
+  padding: 5px;
   width:auto;
+  margin:5px;
+  float:right;
 }
 .kodelectures .text{
   display:block;

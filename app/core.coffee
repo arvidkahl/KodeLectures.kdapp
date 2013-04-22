@@ -26,30 +26,37 @@ class KodeLectures.Core.LiveViewer
         partial : '<div class="info"><pre>When you run your code, you will see the results here</pre></div>'
     else 
       @mdPreview?.show() 
-      @terminal?.hide()
+      @terminalPreview?.hide()
     
   setSplitView: (@splitView)->
     
   setMainView: (@mainView)->
   
-  previewStreamedTerminal: (lines)->
+  previewStreamedTerminal: (lines,forceShow=no)->
     
     lines = lines.join "<br />"
     try
       unless @terminalStreamPreview
+        console.log 'TERMINAL: Adding streaming Terminal'
         @previewView.addSubView @terminalStreamPreview = new KDView
           partial : "<div class='console ubuntu-mono green-on-black'>#{lines}</div>"
           cssClass : 'webterm terminal terminal-stream-preview'
       else 
         @terminalStreamPreview.updatePartial "<div class='console ubuntu-mono green-on-black'>#{lines}</div>"
-    @mdPreview?.hide()
-    @terminal?.hide()
-    @terminalStreamPreview?.show()
+        
+    @terminalStreamPreview.$('.console').scrollTop @terminalStreamPreview.$('.console')[0].scrollHeight
+    
+    if forceShow
+      @mdPreview?.hide()
+      @terminalPreview?.hide()
+      @terminalStreamPreview?.show()
   
   previewCode: (code, execute, options)->
     return if not @active 
     if code or code is ''
     
+      KD.utils.killRepeat @terminalStream if @terminalStream
+
       kiteController = KD.getSingleton "kiteController"
 
       {ioController,courses,lastSelectedCourse:course,lastSelectedItem:lecture} = @mainView
@@ -83,7 +90,7 @@ class KodeLectures.Core.LiveViewer
             notify error.message
           finally
             @mdPreview?.show()
-            @terminal?.hide()
+            @terminalPreview?.hide()
             @terminalStreamPreview.hide()
             delete window.appView
        
@@ -113,7 +120,7 @@ class KodeLectures.Core.LiveViewer
               notify error.message
             finally
               @mdPreview?.show()
-              @terminal?.hide()
+              @terminalPreview?.hide()
               @terminalStreamPreview?.hide()
               delete window.appView
         
@@ -126,18 +133,18 @@ class KodeLectures.Core.LiveViewer
           window.appView = @previewView
         
           sendCommand = (command)=>
-            if @terminal.terminal?.server?.input
-              @terminal.terminal?.server?.input command+"\n" unless command is ''
-              KD.utils.defer => @terminal.emit 'click' # focus :)
+            if @terminalPreview.terminal?.server?.input
+              @terminalPreview.terminal?.server?.input command+"\n" unless command is ''
+              KD.utils.defer => @terminalPreview.emit 'click' # focus :)
             else console.log 'There is a connectivity problem with the terminal'  
-          unless @terminal
+          unless @terminalPreview
               console.log 'Adding terminal. This should only happen once.'
               appStorage = new AppStorage 'KodeLectures', '1.0'
               appStorage.fetchStorage (storage)=>
-                @previewView.addSubView @terminal = new WebTermView appStorage
-                @terminal.setClass 'webterm'
+                @previewView.addSubView @terminalPreview = new WebTermView appStorage
+                @terminalPreview.setClass 'webterm'
                 console.log 'Terminal added successfully.'
-                @terminal.show()
+                @terminalPreview.show()
                 @mdPreview?.hide()
                 @terminalStreamPreview?.hide()
                 delete window.appView  
@@ -155,15 +162,13 @@ class KodeLectures.Core.LiveViewer
               console.log 'Send command to terminal',code
               sendCommand code     
               
-              @terminal?.show()
+              @terminalPreview?.show()
               @mdPreview?.hide()   
               @terminalStreamPreview?.hide()
               delete window.appView       
-          
-          KD.utils.killRepeat @terminalStream if @terminalStream
-          
+        
           if @mainView.ioController.isInstructor then  @terminalStream = KD.utils.repeat 2500, =>         
-            lines = (line[0].innerHTML for line in @terminal.terminal.screenBuffer.lineDivs)
+            lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
             @mainView.emit "TerminalContents", JSON.stringify lines
  
 

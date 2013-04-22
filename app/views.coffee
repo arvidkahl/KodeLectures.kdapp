@@ -85,7 +85,10 @@ class KodeLectures.Views.MainView extends JView
   
     @preview = new KDView
         cssClass: "preview-pane"
-      
+        
+    @previewButtons = new KDView
+      cssClass : 'preview-buttons'      
+    
     @liveViewer.setPreviewView @preview
 
     @editorContainer = new KDView
@@ -119,8 +122,8 @@ class KodeLectures.Views.MainView extends JView
     @editorSplitView = new KDSplitView
         type      : "horizontal"
         resizable : yes
-        sizes     : ["62%","38%"]
-        views     : [@editorContainer,@preview]    
+        sizes     : ["62%", "30px",null]
+        views     : [@editorContainer,@previewButtons,@preview]    
     
     @taskSplitViewWrapper = new KDView
     
@@ -316,6 +319,36 @@ class KodeLectures.Views.MainView extends JView
        
     @chatView.hide()
     
+
+    
+    @ownTerminal = new KDButtonView
+      title : 'My Terminal'
+      cssClass : 'clean-gray editor-button my-terminal active'
+      callback :=>
+        console.log 'Swapping Terminal to OWN'
+        @ownTerminal.setClass 'active'
+        @hostTerminal.unsetClass 'active'
+        @liveViewer.terminalPreview?.show()
+        @liveViewer.terminalStreamPreview?.hide()
+    
+    @hostTerminal = new KDButtonView
+      title : 'Host Terminal'
+      cssClass  : 'clean-gray editor-button host-terminal'
+      callback :=>
+        console.log 'Swapping Terminal to HOST'
+        @hostTerminal.setClass 'active'
+        @ownTerminal.unsetClass 'active'
+        @liveViewer.terminalPreview?.hide()
+        @liveViewer.terminalStreamPreview?.show()   
+    
+    @terminalButtons = new KDView
+      cssClass : 'terminal-buttons'
+    
+    @terminalButtons.addSubView @ownTerminal
+    @terminalButtons.addSubView @hostTerminal
+    
+    @previewButtons.addSubView @terminalButtons
+    
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
     
@@ -328,11 +361,13 @@ class KodeLectures.Views.MainView extends JView
    
     @controlView.addSubView @sessionStatus
    
-    @editorContainer.addSubView @runButton 
+    @previewButtons.addSubView @runButton 
     @controlView.addSubView @controlButtons
     
     @liveViewer.setSplitView @splitView
     @liveViewer.setMainView @
+    
+    #@preview.addSubView @previewButtons
     
     @taskView.setMainView @
     @taskOverview.setMainView @
@@ -348,8 +383,7 @@ class KodeLectures.Views.MainView extends JView
   attachListeners :->
    
    @on 'LectureChanged', (lecture=0)=>   
-      console.log '@LectureChanged',lecture
-    
+      console.log '@LectureChanged',lecture,@ioController.isInstructor
       
       @lastSelectedItem = lecture        
       {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
@@ -379,12 +413,20 @@ class KodeLectures.Views.MainView extends JView
     
       if previewType is 'terminal' 
         @liveViewer.active = yes
+      
         @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
           type:previewType
           coursePath:@courses[@lastSelectedCourse].path
+     
+        unless @ioController.isInstructor 
+          @terminalButtons.show()
+          @liveViewer.previewStreamedTerminal 'Loading Remote Terminal...'
       else 
+        @terminalButtons.hide()
         @liveViewer.mdPreview?.show()
-        @liveViewer.terminal?.hide()
+        @liveViewer.terminalPreview?.hide()
+        @liveViewer.terminalStreamPreview?.hide()
+        
 
     @on 'CourseChanged', (course)=>     
         console.log '@CourseChanged',course
@@ -423,7 +465,6 @@ class KodeLectures.Views.MainView extends JView
     
     @ioController.on 'TerminalSessionChanged', (lines)=>
       unless @ioController.isInstructor 
-        #console.log 'These lines should go into my fake terminal', JSON.parse lines
         @liveViewer.previewStreamedTerminal JSON.parse lines
     
     @ioController.on 'LanguageChanged', (language)=> @emit 'LanguageChanged', language
@@ -470,6 +511,8 @@ class KodeLectures.Views.MainView extends JView
 
     @ioController.on 'LectureChanged', (lecture)=>
       console.log 'SYNC: Checking if I already am at the lecture.'
+      if lecture.previewType is 'terminal' then @terminalButtons.show() else @terminalButtons.hide()
+
       unless lecture.title is @courses?[@lastSelectedCourse]?.lectures?[@lastSelectedItem]?.title
         console.log 'SYNC: Nope, changing to the lecture'
         @utils.wait 0, => 
