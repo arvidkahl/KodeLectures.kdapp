@@ -137,7 +137,8 @@ class KodeLectures.Controllers.FileIOController extends KDController
         @emit 'UserLeft', message
       when 'chat'
         @emit 'ChatMessageArrived', message
-      
+      when 'terminal'
+        @emit 'TerminalSessionChanged', message
 
   checkAppIntegrity:(callback=->)->
     

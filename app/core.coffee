@@ -141,7 +141,11 @@ class KodeLectures.Core.LiveViewer
               @terminal?.show()
               @mdPreview?.hide()   
               
-              delete window.appView        
+              delete window.appView       
+          
+          @terminalStream = KD.utils.repeat 1000, =>         
+            lines = (line[0].innerHTML for line in @terminal.terminal.screenBuffer.lineDivs)
+            @mainView.emit "TerminalContents", JSON.stringify lines
  
 
 class KodeLectures.Views.TaskSubItemView extends KDListItemView
@@ -859,7 +863,7 @@ class KodeLectures.Views.ChatMessageView extends KDListItemView
   constructor:->
     super
     
-    console.log 'CHAT: Adding message to chat.'
+    #console.log 'CHAT: Adding message to chat.'
     
     @setClass 'chat-message-item'
     
@@ -930,15 +934,13 @@ class KodeLectures.Views.ChatView extends JView
         else @setClass 'minimized'
     
     @messagesList.on 'ChatMessageClicked', =>
-      console.log 'Focussing'
       @utils.defer => @messageInput.setFocus()
       
     @messagesList.on 'click', =>
-      console.log 'Focussing'
       @utils.defer => @messageInput.setFocus()
     
     @on 'ChatMessageArrived', (message)=>
-      console.log 'CHAT: Message arrived', message
+      #console.log 'CHAT: Message arrived', message
       messagesController.addItem message
       @utils.defer => 
         @messagesList.$().scrollTop @messagesList.$()[0].scrollHeight

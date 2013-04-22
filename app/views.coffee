@@ -418,6 +418,13 @@ class KodeLectures.Views.MainView extends JView
     
     # iocontroller event bindings
     
+    @on 'TerminalContents', (lines)=>
+      @ioController.broadcastMessage {terminal:lines} 
+    
+    @ioController.on 'TerminalSessionChanged', (lines)=>
+      unless @ioController.isInstructor 
+        console.log 'These lines should go into my fake terminal', lines.length
+    
     @ioController.on 'LanguageChanged', (language)=> @emit 'LanguageChanged', language
     @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
@@ -498,18 +505,19 @@ class KodeLectures.Views.MainView extends JView
       @sessionStatus.emit 'UserLeft', user
     
     @ioController.on 'ChatMessageArrived', (data)=>
-      console.log 'CHAT: Received Message'
+      #console.log 'CHAT: Received Message'
       data.isInstructor = data.nickname is @ioController.instructor
       @chatView.emit 'ChatMessageArrived', data
     
     @chatView.on 'ChatMessageComposed', (message)=>
-      console.log 'CHAT: Broadcasting message'
+      #console.log 'CHAT: Broadcasting message'
       @ioController.broadcastMessage {chat:{message,nickname:KD.whoami().profile.nickname}}
     
     # cleanup
     
     @on "KDObjectWillBeDestroyed", =>
       @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
+      KD.utils.killRepeat @liveViewer.terminalStream if @liveViewer.terminalStream
       #@firepad.dispose()
     
 
