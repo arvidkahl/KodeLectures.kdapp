@@ -47,7 +47,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
       return null
       
     @previousSessionKey = @currentSessionKey if @currenSessionKey and @currentSessionKey isnt @previousSessionKey
-    @currentSessionKey = sessionKey or "kl-#{KD.utils.generatePassword 6, no}"
+    @currentSessionKey = sessionKey or "kl:#{KD.utils.generatePassword 6, no}"
   
     if @firebaseRef then console.warn 'Overwriting instance of firebase.'
     
@@ -76,6 +76,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
           , => 
             @isInstructor = yes
             @instantiated = yes 
+            @instructor = @nickname
             callback @currentSessionKey, 'fresh'
         
         else 
@@ -83,6 +84,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
             console.log 'FIREBASE: Neat, this is my Firebase.'
             @isInstructor = yes
             @instantiated = yes 
+            @instructor = @nickname
             callback @currentSessionKey
 
           else 
@@ -90,6 +92,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
             @broadcastMessage {join:KD.whoami().profile.nickname}
             @isInstructor = no
             @instantiated = yes 
+            @instructor = message.owner
             callback @currentSessionKey
       
           

@@ -865,18 +865,34 @@ class KodeLectures.Views.ChatMessageView extends KDListItemView
     
     @nickname = new KDCustomHTMLView
       cssClass : 'chat-nickname'
-      partial : @getData().nickname
+      partial : @getData().nickname+': '
+    
+    if @getData().isInstructor then @nickname.setClass 'instructor'
+    
+    @avatar    = new AvatarView
+      cssClass : 'chat-avatar'
+      size     : 
+        height : 30
+        width  : 30
+    
+    KD.remote.cacheable @getData().nickname , (err,account)=>
+      unless err 
+        @avatar.setData account
+        @avatar.render()
     
     @message = new KDCustomHTMLView
       cssClass : 'chat-message'
-      partial : @getData().message
+      partial : Encoder.XSSEncode @getData().message
   
   viewAppended :->
     @setTemplate @pistachio()
     @template.update()
-    
+  
+  click :->
+    @getDelegate().emit 'ChatMessageClicked'
   pistachio:->
     """
+      {{> @avatar}}
       {{> @nickname}}
       {{> @message}}
     """
@@ -913,9 +929,19 @@ class KodeLectures.Views.ChatView extends JView
           @unsetClass 'minimized' 
         else @setClass 'minimized'
     
+    @messagesList.on 'ChatMessageClicked', =>
+      console.log 'Focussing'
+      @utils.defer => @messageInput.setFocus()
+      
+    @messagesList.on 'click', =>
+      console.log 'Focussing'
+      @utils.defer => @messageInput.setFocus()
+    
     @on 'ChatMessageArrived', (message)=>
       console.log 'CHAT: Message arrived', message
       messagesController.addItem message
+      @utils.defer => 
+        @messagesList.$().scrollTop @messagesList.$()[0].scrollHeight
       if @$().hasClass 'minimized'
         @header.setClass 'new-message'
     

@@ -26,6 +26,11 @@
   border-top : 1px solid rgba(255,255,255,0.25);
 }
 
+.kodelectures .chat-view .chat-avatar{
+  float:left;
+  margin:5px 10px 5px 5px;
+}
+
 .kodelectures .chat-view .chat-message-item{
   height:auto;
   border-bottom:1px solid rgba(0,0,0,0.1)
@@ -34,9 +39,12 @@
   box-sizing:border-box;
   padding: 5px 3px 5px 3px;
 }
+.kodelectures .chat-view .chat-nickname.instructor{
+  color:#db7e2c;
+}
 .kodelectures .chat-view .chat-nickname{
   float:left;
-  margin:5px 10px 0 5px;
+  margin:5px 5px 0 0px;
   font-weight:bold;
 }
 
@@ -56,6 +64,7 @@
 
 .kodelectures .chat-view .chat-messages{
   height: 250px;
+  overflow-y:auto;
 }
 
 .kodelectures .chat-view .chat-header.new-message {
@@ -74,15 +83,16 @@
   line-height: 20px;
 }
 
-
 .kodelectures .chat-view.minimized {
   height:25px;
 }
+
 .kodelectures .chat-view {
   position:absolute;
   bottom:0;
   right:0;
-  width:200px;
+  width: 20%;
+  min-width: 200px;
   height:300px;
   background-color:rgba(255,255,255,0.95);
   z-index:200;

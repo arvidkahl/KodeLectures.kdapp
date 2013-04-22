@@ -314,7 +314,7 @@ class KodeLectures.Views.MainView extends JView
     @chatView = new ChatView
       cssClass : 'chat-view'
        
-    @chatView.hide()
+    #@chatView.hide()
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
@@ -500,6 +500,7 @@ class KodeLectures.Views.MainView extends JView
     
     @ioController.on 'ChatMessageArrived', (data)=>
       console.log 'CHAT: Received Message'
+      data.isInstructor = data.nickname is @ioController.instructor
       @chatView.emit 'ChatMessageArrived', data
     
     @chatView.on 'ChatMessageComposed', (message)=>
