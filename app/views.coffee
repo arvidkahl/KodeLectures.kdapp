@@ -423,7 +423,8 @@ class KodeLectures.Views.MainView extends JView
     
     @ioController.on 'TerminalSessionChanged', (lines)=>
       unless @ioController.isInstructor 
-        console.log 'These lines should go into my fake terminal', lines.length
+        #console.log 'These lines should go into my fake terminal', JSON.parse lines
+        @liveViewer.previewStreamedTerminal JSON.parse lines
     
     @ioController.on 'LanguageChanged', (language)=> @emit 'LanguageChanged', language
     @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'

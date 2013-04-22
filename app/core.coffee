@@ -32,6 +32,20 @@ class KodeLectures.Core.LiveViewer
     
   setMainView: (@mainView)->
   
+  previewStreamedTerminal: (lines)->
+    
+    lines = lines.join "<br />"
+    try
+      unless @terminalStreamPreview
+        @previewView.addSubView @terminalStreamPreview = new KDView
+          partial : "<div class='console ubuntu-mono green-on-black'>#{lines}</div>"
+          cssClass : 'webterm terminal terminal-stream-preview'
+      else 
+        @terminalStreamPreview.updatePartial "<div class='console ubuntu-mono green-on-black'>#{lines}</div>"
+    @mdPreview?.hide()
+    @terminal?.hide()
+    @terminalStreamPreview?.show()
+  
   previewCode: (code, execute, options)->
     return if not @active 
     if code or code is ''
@@ -70,6 +84,7 @@ class KodeLectures.Core.LiveViewer
           finally
             @mdPreview?.show()
             @terminal?.hide()
+            @terminalStreamPreview.hide()
             delete window.appView
        
         # ======================
@@ -99,6 +114,7 @@ class KodeLectures.Core.LiveViewer
             finally
               @mdPreview?.show()
               @terminal?.hide()
+              @terminalStreamPreview?.hide()
               delete window.appView
         
         # ======================
@@ -122,7 +138,8 @@ class KodeLectures.Core.LiveViewer
                 @terminal.setClass 'webterm'
                 console.log 'Terminal added successfully.'
                 @terminal.show()
-                @mdPreview?.hide()   
+                @mdPreview?.hide()
+                @terminalStreamPreview?.hide()
                 delete window.appView  
 
                 # this is hacky. where did the connected event go?
@@ -140,10 +157,12 @@ class KodeLectures.Core.LiveViewer
               
               @terminal?.show()
               @mdPreview?.hide()   
-              
+              @terminalStreamPreview?.hide()
               delete window.appView       
           
-          @terminalStream = KD.utils.repeat 1000, =>         
+          KD.utils.killRepeat @terminalStream if @terminalStream
+          
+          if @mainView.ioController.isInstructor then  @terminalStream = KD.utils.repeat 2500, =>         
             lines = (line[0].innerHTML for line in @terminal.terminal.screenBuffer.lineDivs)
             @mainView.emit "TerminalContents", JSON.stringify lines
  
