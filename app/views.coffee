@@ -314,7 +314,7 @@ class KodeLectures.Views.MainView extends JView
     @chatView = new ChatView
       cssClass : 'chat-view'
        
-    #@chatView.hide()
+    @chatView.hide()
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
@@ -358,7 +358,6 @@ class KodeLectures.Views.MainView extends JView
       
       @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
         unless err
-          #@ace.getSession().setValue contents 
           @codeMirrorEditor.setValue contents 
         else 
           console.log 'Reading from lecture file failed with error: ',err
