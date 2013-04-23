@@ -383,6 +383,12 @@ class KodeLectures.Views.MainView extends JView
       @selectionView.setClass 'animate'
       @splitView.setClass 'animate'
     
+  getModeFromLanguage:(language)->
+    matrix = 
+      php : 'php'
+    
+    return matrix[language] or language
+    
 
   attachListeners :->
    
@@ -460,9 +466,9 @@ class KodeLectures.Views.MainView extends JView
     @on 'PreviousLectureRequested', =>
     
     @on 'LanguageChanged', (language) =>
-      console.log 'Setting language to:',language
+      console.log 'Setting language to:',@getModeFromLanguage language
       @currentLang = language
-      @codeMirrorEditor.setOption 'mode', language
+      @codeMirrorEditor.setOption 'mode', @getModeFromLanguage language
     
     # iocontroller event bindings
     
