@@ -2,6 +2,12 @@
   background: #fff;
 }
 
+
+.application-page .kodelectures.kdview {
+  padding-top: 39px;
+  box-sizing:border-box;
+  overflow: visible;
+}
 .kodelectures.loading {
   box-shadow: inset 2px 2px 10px rgba(0,0,0,0.5);
   background: url(icon.128.book.png) center center no-repeat;
@@ -154,6 +160,11 @@ color: white;
 
 
 .kodelectures .control-pane {
+position: absolute;
+z-index: 5000000;
+top: 0;
+left: 0;
+right: 0;
 }
 
 .kodelectures .control-pane .on-off {
@@ -210,8 +221,8 @@ color: white;
   overflow: hidden;
   top: 1px;
   right: 0px;
+  left:auto!important;
   padding: 6px 1px 4px 0;
-  width: auto;
   height: auto;
   line-height: 1;
   display: inline-block;
