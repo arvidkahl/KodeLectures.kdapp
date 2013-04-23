@@ -484,9 +484,12 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.previewStreamedTerminal JSON.parse lines
         
     @ioController.on 'TerminalSessionEventKeydown', (event)=>
+      console.log 'KeyDown event found'
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keydown'      
+        
     @ioController.on 'TerminalSessionEventKeypress', (event)=>
+      console.log 'Keypress event found'
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keypress'
         

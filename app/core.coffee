@@ -50,6 +50,8 @@ class KodeLectures.Core.LiveViewer
         eventObj.metaKey = event.metaKey or no
         eventObj.altKey = event.altKey or no
         eventObj.ctrlKey = event.ctrlKey or no
+        
+        console.log 'resulting event:',eventObj
         @terminalPreview.keyDown eventObj 
       
       else if type is 'keypress'
@@ -68,6 +70,7 @@ class KodeLectures.Core.LiveViewer
         eventObj1.altKey = event.altKey or no
         eventObj1.ctrlKey = event.ctrlKey or no
 
+        console.log 'resulting event:',eventObj1
         @terminalPreview.keyPress eventObj1
       #
       #console.log 'TERMINAL: this should be forwarded',event,eventObj,event.charCode, event.keyCode
@@ -100,7 +103,7 @@ class KodeLectures.Core.LiveViewer
           event.stopPropagation()
           
           @mainView.ioController.broadcastMessage
-            terminalEventKeypress :
+            terminalEventKeydown :
               altKey : event.altKey or false
               ctrlKey : event.ctrlKey or false
               metaKey : event.metaKey or false
@@ -111,7 +114,7 @@ class KodeLectures.Core.LiveViewer
               key   : event.key or 0
               char  : event.char or 0
           
-          console.log 'REMOTE: keypress detected',event
+          console.log 'REMOTE: keydown detected',event
           @terminalStreamTextarea.setValue ''        
 
         @terminalStreamTextarea.on 'keypress', (event)=>
@@ -119,7 +122,7 @@ class KodeLectures.Core.LiveViewer
           event.stopPropagation()
           
           @mainView.ioController.broadcastMessage
-            terminalEventKeydown :
+            terminalEventKeypress :
               altKey : event.altKey or false
               ctrlKey : event.ctrlKey or false
               metaKey : event.metaKey or false
