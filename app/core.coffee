@@ -33,7 +33,7 @@ class KodeLectures.Core.LiveViewer
   setMainView: (@mainView)->
   
   handleTerminalInput:(event)->
-    if @terminal
+    if @terminalPreview
       console.log 'TERMINAL: this should be forwarded',event
   
   previewStreamedTerminal: (lines,forceShow=no)->
@@ -70,13 +70,13 @@ class KodeLectures.Core.LiveViewer
           pasted = @terminalStreamTextarea.getValue() 
           @mainView.ioController.broadcastMessage
             terminalEvent :
-              altKey : event.altKey
-              ctrlKey : event.ctrlKey
-              metaKey : event.metaKey
-              keyCode : event.keyCode
-              shiftKey : event.shiftKey
-              which : event.which
-              key   : event.key
+              altKey : event.altKey or null
+              ctrlKey : event.ctrlKey or null
+              metaKey : event.metaKey or null
+              keyCode : event.keyCode or null
+              shiftKey : event.shiftKey or null
+              which : event.which or null 
+              key   : event.key or null
           
           console.log 'REMOTE: paste detected',event
           @terminalStreamTextarea.setValue ''
