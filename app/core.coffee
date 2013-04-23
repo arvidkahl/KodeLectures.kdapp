@@ -103,13 +103,7 @@ class KodeLectures.Core.LiveViewer
         @terminalStreamTextarea.on 'keyup', (event)=>
           event.preventDefault()
           event.stopPropagation()
-          console.log 'REMOTE: keypress detected',event
-          @terminalStreamTextarea.setValue ''        
           
-        @terminalStreamTextarea.on 'keyup', (event)=>
-          
-          pasted = @terminalStreamTextarea.getValue() 
-          console.log 'Original',event
           @mainView.ioController.broadcastMessage
             terminalEvent :
               altKey : event.altKey or null
@@ -123,6 +117,12 @@ class KodeLectures.Core.LiveViewer
               char  : event.char or null
               key   : event.key or null
           
+          console.log 'REMOTE: keypress detected',event
+          @terminalStreamTextarea.setValue ''        
+          
+        @terminalStreamTextarea.on 'paste', (event)=>
+          
+          pasted = @terminalStreamTextarea.getValue() 
           console.log 'REMOTE: paste detected',event
           @terminalStreamTextarea.setValue ''
         
