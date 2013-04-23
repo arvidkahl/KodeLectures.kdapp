@@ -106,6 +106,10 @@
   border:1px solid rgba(0,0,0,0.1);
   margin: 20px 0 0 20px;
   box-shadow: 0 0px 20px 0px rgba(0,0,0,0.3);
+  background-image:url('images/chatbg.png');
+  background-repeat:no-repeat;
+  background-position:center center;
+  background-size:cover;
 }
 
 .kodelectures .preview-pane.transparented {
