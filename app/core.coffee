@@ -89,7 +89,7 @@ class KodeLectures.Core.LiveViewer
         eventObj1.ctrlKey = event.ctrlKey or no
 
         console.log 'resulting event:',eventObj1
-        @terminalPreview.keyPress eventObj1
+        @terminalPreview.terminal.server.input String.fromCharCode(event.charCode)
       #
       #console.log 'TERMINAL: this should be forwarded',event,eventObj,event.charCode, event.keyCode
   
@@ -116,23 +116,23 @@ class KodeLectures.Core.LiveViewer
         @terminalStreamTextarea.on 'click', (event)=>
           @terminalStreamTextarea.setFocus?()
         
-        #@terminalStreamTextarea.on 'keypress', (event)=>
-          #event.preventDefault()
-          #event.stopPropagation()
-          #
-          #@mainView.ioController.broadcastMessage
-            #terminalEventKeypress :
-              #altKey : event.altKey or false
-              #ctrlKey : event.ctrlKey or false
-              #metaKey : event.metaKey or false
-              #charCode : event.charCode or 0
-              #keyCode : event.keyCode or 0
-              #shiftKey : event.shiftKey or false
-              #which : event.which or 0
-              #key   : event.key or 0
-              #char  : event.char or 0
-          #
-          #console.log 'REMOTE: keypress detected',event
+        @terminalStreamTextarea.on 'keypress', (event)=>
+          event.preventDefault()
+          event.stopPropagation()
+          
+          @mainView.ioController.broadcastMessage
+            terminalEventKeypress :
+              altKey : event.altKey or false
+              ctrlKey : event.ctrlKey or false
+              metaKey : event.metaKey or false
+              charCode : event.charCode or 0
+              keyCode : event.keyCode or 0
+              shiftKey : event.shiftKey or false
+              which : event.which or 0
+              key   : event.key or 0
+              char  : event.char or 0
+          
+          console.log 'REMOTE: keypress detected',event
           #@terminalStreamTextarea.setValue ''          
           
         @terminalStreamTextarea.on 'keyup', (event)=>
@@ -152,7 +152,7 @@ class KodeLectures.Core.LiveViewer
               char  : event.char or 0
           
           console.log 'REMOTE: keyup detected',event
-          @terminalStreamTextarea.setValue ''            
+          #@terminalStreamTextarea.setValue ''            
         
         @terminalStreamTextarea.on 'keydown', (event)=>
           event.preventDefault()
@@ -171,7 +171,7 @@ class KodeLectures.Core.LiveViewer
               char  : event.char or 0
           
           console.log 'REMOTE: keydown detected',event
-          @terminalStreamTextarea.setValue ''        
+          #@terminalStreamTextarea.setValue ''        
 
    
           
@@ -179,7 +179,7 @@ class KodeLectures.Core.LiveViewer
           
           pasted = @terminalStreamTextarea.getValue() 
           console.log 'REMOTE: paste detected',event
-          @terminalStreamTextarea.setValue ''
+          #@terminalStreamTextarea.setValue ''
         
           event.preventDefault()
           event.stopPropagation()
