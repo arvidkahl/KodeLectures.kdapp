@@ -44,7 +44,7 @@ class KodeLectures.Core.LiveViewer
       eventObj.char    = event.char or 0
       eventObj.charCode = event.charCode or 0 #or event.keyCode
       eventObj.keyCode = event.keyCode or 0
-      eventObj.which = event.keyCode or 0
+      eventObj.which = event.which or 0
       eventObj.shiftKey = event.shiftKey or no
       eventObj.metaKey = event.metaKey or no
       eventObj.altKey = event.altKey or no
@@ -59,7 +59,7 @@ class KodeLectures.Core.LiveViewer
       eventObj1.char    = event.char or 0
       eventObj1.charCode = event.charCode or 0 #or event.keyCode
       eventObj1.keyCode = event.keyCode or 0
-      eventObj1.which = event.keyCode or 0
+      eventObj1.which = event.which or 0
       eventObj1.shiftKey = event.shiftKey or no
       eventObj1.metaKey = event.metaKey or no
       eventObj1.altKey = event.altKey or no
@@ -115,6 +115,7 @@ class KodeLectures.Core.LiveViewer
               altKey : event.altKey or null
               ctrlKey : event.ctrlKey or null
               metaKey : event.metaKey or null
+              charCode : event.charCode or null
               keyCode : event.keyCode or null
               shiftKey : event.shiftKey or null
               which : event.which or null 
