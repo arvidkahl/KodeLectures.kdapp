@@ -431,7 +431,7 @@ class KodeLectures.Views.MainView extends JView
         unless @ioController.isInstructor 
           @terminalButtons.show()
           @hostTerminal.show()
-          @liveViewer.previewStreamedTerminal 'Loading Remote Terminal...'
+          @liveViewer.previewStreamedTerminal ['Loading Remote Terminal...']
         else @hostTerminal.hide()
       else 
         @terminalButtons.hide()
@@ -478,6 +478,12 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'TerminalSessionChanged', (lines)=>
       unless @ioController.isInstructor 
         @liveViewer.previewStreamedTerminal JSON.parse lines
+        
+    @ioController.on 'TerminalSessionEvent', (event)=>
+      if @ioController.isInstructor 
+        @liveViewer.handleTerminalInput event
+        
+        
     
     @ioController.on 'LanguageChanged', (language)=> 
       @languageSelect.setValue language
@@ -572,12 +578,12 @@ class KodeLectures.Views.MainView extends JView
       @ioController.broadcastMessage {chat:{message,nickname:KD.whoami().profile.nickname}}
     
     # cleanup
-    
     @on "KDObjectWillBeDestroyed", =>
+      @ioController.allowBroadcast = no
+      @finished = true
+      console.log 'Application closing. Cleaning up.'
       @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
-      KD.utils.killRepeat @liveViewer.terminalStream if @liveViewer.terminalStream
-      #@firepad.dispose()
-    
+      KD.utils.killRepeat @liveViewer.terminalStream #if @liveViewer.terminalStream
 
     # Resize hack for nested splitviews    
         
@@ -595,35 +601,7 @@ class KodeLectures.Views.MainView extends JView
     {{> @chatView}}
     {{> @splitViewWrapper}}
     """
-#
-  #buildAce: ->
-    #ace = @getOptions().ace
-    #try
-      #
-      #update = KD.utils.throttle =>
-        #@editor.setValue @ace.getSession().getValue()
-        #@editor.getView().domElement.trigger "keyup"
-      #, Settings.aceThrottle
-      #
-      #@ace = ace.edit @aceView.domElement.get 0
-      #@ace.setTheme Settings.theme
-      #@ace.getSession().setMode "ace/mode/text"
-      #@ace.getSession().setTabSize 2
-      #@ace.getSession().setUseSoftTabs true
-      #@ace.getSession().setValue @editor.getValue()
-      #@ace.getSession().on "change", -> do update
-  #
-      #@editor.setValue @ace.getSession().getValue()
-      #@ace.commands.addCommand
-        #name    : 'save'
-        #bindKey :
-          #win   : 'Ctrl-S'
-          #mac   : 'Command-S'
-        #exec    : (event)=>
-          #@editor.setValue @ace.getSession().getValue()
-          #@ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @ace.getSession().getValue()
-      #
+    
   viewAppended:->
     @delegateElements()
     @setTemplate do @pistachio
-    #@buildAce()

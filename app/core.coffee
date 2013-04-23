@@ -32,6 +32,10 @@ class KodeLectures.Core.LiveViewer
     
   setMainView: (@mainView)->
   
+  handleTerminalInput:(event)->
+    if @terminal
+      console.log 'TERMINAL: this should be forwarded',event
+  
   previewStreamedTerminal: (lines,forceShow=no)->
     
     lines = lines.join "<br />"
@@ -39,12 +43,54 @@ class KodeLectures.Core.LiveViewer
       unless @terminalStreamPreview
         console.log 'TERMINAL: Adding streaming Terminal'
         @previewView.addSubView @terminalStreamPreview = new KDView
-          partial : "<div class='console ubuntu-mono green-on-black'>#{lines}</div>"
           cssClass : 'webterm terminal terminal-stream-preview'
-      else 
-        @terminalStreamPreview.updatePartial "<div class='console ubuntu-mono green-on-black'>#{lines}</div>"
         
-    @terminalStreamPreview.$('.console').scrollTop @terminalStreamPreview.$('.console')[0].scrollHeight
+        @terminalStreamConsole = new KDView
+          cssClass : 'console ubuntu-mono green-on-black'
+          partial : lines
+        
+        @terminalStreamTextarea = new KDInputView
+          type : 'textarea'
+          cssClass : 'terminal-textarea'
+          bind : 'click keyup paste'
+          callback : =>
+            console.log 'Input Callback'
+        
+        @terminalStreamTextarea.on 'click', (event)=>
+          @terminalStreamTextarea.setFocus()
+          
+        @terminalStreamTextarea.on 'keyup', (event)=>
+          event.preventDefault()
+          event.stopPropagation()
+          console.log 'REMOTE: keypress detected',event
+          @terminalStreamTextarea.setValue ''        
+          
+        @terminalStreamTextarea.on 'keyup', (event)=>
+          
+          pasted = @terminalStreamTextarea.getValue() 
+          @mainView.ioController.broadcastMessage
+            terminalEvent :
+              altKey : event.altKey
+              ctrlKey : event.ctrlKey
+              metaKey : event.metaKey
+              keyCode : event.keyCode
+              shiftKey : event.shiftKey
+              which : event.which
+              key   : event.key
+          
+          console.log 'REMOTE: paste detected',event
+          @terminalStreamTextarea.setValue ''
+        
+          event.preventDefault()
+          event.stopPropagation()
+        
+        @terminalStreamPreview.addSubView @terminalStreamConsole
+        @terminalStreamPreview.addSubView @terminalStreamTextarea
+      
+      else 
+        @terminalStreamConsole.updatePartial lines
+        
+    @terminalStreamConsole.$().scrollTop @terminalStreamConsole.$()[0].scrollHeight
     
     if forceShow
       @mdPreview?.hide()
@@ -167,8 +213,9 @@ class KodeLectures.Core.LiveViewer
               @terminalStreamPreview?.hide()
               delete window.appView       
         
-          if @mainView.ioController.isInstructor then  @terminalStream = KD.utils.repeat 2500, =>         
+          if @mainView.ioController.isInstructor then @terminalStream = KD.utils.repeat 2500, =>         
             lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
+            KD.utils.killRepeat @terminalStream if @mainView.finished
             @mainView.emit "TerminalContents", JSON.stringify lines
  
 

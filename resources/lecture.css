@@ -23,6 +23,23 @@
   box-sizing : border-box;
   }
 
+.kodelectures .terminal-stream-preview .console:focus {
+  
+  box-shadow:inset 0 0 50px 10px rgba(22, 140, 170, 0.7);
+  
+}
+
+.kodelectures .terminal-textarea {
+  position:absolute;
+  top :0;
+  left: 0;
+  right: 0;
+  bottom:0;
+  background-color:transparent!important;
+  color:transparent!important;
+  z-index:1000;
+}
+
 .kodelectures .terminal-stream-preview .console {
   height :100%;
 }
@@ -98,6 +115,13 @@
   padding:2px;
 }
 
+.kodelectures .preview-buttons .terminal-buttons button.host-terminal:hover {
+  background-color:rgba(22, 140, 170, 0.8);  
+}
+.kodelectures .preview-buttons .terminal-buttons button.host-terminal {
+
+  background-color:rgba(22, 140, 170, 1);
+}
 .kodelectures .preview-buttons .terminal-buttons button {
   
   background-color:#db7e2c;
