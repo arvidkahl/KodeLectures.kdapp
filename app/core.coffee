@@ -33,61 +33,44 @@ class KodeLectures.Core.LiveViewer
   setMainView: (@mainView)->
   
   handleTerminalInput:(event,type)->
+  
+    setValues = (eventObj,event)->
+      eventObj.key      = event.key or 0
+      eventObj.char     = event.char or 0
+      eventObj.charCode = event.charCode or 0
+      eventObj.keyCode  = event.keyCode or 0
+      eventObj.which    = event.which or 0
+      eventObj.shiftKey = event.shiftKey or no
+      eventObj.metaKey  = event.metaKey or no
+      eventObj.altKey   = event.altKey or no
+      eventObj.ctrlKey  = event.ctrlKey or no
+      
     if @terminalPreview
+      
+      eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
 
       if type is 'keydown'
-        eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
     
         if eventObj.initEvent
           eventObj.initEvent("keydown", true, true)
       
-        eventObj.key     = event.key or 0
-        eventObj.char    = event.char or 0
-        eventObj.charCode = event.charCode or 0 #or event.keyCode
-        eventObj.keyCode = event.keyCode or 0
-        eventObj.which = event.which or 0
-        eventObj.shiftKey = event.shiftKey or no
-        eventObj.metaKey = event.metaKey or no
-        eventObj.altKey = event.altKey or no
-        eventObj.ctrlKey = event.ctrlKey or no
-        
+        setValues eventObj,event
         @terminalPreview.keyDown eventObj 
       
       else if type is 'keypress'
-        eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
-    
+      
         if eventObj.initEvent
           eventObj.initEvent("keypress", true, true)
       
-        eventObj.key     = event.key or 0
-        eventObj.char    = event.char or 0
-        eventObj.charCode = event.charCode or 0 #or event.keyCode
-        eventObj.keyCode = event.keyCode or 0
-        eventObj.which = event.which or 0
-        eventObj.shiftKey = event.shiftKey or no
-        eventObj.metaKey = event.metaKey or no
-        eventObj.altKey = event.altKey or no
-        eventObj.ctrlKey = event.ctrlKey or no
-
+        setValues eventObj,event
         @terminalPreview.keyPress eventObj 
         
       else if type is 'keyup'
-        eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
-    
+      
         if eventObj.initEvent
           eventObj.initEvent("keypress", true, true)
       
-        eventObj.key     = event.key or 0
-        eventObj.char    = event.char or 0
-        eventObj.charCode = event.charCode or 0 #or event.keyCode
-        eventObj.keyCode = event.keyCode or 0
-        eventObj.which = event.which or 0
-        eventObj.shiftKey = event.shiftKey or no
-        eventObj.metaKey = event.metaKey or no
-        eventObj.altKey = event.altKey or no
-        eventObj.ctrlKey = event.ctrlKey or no
-
-        #@terminalPreview.terminal.server.input String.fromCharCode(event.charCode)
+        setValues eventObj,event
         @terminalPreview.keyPress eventObj
   
   previewStreamedTerminal: (lines,forceShow=no)->
@@ -112,6 +95,12 @@ class KodeLectures.Core.LiveViewer
         
         @terminalStreamTextarea.on 'click', (event)=>
           @terminalStreamTextarea.setFocus?()
+          @terminalStreamConsole.setClass 'active'
+          KD.getSingleton('windowController').addLayer @terminalStreamTextarea
+          @terminalStreamTextarea.on 'ReceivedClickElsewhere', (event)=>
+            KD.getSingleton('windowController').removeLayer @terminalStreamTextarea
+            @terminalStreamConsole.unsetClass 'active'
+            @terminalStreamConsole.setBlur?()
         
         @terminalStreamTextarea.on 'keypress', (event)=>
           event.preventDefault()
@@ -119,6 +108,7 @@ class KodeLectures.Core.LiveViewer
           
           @mainView.ioController.broadcastMessage
             terminalEventKeypress :
+              nickname : KD.whoami().profile.nickname
               altKey : event.altKey or false
               ctrlKey : event.ctrlKey or false
               metaKey : event.metaKey or false
@@ -138,6 +128,7 @@ class KodeLectures.Core.LiveViewer
           
           @mainView.ioController.broadcastMessage
             terminalEventKeyup :
+              nickname : KD.whoami().profile.nickname
               altKey : event.altKey or false
               ctrlKey : event.ctrlKey or false
               metaKey : event.metaKey or false
@@ -157,6 +148,7 @@ class KodeLectures.Core.LiveViewer
           
           @mainView.ioController.broadcastMessage
             terminalEventKeydown :
+              nickname : KD.whoami().profile.nickname
               altKey : event.altKey or false
               ctrlKey : event.ctrlKey or false
               metaKey : event.metaKey or false

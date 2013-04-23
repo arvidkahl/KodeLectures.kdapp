@@ -25,13 +25,13 @@ class KodeLectures.Controllers.FileIOController extends KDController
     if @firebaseRef and @allowBroadcast
       @firebaseRef.update message, =>
         callback arguments
-        @utils.defer =>
+        @utils.wait 500, =>
           if message.join
             @firebaseRef.child('join').remove =>
-              console.log 'removed join'
+              console.log 'FIREBASE: removed join event'
           if message.leave
             @firebaseRef.child('leave').remove =>
-              console.log 'remove leave'
+              console.log 'FIREBASE: removed leave event'
           #
       
   removeChild:(key,callback=->)->

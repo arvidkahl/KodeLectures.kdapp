@@ -1,8 +1,12 @@
 {Settings, Ace}   = KodeLectures
 {LiveViewer, TaskView} = KodeLectures.Core
 
-require ["https://raw.github.com/termi/DOM-Keyboard-Event-Level-3-polyfill/0.4/DOMEventsLevel3.shim.js"], (domPolyfill)=>
-  console.log 'Polyfill loaded.'
+# If we want to throw some mad keyboard event magic around, this will help
+
+#require ["https://raw.github.com/termi/DOM-Keyboard-Event-Level-3-polyfill/0.4/DOMEventsLevel3.shim.js"], (domPolyfill)=>
+  #console.log 'Polyfill loaded.'
+
+# Think of maybe using MarkdownDoc on the remote..
 
 require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
   console.log 'Markdown parser loaded.'
@@ -323,8 +327,6 @@ class KodeLectures.Views.MainView extends JView
        
     @chatView.hide()
     
-
-    
     @ownTerminal = new KDButtonView
       title : 'My Terminal'
       cssClass : 'clean-gray editor-button my-terminal active'
@@ -484,16 +486,14 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.previewStreamedTerminal JSON.parse lines
         
     @ioController.on 'TerminalSessionEventKeydown', (event)=>
-      console.log 'KeyDown event found'
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keydown'      
         
     @ioController.on 'TerminalSessionEventKeypress', (event)=>
-      console.log 'Keypress event found'
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keypress'        
+
     @ioController.on 'TerminalSessionEventKeyup', (event)=>
-      console.log 'Keyup event found'
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keyup'
         
