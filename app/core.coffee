@@ -40,8 +40,9 @@ class KodeLectures.Core.LiveViewer
       if eventObj.initEvent
         eventObj.initEvent("keydown", true, true)
     
-  
-      eventObj.charCode = event.charCode #or event.keyCode
+      eventObj.key     = event.key or 0
+      eventObj.char    = event.char or 0
+      eventObj.charCode = event.charCode or 0 #or event.keyCode
       eventObj.keyCode = event.keyCode or 0
       eventObj.which = event.keyCode or 0
       eventObj.shiftKey = event.shiftKey or no
@@ -54,8 +55,9 @@ class KodeLectures.Core.LiveViewer
       if eventObj1.initEvent
         eventObj1.initEvent("keypress", true, true)
     
-  
-      eventObj1.charCode = event.keyCode #or event.keyCode
+      eventObj1.key     = event.key or 0
+      eventObj1.char    = event.char or 0
+      eventObj1.charCode = event.charCode or 0 #or event.keyCode
       eventObj1.keyCode = event.keyCode or 0
       eventObj1.which = event.keyCode or 0
       eventObj1.shiftKey = event.shiftKey or no
@@ -116,6 +118,8 @@ class KodeLectures.Core.LiveViewer
               keyCode : event.keyCode or null
               shiftKey : event.shiftKey or null
               which : event.which or null 
+              key   : event.key or null
+              char  : event.char or null
               key   : event.key or null
           
           console.log 'REMOTE: paste detected',event
@@ -1069,4 +1073,3 @@ class KodeLectures.Views.ChatView extends JView
       {{> @messageInput}}
       </div>
     """
-    
