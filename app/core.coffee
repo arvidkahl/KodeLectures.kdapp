@@ -34,7 +34,46 @@ class KodeLectures.Core.LiveViewer
   
   handleTerminalInput:(event)->
     if @terminalPreview
-      console.log 'TERMINAL: this should be forwarded',event
+
+      eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
+  
+      if eventObj.initEvent
+        eventObj.initEvent("keydown", true, true)
+    
+  
+      eventObj.charCode = event.charCode #or event.keyCode
+      eventObj.keyCode = event.keyCode or 0
+      eventObj.which = event.keyCode or 0
+      eventObj.shiftKey = event.shiftKey or no
+      eventObj.metaKey = event.metaKey or no
+      eventObj.altKey = event.altKey or no
+      eventObj.ctrlKey = event.ctrlKey or no
+      
+      eventObj1 = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
+  
+      if eventObj1.initEvent
+        eventObj1.initEvent("keypress", true, true)
+    
+  
+      eventObj1.charCode = event.keyCode #or event.keyCode
+      eventObj1.keyCode = event.keyCode or 0
+      eventObj1.which = event.keyCode or 0
+      eventObj1.shiftKey = event.shiftKey or no
+      eventObj1.metaKey = event.metaKey or no
+      eventObj1.altKey = event.altKey or no
+      eventObj1.ctrlKey = event.ctrlKey or no
+      
+      #el.dispatchEvent ? el.dispatchEvent(eventObj) : el.fireEvent("onkeydown", eventObj); 
+      
+      
+      #@terminalPreview.keyPress eventObj
+      @terminalPreview.keyDown eventObj
+      #@terminalPreview.keyDown eventObj1
+      #@terminalPreview.keyPress eventObj
+      @terminalPreview.keyPress eventObj1
+  
+      console.log 'TERMINAL: this should be forwarded',event,eventObj,event.charCode, event.keyCode
+      #e[property] = value for property,value of event
   
   previewStreamedTerminal: (lines,forceShow=no)->
     
@@ -68,6 +107,7 @@ class KodeLectures.Core.LiveViewer
         @terminalStreamTextarea.on 'keyup', (event)=>
           
           pasted = @terminalStreamTextarea.getValue() 
+          console.log 'Original',event
           @mainView.ioController.broadcastMessage
             terminalEvent :
               altKey : event.altKey or null

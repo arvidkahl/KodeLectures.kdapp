@@ -21,7 +21,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @attachListeners()
   
   broadcastMessage:(message,callback=->)->
-    console.log 'FIREBASE: Broadcasting:',message
+    #console.log 'FIREBASE: Broadcasting:',message
     if @firebaseRef and @allowBroadcast
       @firebaseRef.update message, =>
         callback arguments
@@ -139,7 +139,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
         @emit 'ChatMessageArrived', message
       when 'terminal'
         @emit 'TerminalSessionChanged', message
-      when 'terminalContent'
+      when 'terminalEvent'
         @emit 'TerminalSessionEvent', message
 
   checkAppIntegrity:(callback=->)->

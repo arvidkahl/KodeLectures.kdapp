@@ -1,23 +1,27 @@
 {Settings, Ace}   = KodeLectures
 {LiveViewer, TaskView} = KodeLectures.Core
 
-require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
-        options = {}
-      
-        options.gfm         ?= yes
-        options.sanitize    ?= yes
-        options.highlight   ?= (code, lang)->
-            try
-                hljs.highlight(lang, code).value
-            catch e
-                try
-                    hljs.highlightAuto(code).value
-                catch _e
-                    code
-        options.breaks      ?= yes
-        options.langPrefix  ?= 'lang-'
+require ["https://raw.github.com/termi/DOM-Keyboard-Event-Level-3-polyfill/0.4/DOMEventsLevel3.shim.js"], (domPolyfill)=>
+  console.log 'Polyfill loaded.'
 
-        marked.setOptions options
+require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
+  console.log 'Markdown parser loaded.'
+  options = {}
+
+  options.gfm         ?= yes
+  options.sanitize    ?= yes
+  options.highlight   ?= (code, lang)->
+      try
+          hljs.highlight(lang, code).value
+      catch e
+          try
+              hljs.highlightAuto(code).value
+          catch _e
+              code
+  options.breaks      ?= yes
+  options.langPrefix  ?= 'lang-'
+
+  marked.setOptions options
 
 class KodeLectures.Views.MainView extends JView
 
