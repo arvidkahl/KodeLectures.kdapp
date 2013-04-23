@@ -91,13 +91,32 @@ class KodeLectures.Core.LiveViewer
         @terminalStreamTextarea = new KDInputView
           type : 'textarea'
           cssClass : 'terminal-textarea'
-          bind : 'click keyup paste'
+          bind : 'click keyup keypress keydown paste'
           callback : =>
             console.log 'Input Callback'
         
         @terminalStreamTextarea.on 'click', (event)=>
           @terminalStreamTextarea.setFocus()
+        
+        @terminalStreamTextarea.on 'keyup', (event)=>
+          event.preventDefault()
+          event.stopPropagation()
           
+          @mainView.ioController.broadcastMessage
+            terminalEventKeyup :
+              altKey : event.altKey or false
+              ctrlKey : event.ctrlKey or false
+              metaKey : event.metaKey or false
+              charCode : event.charCode or 0
+              keyCode : event.keyCode or 0
+              shiftKey : event.shiftKey or false
+              which : event.which or 0
+              key   : event.key or 0
+              char  : event.char or 0
+          
+          console.log 'REMOTE: keyup detected',event
+          @terminalStreamTextarea.setValue ''            
+        
         @terminalStreamTextarea.on 'keydown', (event)=>
           event.preventDefault()
           event.stopPropagation()
