@@ -491,7 +491,11 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'TerminalSessionEventKeypress', (event)=>
       console.log 'Keypress event found'
       if @ioController.isInstructor 
-        @liveViewer.handleTerminalInput event, 'keypress'
+        @liveViewer.handleTerminalInput event, 'keypress'        
+    @ioController.on 'TerminalSessionEventKeyup', (event)=>
+      console.log 'Keyup event found'
+      if @ioController.isInstructor 
+        @liveViewer.handleTerminalInput event, 'keyup'
         
         
     

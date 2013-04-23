@@ -71,6 +71,24 @@ class KodeLectures.Core.LiveViewer
         eventObj1.ctrlKey = event.ctrlKey or no
 
         console.log 'resulting event:',eventObj1
+        @terminalPreview.keyPress eventObj1      
+      else if type is 'keyup'
+        eventObj1 = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
+    
+        if eventObj1.initEvent
+          eventObj1.initEvent("keypress", true, true)
+      
+        eventObj1.key     = event.key or 0
+        eventObj1.char    = event.char or 0
+        eventObj1.charCode = event.charCode or 0 #or event.keyCode
+        eventObj1.keyCode = event.keyCode or 0
+        eventObj1.which = event.which or 0
+        eventObj1.shiftKey = event.shiftKey or no
+        eventObj1.metaKey = event.metaKey or no
+        eventObj1.altKey = event.altKey or no
+        eventObj1.ctrlKey = event.ctrlKey or no
+
+        console.log 'resulting event:',eventObj1
         @terminalPreview.keyPress eventObj1
       #
       #console.log 'TERMINAL: this should be forwarded',event,eventObj,event.charCode, event.keyCode
@@ -91,13 +109,32 @@ class KodeLectures.Core.LiveViewer
         @terminalStreamTextarea = new KDInputView
           type : 'textarea'
           cssClass : 'terminal-textarea'
-          bind : 'click keyup keypress keydown paste'
+          bind : 'click keypress keydown keyup paste'
           callback : =>
             console.log 'Input Callback'
         
         @terminalStreamTextarea.on 'click', (event)=>
-          @terminalStreamTextarea.setFocus()
+          @terminalStreamTextarea.setFocus?()
         
+        #@terminalStreamTextarea.on 'keypress', (event)=>
+          #event.preventDefault()
+          #event.stopPropagation()
+          #
+          #@mainView.ioController.broadcastMessage
+            #terminalEventKeypress :
+              #altKey : event.altKey or false
+              #ctrlKey : event.ctrlKey or false
+              #metaKey : event.metaKey or false
+              #charCode : event.charCode or 0
+              #keyCode : event.keyCode or 0
+              #shiftKey : event.shiftKey or false
+              #which : event.which or 0
+              #key   : event.key or 0
+              #char  : event.char or 0
+          #
+          #console.log 'REMOTE: keypress detected',event
+          #@terminalStreamTextarea.setValue ''          
+          
         @terminalStreamTextarea.on 'keyup', (event)=>
           event.preventDefault()
           event.stopPropagation()
@@ -136,24 +173,7 @@ class KodeLectures.Core.LiveViewer
           console.log 'REMOTE: keydown detected',event
           @terminalStreamTextarea.setValue ''        
 
-        @terminalStreamTextarea.on 'keypress', (event)=>
-          event.preventDefault()
-          event.stopPropagation()
-          
-          @mainView.ioController.broadcastMessage
-            terminalEventKeypress :
-              altKey : event.altKey or false
-              ctrlKey : event.ctrlKey or false
-              metaKey : event.metaKey or false
-              charCode : event.charCode or 0
-              keyCode : event.keyCode or 0
-              shiftKey : event.shiftKey or false
-              which : event.which or 0
-              key   : event.key or 0
-              char  : event.char or 0
-          
-          console.log 'REMOTE: keypress detected',event
-          @terminalStreamTextarea.setValue ''        
+   
           
         @terminalStreamTextarea.on 'paste', (event)=>
           
