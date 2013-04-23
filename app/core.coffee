@@ -224,7 +224,7 @@ class KodeLectures.Core.LiveViewer
           finally
             @mdPreview?.show()
             @terminalPreview?.hide()
-            @terminalStreamPreview.hide()
+            @terminalStreamPreview?.hide()
             delete window.appView
        
         # ======================
