@@ -101,7 +101,7 @@
   width: 20%;
   min-width: 200px;
   height:300px;
-  background-color:rgba(255,255,255,0.95);
+  background-color:rgba(255,255,255,0.75);
   z-index:200;
   border:1px solid rgba(0,0,0,0.1);
   margin: 20px 0 0 20px;
@@ -361,6 +361,19 @@ body.dragInAction .kodelectures .md-help-view {
 
 .modal-warning.formline {
   background-color : rgba(200,0,0,0.2)
+}.modal-info.formline {
+  background-color : rgba(200,200,200,0.05)
+}
+
+.kdmodal .kdformview .formline label.kdlabel.your-session-id {
+  margin:15px 15px 15px 0px;
+}
+.kdmodal .kdformview .formline input.text.kdinput.session-id-input {
+  background-color: black;
+  color: #db7e2c!important;
+  font-size: 30px;
+  height: auto;
+  text-align: center;
 }
 
 .kodelectures input.kdinput.text.session-input {

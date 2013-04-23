@@ -65,6 +65,7 @@
 
 .kodelectures .task-view {
   background-color : white;
+  background-image: -webkit-linear-gradient(white,rgba(219, 126, 44, 0.25));
   //padding:40px;
   padding:0px;
   box-sizing:border-box;

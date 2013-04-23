@@ -57,7 +57,7 @@ class KodeLectures.Views.MainView extends JView
     @ioController.attachFirebase null, (sessionKey,state)=>
       if state is 'fresh'
         console.log 'Firebase successfully attached and instantiated.'
-        @sessionInput.setValue sessionKey
+        #@sessionInput.setValue sessionKey
         @sessionStatus.emit 'FirebaseAttached'
 
     @courses = []
@@ -282,35 +282,127 @@ class KodeLectures.Views.MainView extends JView
         
     @currentLang = @courses[@lastSelectedCourse or 0]?.lectures?[0]?.language or 'text'
     
-    @sessionInput = new KDInputView
-      label : new KDLabelView
-        title : 'Session: '
-      cssClass : 'session-input'
-      callback :=>
-        console.log 'Session input clicked'
-        @ioController.attachFirebase @sessionInput.getValue(), =>
+    #@sessionInput = new KDInputView
+      #label : new KDLabelView
+        #title : 'Session: '
+      #cssClass : 'session-input'
+      #callback :=>
+        #console.log 'Session input clicked'
+        #@ioController.attachFirebase @sessionInput.getValue(), =>
   
+    @sessionShareButton = new KDButtonView
+      cssClass : 'editor-button clean-gray join-session-button'
+      title : 'Create Session'
+      callback : =>
+        @sessionStatus.show()
+        @sessionShareButton.setTitle 'Share Session'
+        modal = new KDModalViewWithForms
+          title                   : "Share this session"
+          content                 : ""
+          overlay                 : yes
+          cssClass                : "new-kdmodal"
+          width                   : 500
+          height                  : "auto"
+          tabs                    : 
+            navigable             : yes 
+            goToNextFormOnSubmit  : no              
+            forms                 :
+              "Share Session"  :
+                  fields          :                      
+                    "Notice"      :
+                      itemClass   : KDCustomHTMLView
+                      tagName     : 'span'
+                      partial     : 'You can share this session to collaborate with as many people as you like. Just pass them the following key and they can join your session!'
+                      cssClass    : 'modal-info'  
+                    "Your Session ID"    :
+                      label       : 'Your Session ID'
+                      itemClass   : KDInputView
+                      disabled    : yes
+                      cssClass    : 'session-id-input'
+                      name        : 'sessionKey'
+                      defaultValue: @ioController.currentSessionKey
+                  buttons         :  
+                    'Okay, thanks!'      :
+                      title       : 'Okay, thanks!'
+                      style       : 'modal-clean-green'
+                      loader      :
+                        color     : "#ffffff"
+                        diameter  : 12
+                      callback    : =>
+                        modal.destroy()
+              "What is this?"   :
+                  buttons         :
+                    'Alright!'      :
+                      title       : 'Alright!'
+                      #type        : 'submit'
+                      style       : 'modal-clean-green'
+                      loader      :
+                        color     : "#ffffff"
+                        diameter  : 12    
+                      callback    : =>
+                        modal.destroy()
+                  fields          :
+                    "Notice"      :
+                      itemClass   : KDCustomHTMLView
+                      tagName     : 'span'
+                      partial     : 'This text is about that feature which is being described in this paragraph.'
+                      cssClass    : 'modal-warning'  
     
     @sessionJoinButton = new KDButtonView
       cssClass : 'editor-button clean-gray join-session-button'
       title : 'Join Session'
       callback :=>
-        console.log 'Session Join Button clicked'
-        @ioController.attachFirebase @sessionInput.getValue(), (sessionKey)=>
-        
-          console.log 'FIREBASE: Joined ',sessionKey
+        modal = new KDModalViewWithForms
+          title                   : "Join a session"
+          content                 : ""
+          overlay                 : yes
+          cssClass                : "new-kdmodal"
+          width                   : 500
+          height                  : "auto"
+          tabs                    : 
+            navigable             : yes 
+            goToNextFormOnSubmit  : no              
+            forms                 :
+              "Join Session"  :
+                fields          :                      
+                  "Notice"      :
+                    itemClass   : KDCustomHTMLView
+                    tagName     : 'span'
+                    partial     : 'Which session do you want to join?'
+                    cssClass    : 'modal-info'  
+                  "sessionKey"    :
+                    label       : 'Session Key'
+                    itemClass   : KDInputView
+                    name        : 'sessionKey'
+                buttons         :  
+                  'Join Session'      :
+                    title       : 'Okay, thanks!'
+                    style       : 'modal-clean-green'
+                    loader      :
+                      color     : "#ffffff"
+                      diameter  : 12
+                    callback    : =>
+                      console.log 'Session Join Button clicked'
+                      if modal.modalTabs.forms['Join Session'].inputs['sessionKey'].getValue() 
+                        @ioController.attachFirebase modal.modalTabs.forms['Join Session'].inputs['sessionKey'].getValue(), (sessionKey)=>
+                          @sessionShareButton.hide()   
+                          @sessionStatus.show()
+                          console.log 'FIREBASE: Joined ',sessionKey
+                          new KDNotificationView
+                            title : 'You joined a KodeLecture session'
+                            content : 'Now, you will be able to collaborate with everyone else in this session.'
+                            duration : 5000
+                          @editorContainer.$().html ''
+                          @buildCodeMirror()
+                          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
+                          modal.destroy()
+                        
+                  Cancel        :
+                    title       : 'Cancel'
+                    type        : 'modal-cancel'
+                    callback    : =>
+                      modal.destroy()        
 
-          new KDNotificationView
-            title : 'You joined a KodeLecture session'
-            content : 'Now, you will be able to collaborate with everyone else in this session.'
-            duration : 5000
-
-          @editorContainer.$().html ''
-        
-          @buildCodeMirror()
-        
-          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
-  
     @broadcastSwitch = new KDOnOffSwitch
       label : new KDLabelView
         title : "Broadcast: "
@@ -321,6 +413,8 @@ class KodeLectures.Views.MainView extends JView
         
     @sessionStatus = new SessionStatusView
       cssClass : 'session-status'
+    
+    @sessionStatus.hide()
     
     @chatView = new ChatView
       cssClass : 'chat-view'
@@ -365,8 +459,9 @@ class KodeLectures.Views.MainView extends JView
     #@controlView.addSubView @broadcastSwitch.options.label    
     #@controlView.addSubView @broadcastSwitch 
     
-    @controlView.addSubView @sessionInput.options.label
-    @controlView.addSubView @sessionInput
+    #@controlView.addSubView @sessionInput.options.label
+    @controlView.addSubView @sessionShareButton
+    #@controlView.addSubView @sessionInput
     @controlView.addSubView @sessionJoinButton
    
     @controlView.addSubView @sessionStatus
@@ -497,22 +592,22 @@ class KodeLectures.Views.MainView extends JView
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keyup'
         
-        
-    
     @ioController.on 'LanguageChanged', (language)=> 
       @languageSelect.setValue language
       @emit 'LanguageChanged', language
-    @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
-    @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
-    @ioController.on 'EditorContentChanged', ({text,origin})=> 
       
+    @ioController.on 'LectureRequested', => @emit 'LectureRequested' unless @viewState is 'lectures'
+    
+    @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
+    
+    @ioController.on 'EditorContentChanged', ({text,origin})=> 
+
     @ioController.on 'CourseChanged', (course)=>
       log 'SYNC: Checking if this course is already active'
       unless course.title is @courses[@lastSelectedCourse]?.title 
         console.log 'SYNC: Oh, a remote course. Lets see if I already have this one'
         index = -1
         if @courses then index = i for course_,i in @courses when course_.title is course.title
-        
         if index isnt -1 
           console.log 'Got it.'
           @lastSelectedCourse = index
@@ -520,26 +615,20 @@ class KodeLectures.Views.MainView extends JView
             @emit 'CourseChanged', @lastSelectedCourse
             @utils.wait 100, =>
               @emit 'LectureChanged', 0
-          
         else
           console.log 'SYNC: Nope, adding it to my courses. Starting Import'
-           
           importNotification = new KDNotificationView
             title     : 'Importing course used in this session'
             content   : 'Please wait until the course is saved to your app. This will only take a few seconds'
             duration  : 60000
-          
           @ioController.importCourseFromRepository course.originUrl, course.originType, (importedCourse)=>
             @courses.push importedCourse
-            
             importNotification.destroy()
-          
             @lastSelectedCourse = @courses.length-1
             @utils.wait 0, => 
               @emit 'CourseChanged', @lastSelectedCourse
               @utils.wait 0, =>
                 @emit 'LectureChanged', 0
-      
       else 
         console.log 'SYNC: This is where I am already.'
 
@@ -557,12 +646,11 @@ class KodeLectures.Views.MainView extends JView
         console.log 'SYNC: I am already there'
     
     @ioController.on 'UserJoined', (user)=>
-
       @chatView.show()
-
       console.log 'FIREBASE: User Joined:',user
       unless KD.whoami().profile.nickname is user
         if @ioController.isInstructor
+          @sessionJoinButton.hide()
           @sessionStatus.emit 'UserJoinedHost', user
           title = "#{user} joined your shared session."
           content = "All your changes will show up for every in your session as long as you have broadcasting enabled."
@@ -570,7 +658,6 @@ class KodeLectures.Views.MainView extends JView
           @sessionStatus.emit 'UserJoined', user
           title = "#{user} joined this session"
           content = "Happy collaboration!"
-        
         new KDNotificationView
           title : title 
           content : content
@@ -583,15 +670,13 @@ class KodeLectures.Views.MainView extends JView
       @sessionStatus.emit 'UserLeft', user
     
     @ioController.on 'ChatMessageArrived', (data)=>
-      #console.log 'CHAT: Received Message'
-      data.isInstructor = data.nickname is @ioController.instructor
+      #data.isInstructor = data.nickname is @ioController.instructor
       @chatView.emit 'ChatMessageArrived', data
     
     @chatView.on 'ChatMessageComposed', (message)=>
-      #console.log 'CHAT: Broadcasting message'
       @ioController.broadcastMessage {chat:{message,nickname:KD.whoami().profile.nickname}}
     
-    # cleanup
+    # SHutdown cleanup
     @on "KDObjectWillBeDestroyed", =>
       @ioController.allowBroadcast = no
       @finished = true
@@ -600,7 +685,6 @@ class KodeLectures.Views.MainView extends JView
       KD.utils.killRepeat @liveViewer.terminalStream #if @liveViewer.terminalStream
 
     # Resize hack for nested splitviews    
-        
     @splitView.on 'ResizeDidStart', =>
       @resizeInterval = KD.utils.repeat 100, =>
         @taskSplitView._windowDidResize {}
