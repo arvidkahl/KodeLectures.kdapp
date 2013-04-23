@@ -32,50 +32,45 @@ class KodeLectures.Core.LiveViewer
     
   setMainView: (@mainView)->
   
-  handleTerminalInput:(event)->
+  handleTerminalInput:(event,type)->
     if @terminalPreview
 
-      eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
-  
-      if eventObj.initEvent
-        eventObj.initEvent("keydown", true, true)
+      if type is 'keydown'
+        eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
     
-      eventObj.key     = event.key or 0
-      eventObj.char    = event.char or 0
-      eventObj.charCode = event.charCode or 0 #or event.keyCode
-      eventObj.keyCode = event.keyCode or 0
-      eventObj.which = event.which or 0
-      eventObj.shiftKey = event.shiftKey or no
-      eventObj.metaKey = event.metaKey or no
-      eventObj.altKey = event.altKey or no
-      eventObj.ctrlKey = event.ctrlKey or no
+        if eventObj.initEvent
+          eventObj.initEvent("keydown", true, true)
       
-      eventObj1 = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
-  
-      if eventObj1.initEvent
-        eventObj1.initEvent("keypress", true, true)
+        eventObj.key     = event.key or 0
+        eventObj.char    = event.char or 0
+        eventObj.charCode = event.charCode or 0 #or event.keyCode
+        eventObj.keyCode = event.keyCode or 0
+        eventObj.which = event.which or 0
+        eventObj.shiftKey = event.shiftKey or no
+        eventObj.metaKey = event.metaKey or no
+        eventObj.altKey = event.altKey or no
+        eventObj.ctrlKey = event.ctrlKey or no
+        @terminalPreview.keyDown eventObj 
+      
+      else if type is 'keypress'
+        eventObj1 = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
     
-      eventObj1.key     = event.key or 0
-      eventObj1.char    = event.char or 0
-      eventObj1.charCode = event.charCode or 0 #or event.keyCode
-      eventObj1.keyCode = event.keyCode or 0
-      eventObj1.which = event.which or 0
-      eventObj1.shiftKey = event.shiftKey or no
-      eventObj1.metaKey = event.metaKey or no
-      eventObj1.altKey = event.altKey or no
-      eventObj1.ctrlKey = event.ctrlKey or no
+        if eventObj1.initEvent
+          eventObj1.initEvent("keypress", true, true)
       
-      #el.dispatchEvent ? el.dispatchEvent(eventObj) : el.fireEvent("onkeydown", eventObj); 
-      
-      
-      #@terminalPreview.keyPress eventObj
-      @terminalPreview.keyDown eventObj
-      #@terminalPreview.keyDown eventObj1
-      #@terminalPreview.keyPress eventObj
-      @terminalPreview.keyPress eventObj1
-  
-      console.log 'TERMINAL: this should be forwarded',event,eventObj,event.charCode, event.keyCode
-      #e[property] = value for property,value of event
+        eventObj1.key     = event.key or 0
+        eventObj1.char    = event.char or 0
+        eventObj1.charCode = event.charCode or 0 #or event.keyCode
+        eventObj1.keyCode = event.keyCode or 0
+        eventObj1.which = event.which or 0
+        eventObj1.shiftKey = event.shiftKey or no
+        eventObj1.metaKey = event.metaKey or no
+        eventObj1.altKey = event.altKey or no
+        eventObj1.ctrlKey = event.ctrlKey or no
+
+        @terminalPreview.keyPress eventObj1
+      #
+      #console.log 'TERMINAL: this should be forwarded',event,eventObj,event.charCode, event.keyCode
   
   previewStreamedTerminal: (lines,forceShow=no)->
     
@@ -100,22 +95,40 @@ class KodeLectures.Core.LiveViewer
         @terminalStreamTextarea.on 'click', (event)=>
           @terminalStreamTextarea.setFocus()
           
-        @terminalStreamTextarea.on 'keyup', (event)=>
+        @terminalStreamTextarea.on 'keydown', (event)=>
           event.preventDefault()
           event.stopPropagation()
           
           @mainView.ioController.broadcastMessage
-            terminalEvent :
-              altKey : event.altKey or null
-              ctrlKey : event.ctrlKey or null
-              metaKey : event.metaKey or null
-              charCode : event.charCode or null
-              keyCode : event.keyCode or null
-              shiftKey : event.shiftKey or null
-              which : event.which or null 
-              key   : event.key or null
-              char  : event.char or null
-              key   : event.key or null
+            terminalEventKeypress :
+              altKey : event.altKey or false
+              ctrlKey : event.ctrlKey or false
+              metaKey : event.metaKey or false
+              charCode : event.charCode or 0
+              keyCode : event.keyCode or 0
+              shiftKey : event.shiftKey or false
+              which : event.which or 0
+              key   : event.key or 0
+              char  : event.char or 0
+          
+          console.log 'REMOTE: keypress detected',event
+          @terminalStreamTextarea.setValue ''        
+
+        @terminalStreamTextarea.on 'keypress', (event)=>
+          event.preventDefault()
+          event.stopPropagation()
+          
+          @mainView.ioController.broadcastMessage
+            terminalEventKeydown :
+              altKey : event.altKey or false
+              ctrlKey : event.ctrlKey or false
+              metaKey : event.metaKey or false
+              charCode : event.charCode or 0
+              keyCode : event.keyCode or 0
+              shiftKey : event.shiftKey or false
+              which : event.which or 0
+              key   : event.key or 0
+              char  : event.char or 0
           
           console.log 'REMOTE: keypress detected',event
           @terminalStreamTextarea.setValue ''        
