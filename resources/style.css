@@ -205,7 +205,17 @@ color: white;
 
 
 .kodelectures .control-pane .header-buttons {
-  width: 411px;
+  width:250px;
+  position: absolute;
+  overflow: hidden;
+  top: 1px;
+  right: 0px;
+  padding: 6px 1px 4px 0;
+  width: auto;
+  height: auto;
+  line-height: 1;
+  display: inline-block;
+  float: right;  
 }
 
 .kodelectures .control-pane .header-buttons .orientation-buttons{
