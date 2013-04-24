@@ -47,8 +47,6 @@ class KodeLectures.Core.LiveViewer
       
     if @terminalPreview
       
-      console.log 'Forwarding event', event,type
-      
       eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
 
       if type is 'keydown'
@@ -67,14 +65,6 @@ class KodeLectures.Core.LiveViewer
         setValues eventObj,event
         @terminalPreview.keyPress eventObj 
         
-      else if type is 'keyup'
-      
-        if eventObj.initEvent
-          eventObj.initEvent("keypress", true, true)
-      
-        setValues eventObj,event
-        @terminalPreview.keyPress eventObj
-  
   previewStreamedTerminal: (lines,forceShow=no)->
     
     generateEventObject = (event)->
@@ -123,37 +113,18 @@ class KodeLectures.Core.LiveViewer
           
           @mainView.ioController.broadcastMessage
             terminalEventKeypress : generateEventObject event
-
-          
-          #console.log 'REMOTE: keypress detected',event
-          @terminalStreamTextarea.setValue ''          
-          
-        @terminalStreamTextarea.on 'keyup', (event)=>
-          #event.preventDefault()
-          #event.stopPropagation()
-          
-          @mainView.ioController.broadcastMessage
-            terminalEventKeyup : generateEventObject event
-          
-          #console.log 'REMOTE: keyup detected',event
-          @terminalStreamTextarea.setValue ''            
+          KD.utils.defer => @terminalStreamTextarea.setValue ''          
         
         @terminalStreamTextarea.on 'keydown', (event)=>
-          #event.preventDefault()
-          #event.stopPropagation()
-          
+          event.stopPropagation()
           @mainView.ioController.broadcastMessage
             terminalEventKeydown : generateEventObject event
-          
-          #console.log 'REMOTE: keydown detected',event
-          @terminalStreamTextarea.setValue ''        
+          KD.utils.defer => @terminalStreamTextarea.setValue ''        
 
         @terminalStreamTextarea.on 'paste', (event)=>
           
           pasted = @terminalStreamTextarea.getValue() 
           console.log 'REMOTE: paste detected',event
-          #@terminalStreamTextarea.setValue ''
-        
           event.preventDefault()
           event.stopPropagation()
         
