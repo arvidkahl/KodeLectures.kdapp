@@ -226,32 +226,32 @@ class KodeLectures.Core.LiveViewer
               KD.utils.defer => @terminalPreview.emit 'click' # focus :)
             else console.log 'There is a connectivity problem with the terminal'  
           unless @terminalPreview or @terminalRequested
-              console.log 'Adding terminal. This should only happen once.'
-              appStorage = new AppStorage 'KodeLectures', '1.0'
-              appStorage.fetchStorage (storage)=>
-                @previewView.addSubView @terminalPreview = new WebTermView appStorage
-                @terminalPreview.setClass 'webterm'
-                console.log 'Terminal added successfully.'
-  
-                if @mainView.ioController.isInstructor then @terminalPreview.on 'WebTerm.flushed', => 
-                    lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
-                    @mainView.emit "TerminalContents", 
-                      timestamp : new Date().getTime()
-                      lines     : JSON.stringify lines                
-              @terminalRequested = true
-                @terminalPreview.show()
-                @mdPreview?.hide()
-                @terminalStreamPreview?.hide()
-                delete window.appView  
+            console.log 'Adding terminal. This should only happen once.'
+            appStorage = new AppStorage 'KodeLectures', '1.0'
+            appStorage.fetchStorage (storage)=>
+              @previewView.addSubView @terminalPreview = new WebTermView appStorage
+              @terminalPreview.setClass 'webterm'
+              console.log 'Terminal added successfully.'
 
-                # this is hacky. where did the connected event go?
-                KD.utils.wait 2000, =>    
-                  initialCommand = "cd 'Applications/KodeLectures.kdapp/courses/#{coursePath}'"
-                  console.log 'Sending initial command to terminal',initialCommand
-                  sendCommand initialCommand
-                  KD.utils.defer => 
-                    console.log 'Sending command to terminal',code
-                    sendCommand code
+              if @mainView.ioController.isInstructor then @terminalPreview.on 'WebTerm.flushed', => 
+                  lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
+                  @mainView.emit "TerminalContents", 
+                    timestamp : new Date().getTime()
+                    lines     : JSON.stringify lines                
+              @terminalPreview.show()
+              @mdPreview?.hide()
+              @terminalStreamPreview?.hide()
+              delete window.appView  
+
+              # this is hacky. where did the connected event go?
+              KD.utils.wait 2000, =>    
+                initialCommand = "cd 'Applications/KodeLectures.kdapp/courses/#{coursePath}'"
+                console.log 'Sending initial command to terminal',initialCommand
+                sendCommand initialCommand
+                KD.utils.defer => 
+                  console.log 'Sending command to terminal',code
+                  sendCommand code
+              @terminalRequested = true
                             
           else 
               console.log 'Terminal is already there. Send command to terminal',code
