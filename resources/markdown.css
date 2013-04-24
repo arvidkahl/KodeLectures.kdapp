@@ -1,4 +1,15 @@
-.kodelectures .has-markdown code {
+.kodelectures .has-markdown > span.data > pre {
+  background-color: rgba(0,0,0,0.3);
+  border: 1px solid #888;
+  
+}
+.kodelectures .has-markdown > span.data > pre > code {
+  color: white!important;
+  border: none;
+  background-color:transparent;  
+  box-shadow: none;
+}
+.kodelectures .has-markdown > span.data code {
   background-color: rgba(0,0,0,0.3);
   color: white;
   border-radius: 3px;
