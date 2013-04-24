@@ -6,6 +6,18 @@
 #require ["https://raw.github.com/termi/DOM-Keyboard-Event-Level-3-polyfill/0.4/DOMEventsLevel3.shim.js"], (domPolyfill)=>
   #console.log 'Polyfill loaded.'
 
+
+# Comment Box Protoype
+
+# -----------------------------.
+#                              |
+# -----------------------------|
+#                              |
+#                              |
+#                              |
+# ____________________________/
+
+
 # Think of maybe using MarkdownDoc on the remote..
 
 require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
@@ -27,6 +39,7 @@ require ["https://raw.github.com/chjj/marked/master/lib/marked.js"], (marked)=>
 
   marked.setOptions options
 
+
 class KodeLectures.Views.MainView extends JView
 
   {TaskView,TaskOverview,CourseSelectionView,SessionStatusView,ChatView} = KodeLectures.Views
@@ -36,43 +49,38 @@ class KodeLectures.Views.MainView extends JView
     @liveViewer = LiveViewer.getSingleton()
     @listenWindowResize()
     
-    @autoScroll = yes
-    @currentLecture = 0
-    @currentFile = ''
+    @autoScroll         = yes
+    @currentLecture     = 0
+    @currentFile        = ''
     @lastSelectedCourse = 0
-    @viewState = 'courses'
-    
+    @viewState          = 'courses'
+    @courses            = []
+
     @ioController = new KodeLectures.Controllers.FileIOController
     @ioController.emit 'CourseImportRequested'
     
     @ioController.on 'NewCourseImported', (course)=>
-      #console.log 'Forwarding new Course to view'
       @selectionView.emit 'NewCourseImported', course
       @courses.push course
     
     @ioController.on 'CourseFilesReset', (course)=>
-      # make sure the lecture gets reloaded 
       @emit 'LectureChanged', @lastSelectedItem
 
     @ioController.attachFirebase null, (sessionKey,state)=>
       if state is 'fresh'
-        console.log 'Firebase successfully attached and instantiated.'
-        #@sessionInput.setValue sessionKey
+        console.log 'Firebase successfully attached and instantiated. Session key is',sessionKey
         @sessionStatus.emit 'FirebaseAttached'
 
-    @courses = []
     
   save:->
-    console.log 'Saving editor contents to file.'
     @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @codeMirrorEditor.getValue()  
   
   buildCodeMirror:->
     @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
-      lineNumbers : true
-      mode        : "javascript"
+      lineNumbers                : true
+      mode                       : "javascript"
       tabSize                    : options.tabSize            or 2
       lineNumbers                : options.lineNumbers        or yes
-      #autofocus                  : options.autofocus          or yes
       theme                      : options.theme              or "monokai"
       value                      : options.value              or ""
       styleActiveLine            : options.highlightLine      or yes
@@ -105,23 +113,16 @@ class KodeLectures.Views.MainView extends JView
     @buildCodeMirror()
 
     @utils.wait 10, =>
+        # Initial firepad (empty)
         @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
         
         @firepad.on "ready", =>
-          #appView.getSubViews()[0].destroy() if @getOptions().sharedSession
-          
           if @firepad.isHistoryEmpty()
-            @firepad.setText """
-              // JavaScript Editing with Firepad!
-              function go() {
-                var message = "Hello, world.";
-                console.log(message);
-              }
-            """
-      
+            @firepad.setText ""
+            
     @taskView = new TaskView 
       delegate : @
-    ,@courses[@lastSelectedCourse or 0]?.lectures?[0] or {}
+    , @courses[@lastSelectedCourse or 0]?.lectures?[0] or {}
    
     @taskOverview = new TaskOverview 
       delegate : @
@@ -229,12 +230,12 @@ class KodeLectures.Views.MainView extends JView
                       label       : 'URL'
                       itemClass   : KDInputView 
                       name        : 'url'
-      
+
     @runButton = new KDButtonView
       cssClass    : "cupid-green control-button run"
       title       : 'Save and Run your code (Shift-Alt-R)'
-      tooltip:
-        title : 'Save and Run your code (Shift-Alt-R)'
+      tooltip     :
+        title     : 'Save and Run your code (Shift-Alt-R)'
       callback    : (event)=>
         @liveViewer.active = yes
         
@@ -243,12 +244,12 @@ class KodeLectures.Views.MainView extends JView
             type: @courses[@lastSelectedCourse].lectures[@lastSelectedItem].previewType            
             previewPath: @courses[@lastSelectedCourse].lectures[@lastSelectedItem].previewPath
             coursePath: @courses[@lastSelectedCourse].path
-    
+
     @controlButtons.addSubView @courseButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button next hidden"
       title       : 'Courses'
-      tooltip:
-        title : 'Go to the course list'
+      tooltip     :
+        title     : 'Go to the course list'
       callback    : (event)=> 
         @emit 'CourseRequested'
         @ioController.broadcastMessage {location:'courses'}
@@ -256,44 +257,36 @@ class KodeLectures.Views.MainView extends JView
     @controlButtons.addSubView @lectureButton = new KDButtonView
       cssClass    : "clean-gray editor-button control-button previous"
       title       : 'Lecture'
-      tooltip:
-        title : 'Go to the current lecture'
+      tooltip     :
+        title     : 'Go to the current lecture'
       callback    : (event)=> 
         @emit 'LectureRequested' if @lastSelectedCourse
         @ioController.broadcastMessage {location:'lectures'}
 
      @languageSelect = new KDSelectBox
-      label: new KDLabelView
-        title: 'Language: '      
+      label         : new KDLabelView
+        title       : 'Language: '      
       selectOptions : [
-        {title:'JavaScript',value:'javascript'}
-        {title:'CoffeeScript',value:'coffeescript'}
-        {title:'Shell',value:'shell'}
-        {title:'PHP',value:'php'}
-        {title:'Python',value:'python'}
-        {title:'Ruby',value:'ruby'}
+        {title:'JavaScript',    value:'javascript'}
+        {title:'CoffeeScript',  value:'coffeescript'}
+        {title:'Shell',         value:'shell'}
+        {title:'PHP',           value:'php'}
+        {title:'Python',        value:'python'}
+        {title:'Ruby',          value:'ruby'}
       ]
-      title : 'Language Selection'
-      defaultValue : 'JavaScript'
-      cssClass: 'control-button language'
-      callback:(item)=>
+      title         : 'Language Selection'
+      defaultValue  : 'JavaScript'
+      cssClass      : 'control-button language'
+      callback      : (item)=>
         @emit 'LanguageChanged', item
         @ioController.broadcastMessage {'language':item}
         
     @currentLang = @courses[@lastSelectedCourse or 0]?.lectures?[0]?.language or 'text'
-    
-    #@sessionInput = new KDInputView
-      #label : new KDLabelView
-        #title : 'Session: '
-      #cssClass : 'session-input'
-      #callback :=>
-        #console.log 'Session input clicked'
-        #@ioController.attachFirebase @sessionInput.getValue(), =>
-  
+
     @sessionShareButton = new KDButtonView
-      cssClass : 'editor-button clean-gray join-session-button'
-      title : 'Create Session'
-      callback : =>
+      cssClass  : 'editor-button clean-gray join-session-button'
+      title     : 'Create Session'
+      callback  : =>
         @sessionStatus.show()
         @sessionShareButton.setTitle 'Share Session'
         modal = new KDModalViewWithForms
@@ -307,7 +300,7 @@ class KodeLectures.Views.MainView extends JView
             navigable             : yes 
             goToNextFormOnSubmit  : no              
             forms                 :
-              "Share Session"  :
+              "Share Session"     :
                   fields          :                      
                     "Notice"      :
                       itemClass   : KDCustomHTMLView
@@ -349,9 +342,9 @@ class KodeLectures.Views.MainView extends JView
                       cssClass    : 'modal-warning'  
     
     @sessionJoinButton = new KDButtonView
-      cssClass : 'editor-button clean-gray join-session-button'
-      title : 'Join Session'
-      callback :=>
+      cssClass  : 'editor-button clean-gray join-session-button'
+      title     : 'Join Session'
+      callback  : =>
         modal = new KDModalViewWithForms
           title                   : "Join a session"
           content                 : ""
@@ -363,25 +356,25 @@ class KodeLectures.Views.MainView extends JView
             navigable             : yes 
             goToNextFormOnSubmit  : no              
             forms                 :
-              "Join Session"  :
-                fields          :                      
-                  "Notice"      :
-                    itemClass   : KDCustomHTMLView
-                    tagName     : 'span'
-                    partial     : 'Which session do you want to join?'
-                    cssClass    : 'modal-info'  
+              "Join Session"      :
+                fields            :                      
+                  "Notice"        :
+                    itemClass     : KDCustomHTMLView
+                    tagName       : 'span'
+                    partial       : 'Which session do you want to join?'
+                    cssClass      : 'modal-info'  
                   "sessionKey"    :
-                    label       : 'Session Key'
-                    itemClass   : KDInputView
-                    name        : 'sessionKey'
-                buttons         :  
-                  'Join Session'      :
-                    title       : 'Okay, thanks!'
-                    style       : 'modal-clean-green'
-                    loader      :
-                      color     : "#ffffff"
-                      diameter  : 12
-                    callback    : =>
+                    label         : 'Session Key'
+                    itemClass     : KDInputView
+                    name          : 'sessionKey'
+                buttons           :  
+                  'Join Session'  :
+                    title         : 'Okay, thanks!'
+                    style         : 'modal-clean-green'
+                    loader        :
+                      color       : "#ffffff"
+                      diameter    : 12
+                    callback      : =>
                       console.log 'Session Join Button clicked'
                       if modal.modalTabs.forms['Join Session'].inputs['sessionKey'].getValue() 
                         @ioController.attachFirebase modal.modalTabs.forms['Join Session'].inputs['sessionKey'].getValue(), (sessionKey)=>
@@ -396,37 +389,36 @@ class KodeLectures.Views.MainView extends JView
                           @buildCodeMirror()
                           @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
                           modal.destroy()
-                        
-                  Cancel        :
-                    title       : 'Cancel'
-                    type        : 'modal-cancel'
-                    callback    : =>
+                  Cancel          :
+                    title         : 'Cancel'
+                    type          : 'modal-cancel'
+                    callback      : =>
                       modal.destroy()        
 
     @broadcastSwitch = new KDOnOffSwitch
-      label : new KDLabelView
-        title : "Broadcast: "
-      size: "tiny"
-      defaultValue : yes
-      callback:(state)=>
+      label         : new KDLabelView
+        title       : "Broadcast: "
+      size          : "tiny"
+      defaultValue  : yes
+      callback      : (state)=>
         @ioController.allowBroadcast = state
         
     @sessionStatus = new SessionStatusView
-      cssClass : 'session-status'
+      cssClass      : 'session-status'
     
     @sessionStatus.hide()
     
     @chatView = new ChatView
-      cssClass : 'chat-view'
+      cssClass      : 'chat-view'
        
     @chatView.hide()
     
     @ownTerminal = new KDButtonView
-      title : 'My Terminal'
-      cssClass : 'clean-gray editor-button my-terminal active'
-      tooltip : 
-        title : 'This terminal runs on your own file system. Be careful what you enter here, it will affect your files.'
-      callback :=>
+      title         : 'My Terminal'
+      cssClass      : 'clean-gray editor-button my-terminal active'
+      tooltip       : 
+        title       : 'This terminal runs on your own file system. Be careful what you enter here, it will affect your files.'
+      callback      : =>
         console.log 'Swapping Terminal to OWN'
         @ownTerminal.setClass 'active'
         @hostTerminal.unsetClass 'active'
@@ -434,11 +426,11 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.terminalStreamPreview?.hide()
     
     @hostTerminal = new KDButtonView
-      title : 'Host Terminal'
-      tooltip:
-        title : 'This is the terminal of the host of this session. Be careful what you type here, it will affect the hosts files.'
-      cssClass  : 'clean-gray editor-button host-terminal hidden'
-      callback :=>
+      title         : 'Host Terminal'
+      tooltip       :  
+        title       : 'This is the terminal of the host of this session. Be careful what you type here, it will affect the hosts files.'
+      cssClass      : 'clean-gray editor-button host-terminal hidden'
+      callback      : =>
         console.log 'Swapping Terminal to HOST'
         @hostTerminal.setClass 'active'
         @ownTerminal.unsetClass 'active'
@@ -446,8 +438,9 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.terminalStreamPreview?.show()   
     
     @terminalButtons = new KDView
-      cssClass : 'terminal-buttons'
+      cssClass      : 'terminal-buttons'
     
+    # View construction
     @terminalButtons.addSubView @ownTerminal
     @terminalButtons.addSubView @hostTerminal
     
@@ -455,13 +448,8 @@ class KodeLectures.Views.MainView extends JView
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
-    
-    #@controlView.addSubView @broadcastSwitch.options.label    
-    #@controlView.addSubView @broadcastSwitch 
-    
-    #@controlView.addSubView @sessionInput.options.label
+  
     @controlView.addSubView @sessionShareButton
-    #@controlView.addSubView @sessionInput
     @controlView.addSubView @sessionJoinButton
    
     @controlView.addSubView @sessionStatus
@@ -472,8 +460,6 @@ class KodeLectures.Views.MainView extends JView
     @liveViewer.setSplitView @splitView
     @liveViewer.setMainView @
     
-    #@preview.addSubView @previewButtons
-    
     @taskView.setMainView @
     @taskOverview.setMainView @
     @selectionView.setMainView @
@@ -481,20 +467,31 @@ class KodeLectures.Views.MainView extends JView
     @attachListeners()
    
     @utils.wait 2000, =>
+      # delayed animtion for the lecture/course views. will make loading the app less buggy.
+      # it would usually jump around then setting the initial 'left' values and such.
       @selectionView.setClass 'animate'
       @splitView.setClass 'animate'
-    
+  
+  
+  # ------------------------------.
+  # getModeFromLanguage           |
+  # ------------------------------|
+  #   CodeMirrors modes allow for |
+  #   many different ways of      |
+  #   using MIME types. Set here. |
+  # _____________________________/
+  
   getModeFromLanguage:(language)->
     matrix = 
       php : 'php'
     
     return matrix[language] or language
-    
-
+ 
+ 
   attachListeners :->
-   
-   @on 'LectureChanged', (lecture=0)=>   
-      console.log '@LectureChanged',lecture,@ioController.isInstructor
+
+    @on 'LectureChanged', (lecture=0)=>   
+      console.log "Lecture Changed to ##{lecture}, am I the host? #{@ioController.isInstructor.toString()}"
       
       @lastSelectedItem = lecture        
       {code,codeFile,language,files,previewType,expectedResults} = @courses[@lastSelectedCourse].lectures[@lastSelectedItem]
@@ -503,7 +500,7 @@ class KodeLectures.Views.MainView extends JView
       
       @ioController.readFile @courses, @lastSelectedCourse, @lastSelectedItem, @currentFile, (err,contents)=>
         unless err
-          @codeMirrorEditor.setValue contents 
+          @codeMirrorEditor.setValue contents if @ioController.isInstructor
         else 
           console.log 'Reading from lecture file failed with error: ',err
       
@@ -526,8 +523,8 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.active = yes
       
         @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
-          type:previewType
-          coursePath:@courses[@lastSelectedCourse].path
+          type        : previewType
+          coursePath  : @courses[@lastSelectedCourse].path
         
         unless @ioController.isInstructor 
           @terminalButtons.show()
@@ -542,9 +539,10 @@ class KodeLectures.Views.MainView extends JView
         
 
     @on 'CourseChanged', (course)=>     
-        console.log '@CourseChanged',course
+        console.log "Course Changed to #{course.title}"
         @lastSelectedCourse = course
         @emit 'LectureRequested'
+    
     
     @on 'CourseRequested', =>
         @viewState = 'courses'
@@ -553,6 +551,7 @@ class KodeLectures.Views.MainView extends JView
         @lectureButton.show()
         @courseButton.hide()
     
+    
     @on 'LectureRequested',=>
         @viewState = 'lectures'
         @splitView.unsetClass 'out'
@@ -560,21 +559,32 @@ class KodeLectures.Views.MainView extends JView
         @courseButton.show()
         @lectureButton.hide()
    
+   
     @on 'NextLectureRequested', =>
       if @lastSelectedItem isnt @courses[@lastSelectedCourse].lectures.length-1
         @emit 'LectureChanged',@lastSelectedItem+1 
         @ioController.broadcastMessage {lecture:@courses[@lastSelectedCourse].lectures[@lastSelectedItem+1],course:@courses[@lastSelectedCourse]}
+   
+   
     @on 'PreviousLectureRequested', =>
-    
+   
+   
     @on 'LanguageChanged', (language) =>
       console.log 'Setting language to:',@getModeFromLanguage language
       @currentLang = language
       @codeMirrorEditor.setOption 'mode', @getModeFromLanguage language
     
-    # iocontroller event bindings
+    
+    # ------------------------------------.
+    # ioController event bindings         |
+    # ------------------------------------|
+    #   - handles all events that come    |
+    #     from firebase and are for-      |
+    #     warded there.                   |
+    # ___________________________________/
     
     @on 'TerminalContents', (lines)=>
-      @ioController.broadcastMessage {terminal:lines} 
+      @ioController.broadcastMessage {terminal: lines} 
     
     @ioController.on 'TerminalSessionChanged', (terminalContent)=>
       unless @ioController.isInstructor 
@@ -588,10 +598,6 @@ class KodeLectures.Views.MainView extends JView
     @ioController.on 'TerminalSessionEventKeypress', (event)=>
       if @ioController.isInstructor 
         @liveViewer.handleTerminalInput event, 'keypress'        
-
-    @ioController.on 'TerminalSessionEventKeyup', (event)=>
-      if @ioController.isInstructor 
-        @liveViewer.handleTerminalInput event, 'keyup'
         
     @ioController.on 'LanguageChanged', (language)=> 
       @languageSelect.setValue language
@@ -601,7 +607,18 @@ class KodeLectures.Views.MainView extends JView
     
     @ioController.on 'CourseRequested', => @emit 'CourseRequested' unless @viewState is 'courses'
     
-    @ioController.on 'EditorContentChanged', ({text,origin})=> 
+    @ioController.on 'EditorContentChanged', ({text,origin})=> # deprecated
+
+
+    # -----------------------------.
+    # firebase CourseChanged       |
+    # -----------------------------|
+    #   Check if course exists. If |
+    #   not, import it, else  fire |
+    #   it up and go to the first  |
+    #   lecture.                   |
+    # ____________________________/
+
 
     @ioController.on 'CourseChanged', (course)=>
       log 'SYNC: Checking if this course is already active'
@@ -632,6 +649,7 @@ class KodeLectures.Views.MainView extends JView
                 @emit 'LectureChanged', 0
       else 
         console.log 'SYNC: This is where I am already.'
+
 
     @ioController.on 'LectureChanged', (lecture)=>
       console.log 'SYNC: Checking if I already am at the lecture.'
@@ -671,18 +689,32 @@ class KodeLectures.Views.MainView extends JView
       @sessionStatus.emit 'UserLeft', user
     
     @ioController.on 'ChatMessageArrived', (data)=>
-      #data.isInstructor = data.nickname is @ioController.instructor
       @chatView.emit 'ChatMessageArrived', data
     
     @chatView.on 'ChatMessageComposed', (message)=>
-      @ioController.broadcastMessage {chat:{message,nickname:KD.whoami().profile.nickname}}
+      @ioController.broadcastMessage 
+        chat        :
+          timestamp : new Date().getTime()
+          message   : message
+          nickname  : KD.whoami().profile.nickname
+
+    # -----------------.
+    # Shutdown cleanup |
+    # ________________/
     
-    # SHutdown cleanup
     @on "KDObjectWillBeDestroyed", =>
-      @ioController.allowBroadcast = no
-      @finished = true
       console.log 'Application closing. Cleaning up.'
-      @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
+      
+      #Send a leave message, so all connected clients can update their views/connections
+      @ioController?.broadcastMessage {leave:KD.whoami().profile.nickname}
+
+      # Stop all broadcasting that is still going on
+      @utils.wait 50, => @ioController.allowBroadcast = no
+
+      @finished = true
+      
+      # Close the terminal connection to prevent idle conenctions
+      @liveViewer?.terminalPreview?.server?.close?()
 
     # Resize hack for nested splitviews    
     @splitView.on 'ResizeDidStart', =>
@@ -693,7 +725,7 @@ class KodeLectures.Views.MainView extends JView
       KD.utils.killRepeat @resizeInterval
       @taskSplitView._windowDidResize {}
 
-  pistachio: -> 
+  pistachio:-> 
     """
     {{> @controlView}}
     {{> @chatView}}
