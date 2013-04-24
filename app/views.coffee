@@ -576,8 +576,9 @@ class KodeLectures.Views.MainView extends JView
     @on 'TerminalContents', (lines)=>
       @ioController.broadcastMessage {terminal:lines} 
     
-    @ioController.on 'TerminalSessionChanged', (lines)=>
+    @ioController.on 'TerminalSessionChanged', (terminalContent)=>
       unless @ioController.isInstructor 
+        {lines,timestamp} = terminalContent
         @liveViewer.previewStreamedTerminal JSON.parse lines
         
     @ioController.on 'TerminalSessionEventKeydown', (event)=>

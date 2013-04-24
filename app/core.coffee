@@ -277,6 +277,15 @@ class KodeLectures.Core.LiveViewer
                 @previewView.addSubView @terminalPreview = new WebTermView appStorage
                 @terminalPreview.setClass 'webterm'
                 console.log 'Terminal added successfully.'
+  
+                if @mainView.ioController.isInstructor then @terminalPreview.on 'WebTerm.flushed', => 
+                    console.log 'LE FLUSH'
+                    lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
+                    KD.utils.killRepeat @terminalStream if @mainView.finished
+                    @mainView.emit "TerminalContents", 
+                      timestamp : new Date().getTime()
+                      lines : JSON.stringify lines                
+
                 @terminalPreview.show()
                 @mdPreview?.hide()
                 @terminalStreamPreview?.hide()
@@ -300,11 +309,11 @@ class KodeLectures.Core.LiveViewer
               @terminalStreamPreview?.hide()
               delete window.appView       
         
-          if @mainView.ioController.isInstructor then @terminalStream = KD.utils.repeat 2500, =>         
-            lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
-            KD.utils.killRepeat @terminalStream if @mainView.finished
-            @mainView.emit "TerminalContents", JSON.stringify lines
- 
+          #if @mainView.ioController.isInstructor then @terminalStream = KD.utils.repeat 2500, =>         
+            #lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
+            #KD.utils.killRepeat @terminalStream if @mainView.finished
+            #@mainView.emit "TerminalContents", JSON.stringify lines
+ #
 
 class KodeLectures.Views.TaskSubItemView extends KDListItemView
   constructor:->
