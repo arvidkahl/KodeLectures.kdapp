@@ -47,7 +47,7 @@ class KodeLectures.Core.LiveViewer
       
     if @terminalPreview
       
-      console.log 'Forwarding event', event
+      console.log 'Forwarding event', event,type
       
       eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
 
