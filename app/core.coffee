@@ -85,17 +85,17 @@ class KodeLectures.Core.LiveViewer
       unless @terminalStreamPreview
         console.log 'TERMINAL: Adding streaming Terminal'
         @previewView.addSubView @terminalStreamPreview = new KDView
-          cssClass : 'webterm terminal terminal-stream-preview'
+          cssClass  : 'webterm terminal terminal-stream-preview'
         
         @terminalStreamConsole = new KDView
-          cssClass : 'console ubuntu-mono green-on-black'
-          partial : lines
+          cssClass  : 'console ubuntu-mono green-on-black'
+          partial   : lines
         
         @terminalStreamTextarea = new KDInputView
-          type : 'textarea'
-          cssClass : 'terminal-textarea'
-          bind : 'click keypress keydown keyup paste'
-          callback : =>
+          type      : 'textarea'
+          cssClass  : 'terminal-textarea'
+          bind      : 'click keypress keydown keyup paste'
+          callback  : =>
             console.log 'Input Callback'
         
         @terminalStreamTextarea.on 'click', (event)=>
@@ -143,10 +143,8 @@ class KodeLectures.Core.LiveViewer
   
   previewCode: (code, execute, options)->
     return if not @active 
-    if code or code is ''
+    if code or code is '' or options.type is 'terminal'
     
-      KD.utils.killRepeat @terminalStream if @terminalStream
-
       kiteController = KD.getSingleton "kiteController"
 
       {ioController,courses,lastSelectedCourse:course,lastSelectedItem:lecture} = @mainView
@@ -236,12 +234,10 @@ class KodeLectures.Core.LiveViewer
                 console.log 'Terminal added successfully.'
   
                 if @mainView.ioController.isInstructor then @terminalPreview.on 'WebTerm.flushed', => 
-                    console.log 'LE FLUSH'
                     lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
-                    KD.utils.killRepeat @terminalStream if @mainView.finished
                     @mainView.emit "TerminalContents", 
                       timestamp : new Date().getTime()
-                      lines : JSON.stringify lines                
+                      lines     : JSON.stringify lines                
 
                 @terminalPreview.show()
                 @mdPreview?.hide()
@@ -258,7 +254,7 @@ class KodeLectures.Core.LiveViewer
                     sendCommand code
                             
           else 
-              console.log 'Send command to terminal',code
+              console.log 'Terminal is already there. Send command to terminal',code
               sendCommand code     
               
               @terminalPreview?.show()

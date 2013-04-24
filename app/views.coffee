@@ -683,7 +683,6 @@ class KodeLectures.Views.MainView extends JView
       @finished = true
       console.log 'Application closing. Cleaning up.'
       @ioController.broadcastMessage {leave:KD.whoami().profile.nickname}
-      KD.utils.killRepeat @liveViewer.terminalStream #if @liveViewer.terminalStream
 
     # Resize hack for nested splitviews    
     @splitView.on 'ResizeDidStart', =>
