@@ -39,6 +39,7 @@
       "./resources/style.css",
       "./resources/course.css",
       "./resources/lecture.css",
+      "./resources/markdown.css",
       "./resources/monokai.css"
     ]
   },

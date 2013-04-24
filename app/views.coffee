@@ -448,6 +448,9 @@ class KodeLectures.Views.MainView extends JView
     
     @controlView.addSubView @languageSelect.options.label
     @controlView.addSubView @languageSelect
+    
+    @languageSelect.options.label.hide()
+    @languageSelect.hide()
   
     @controlView.addSubView @sessionShareButton
     @controlView.addSubView @sessionJoinButton
