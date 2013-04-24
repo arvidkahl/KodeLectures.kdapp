@@ -369,7 +369,7 @@ class KodeLectures.Views.MainView extends JView
                     name          : 'sessionKey'
                 buttons           :  
                   'Join Session'  :
-                    title         : 'Okay, thanks!'
+                    title         : 'Join this Session!'
                     style         : 'modal-clean-green'
                     loader        :
                       color       : "#ffffff"
