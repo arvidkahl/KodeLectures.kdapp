@@ -528,7 +528,7 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.previewCode "", @courses[@lastSelectedCourse].lectures[@lastSelectedItem].execute, 
           type:previewType
           coursePath:@courses[@lastSelectedCourse].path
-     
+        
         unless @ioController.isInstructor 
           @terminalButtons.show()
           @hostTerminal.show()

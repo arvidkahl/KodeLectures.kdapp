@@ -225,7 +225,7 @@ class KodeLectures.Core.LiveViewer
               @terminalPreview.terminal?.server?.input command+"\n" unless command is ''
               KD.utils.defer => @terminalPreview.emit 'click' # focus :)
             else console.log 'There is a connectivity problem with the terminal'  
-          unless @terminalPreview
+          unless @terminalPreview or @terminalRequested
               console.log 'Adding terminal. This should only happen once.'
               appStorage = new AppStorage 'KodeLectures', '1.0'
               appStorage.fetchStorage (storage)=>
@@ -238,7 +238,7 @@ class KodeLectures.Core.LiveViewer
                     @mainView.emit "TerminalContents", 
                       timestamp : new Date().getTime()
                       lines     : JSON.stringify lines                
-
+              @terminalRequested = true
                 @terminalPreview.show()
                 @mdPreview?.hide()
                 @terminalStreamPreview?.hide()
