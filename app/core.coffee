@@ -47,6 +47,8 @@ class KodeLectures.Core.LiveViewer
       
     if @terminalPreview
       
+      console.log 'Forwarding event', event
+      
       eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
 
       if type is 'keydown'
@@ -74,6 +76,19 @@ class KodeLectures.Core.LiveViewer
         @terminalPreview.keyPress eventObj
   
   previewStreamedTerminal: (lines,forceShow=no)->
+    
+    generateEventObject = (event)->
+      nickname  : KD.whoami().profile.nickname
+      timestamp : new Date().getTime()
+      altKey    : event.altKey or false
+      ctrlKey   : event.ctrlKey or false
+      metaKey   : event.metaKey or false
+      charCode  : event.charCode or 0
+      keyCode   : event.keyCode or 0
+      shiftKey  : event.shiftKey or false
+      which     : event.which or 0
+      key       : event.key or 0
+      char      : event.char or 0      
     
     lines = lines.join "<br />"
     try
@@ -107,17 +122,8 @@ class KodeLectures.Core.LiveViewer
           event.stopPropagation()
           
           @mainView.ioController.broadcastMessage
-            terminalEventKeypress :
-              nickname : KD.whoami().profile.nickname
-              altKey : event.altKey or false
-              ctrlKey : event.ctrlKey or false
-              metaKey : event.metaKey or false
-              charCode : event.charCode or 0
-              keyCode : event.keyCode or 0
-              shiftKey : event.shiftKey or false
-              which : event.which or 0
-              key   : event.key or 0
-              char  : event.char or 0
+            terminalEventKeypress : generateEventObject event
+
           
           #console.log 'REMOTE: keypress detected',event
           @terminalStreamTextarea.setValue ''          
@@ -127,17 +133,7 @@ class KodeLectures.Core.LiveViewer
           #event.stopPropagation()
           
           @mainView.ioController.broadcastMessage
-            terminalEventKeyup :
-              nickname : KD.whoami().profile.nickname
-              altKey : event.altKey or false
-              ctrlKey : event.ctrlKey or false
-              metaKey : event.metaKey or false
-              charCode : event.charCode or 0
-              keyCode : event.keyCode or 0
-              shiftKey : event.shiftKey or false
-              which : event.which or 0
-              key   : event.key or 0
-              char  : event.char or 0
+            terminalEventKeyup : generateEventObject event
           
           #console.log 'REMOTE: keyup detected',event
           @terminalStreamTextarea.setValue ''            
@@ -147,17 +143,7 @@ class KodeLectures.Core.LiveViewer
           #event.stopPropagation()
           
           @mainView.ioController.broadcastMessage
-            terminalEventKeydown :
-              nickname : KD.whoami().profile.nickname
-              altKey : event.altKey or false
-              ctrlKey : event.ctrlKey or false
-              metaKey : event.metaKey or false
-              charCode : event.charCode or 0
-              keyCode : event.keyCode or 0
-              shiftKey : event.shiftKey or false
-              which : event.which or 0
-              key   : event.key or 0
-              char  : event.char or 0
+            terminalEventKeydown : generateEventObject event
           
           #console.log 'REMOTE: keydown detected',event
           @terminalStreamTextarea.setValue ''        
