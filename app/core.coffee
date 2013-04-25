@@ -237,7 +237,7 @@ class KodeLectures.Core.LiveViewer
                   lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
                   @mainView.emit "TerminalContents", 
                     timestamp : new Date().getTime()
-                    lines     : JSON.stringify lines                
+                    lines     : window.btoa Encoder.htmlEncode JSON.stringify lines                
               @terminalPreview.show()
               @mdPreview?.hide()
               @terminalStreamPreview?.hide()
@@ -261,12 +261,7 @@ class KodeLectures.Core.LiveViewer
               @mdPreview?.hide()   
               @terminalStreamPreview?.hide()
               delete window.appView       
-        
-          #if @mainView.ioController.isInstructor then @terminalStream = KD.utils.repeat 2500, =>         
-            #lines = (line[0].innerHTML for line in @terminalPreview.terminal.screenBuffer.lineDivs)
-            #KD.utils.killRepeat @terminalStream if @mainView.finished
-            #@mainView.emit "TerminalContents", JSON.stringify lines
- #
+
 
 class KodeLectures.Views.TaskSubItemView extends KDListItemView
   constructor:->
