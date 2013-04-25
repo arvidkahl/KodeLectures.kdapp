@@ -251,7 +251,8 @@ class KodeLectures.Core.LiveViewer
                 KD.utils.defer => 
                   console.log 'Sending command to terminal',code
                   sendCommand code
-              @terminalRequested = true
+            
+            @terminalRequested = true
                             
           else 
               console.log 'Terminal is already there. Send command to terminal',code
