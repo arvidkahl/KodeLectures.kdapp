@@ -71,6 +71,10 @@ class KodeLectures.Core.LiveViewer
       
         setValues eventObj,event
         @terminalPreview.keyPress eventObj 
+      
+      else if type is 'paste'
+        
+        @terminalPreview.terminal.server.input event.content
 
 
   # -----------------------------.
@@ -83,6 +87,11 @@ class KodeLectures.Core.LiveViewer
   # ____________________________/
 
   previewStreamedTerminal: (lines,forceShow=no)->
+    
+    generatePasteEventObject = (event,content)->
+      nickname  : KD.whoami().profile.nickname
+      timestamp : new Date().getTime()
+      content   : content
     
     generateEventObject = (event)->
       nickname  : KD.whoami().profile.nickname
@@ -139,10 +148,11 @@ class KodeLectures.Core.LiveViewer
           KD.utils.defer => @terminalStreamTextarea.setValue ''        
 
         @terminalStreamTextarea.on 'paste', (event)=>
-          pasted = @terminalStreamTextarea.getValue() 
-          console.log 'REMOTE: paste detected',event
           event.preventDefault()
-          event.stopPropagation()
+          event.stopPropagation()          
+          pasted = event.originalEvent.clipboardData.getData('text/plain')
+          @mainView.ioController.broadcastMessage
+            terminalEventPaste : generatePasteEventObject event, pasted
         
         @terminalStreamPreview.addSubView @terminalStreamConsole
         @terminalStreamPreview.addSubView @terminalStreamTextarea

@@ -600,7 +600,11 @@ class KodeLectures.Views.MainView extends JView
         
     @ioController.on 'TerminalSessionEventKeypress', (event)=>
       if @ioController.isInstructor 
-        @liveViewer.handleTerminalInput event, 'keypress'        
+        @liveViewer.handleTerminalInput event, 'keypress'   
+        
+    @ioController.on 'TerminalSessionEventPaste', (event)=>
+      if @ioController.isInstructor 
+        @liveViewer.handleTerminalInput event, 'paste'        
         
     @ioController.on 'LanguageChanged', (language)=> 
       @languageSelect.setValue language

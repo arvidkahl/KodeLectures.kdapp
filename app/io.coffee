@@ -144,7 +144,9 @@ class KodeLectures.Controllers.FileIOController extends KDController
       when 'terminalEventKeypress'
         @emit 'TerminalSessionEventKeypress', message      
       when 'terminalEventKeyup'
-        @emit 'TerminalSessionEventKeyup', message
+        @emit 'TerminalSessionEventKeyup', message      
+      when 'terminalEventPaste'
+        @emit 'TerminalSessionEventPaste', message
 
   checkAppIntegrity:(callback=->)->
     
