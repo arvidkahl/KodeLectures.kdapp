@@ -9,6 +9,10 @@
 }
 
 
+.kodelectures .preview-buttons .terminal-buttons button.my-terminal-settings:hover{
+  background-color:transparent;
+}
+
 .kodelectures .preview-buttons .terminal-buttons button.my-terminal-settings {
   height: 15px;
   width: 15px;

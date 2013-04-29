@@ -417,7 +417,7 @@ class KodeLectures.Views.MainView extends JView
       title         : 'My Terminal'
       cssClass      : 'clean-gray editor-button my-terminal active'
       tooltip       : 
-        title       : 'This terminal runs on your own file system. Be careful what you enter here, it will affect your files.'
+        title       : 'This terminal runs on your own file system. Be careful what you enter here, it will affect your files.<br /><hr /><strong>If this button is flashing, you are streaming the contents of your terminal to everyone else in this session.</strong><br /><hr />Click the settings icon to adjust who can see/interact with your terminal.'
       callback      : =>
         console.log 'Swapping Terminal to OWN'
         @ownTerminal.setClass 'active'
