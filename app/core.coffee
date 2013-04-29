@@ -14,8 +14,6 @@ class KodeLectures.Core.LiveViewer
   
   active: no
   
-  #pistachios: /\{(\w*)?(\#\w*)?((?:\.\w*)*)(\[(?:\b\w*\b)(?:\=[\"|\']?.*[\"|\']?)\])*\{([^{}]*)\}\s*\}/g
-  
   constructor: ()->
     @sessionId = KD.utils.uniqueId "kodepadSession"
   
@@ -31,6 +29,15 @@ class KodeLectures.Core.LiveViewer
   setSplitView: (@splitView)->
     
   setMainView: (@mainView)->
+  
+  
+  # -----------------------------.
+  # Forwarded Events / Terminal  |
+  # -----------------------------|
+  # Creates the event and applies|
+  # it to the running WebTerm as |
+  # if it were native input.     |
+  # ____________________________/
   
   handleTerminalInput:(event,type)->
   
@@ -64,7 +71,17 @@ class KodeLectures.Core.LiveViewer
       
         setValues eventObj,event
         @terminalPreview.keyPress eventObj 
-        
+
+
+  # -----------------------------.
+  # Forwarding Events / Terminal |
+  # -----------------------------|
+  # When the fake Terminal is    |
+  # focussed, all events will be |
+  # forwarded to the host via    |
+  # firebase.                    |
+  # ____________________________/
+
   previewStreamedTerminal: (lines,forceShow=no)->
     
     generateEventObject = (event)->
@@ -122,7 +139,6 @@ class KodeLectures.Core.LiveViewer
           KD.utils.defer => @terminalStreamTextarea.setValue ''        
 
         @terminalStreamTextarea.on 'paste', (event)=>
-          
           pasted = @terminalStreamTextarea.getValue() 
           console.log 'REMOTE: paste detected',event
           event.preventDefault()
@@ -156,10 +172,18 @@ class KodeLectures.Core.LiveViewer
         {type,previewPath,coursePath} = options
        
         type ?= 'code-preview'
-  
-        # ======================
-        # CODE-PREVIEW
-        # ======================
+
+
+        # -----------------------------.
+        # Code Preview                 |
+        # -----------------------------|
+        # This will send the editor    |
+        # contents to the kite, exe-   |
+        # cuting the contents via the  |
+        # execute command specified in |
+        # the manifest. Any stdout     |
+        # returned will be displayed   |
+        # ____________________________/
         
         if type is 'code-preview'
           window.appView = @previewView
@@ -182,9 +206,15 @@ class KodeLectures.Core.LiveViewer
             @terminalStreamPreview?.hide()
             delete window.appView
        
-        # ======================
-        # EXECUTE-HTML
-        # ======================
+
+        # -----------------------------.
+        # Execute HTML                 |
+        # -----------------------------|
+        # Will symlink the specified   |
+        # path from the manifest and   |
+        # preview the contents in an   |
+        # iframe.                      |
+        # ____________________________/
 
         else if type is 'execute-html'
 
@@ -212,9 +242,18 @@ class KodeLectures.Core.LiveViewer
               @terminalStreamPreview?.hide()
               delete window.appView
         
-        # ======================
-        # TERMINAL
-        # ======================
+        
+        # -----------------------------.
+        # Terminal                     |
+        # -----------------------------|
+        # Will add a WebTerm instance  |
+        # to the preview view. Events  |
+        # emitted on the terminal will |
+        # be forwarded to firebase and |
+        # be displayed on any connec-  |
+        # ted sessions providing this  |
+        # is the session owner.        |
+        # ____________________________/
 
         else if type is 'terminal'
           console.log 'Terminal requested.'

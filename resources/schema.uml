@@ -1,0 +1,70 @@
+package "KodeLectures"
+
+    class FirePad
+    class ChatView
+
+    package "ioController"
+        class Firebase
+        class "File IO"
+    end package 
+
+    package "LiveViewer"
+        PreviewView --> terminal
+        PreviewView --> streamingTerminal
+        PreviewView --> codePreview
+        PreviewView --> executeCode
+    end package
+
+    package Lecture
+        
+        class TaskOverView        
+
+        LectureManifest --> LectureEditor : sets language
+        LectureManifest --> LectureTerminal : determines use
+        LectureManifest --> LecturePreview : determines use
+        LectureManifest --> TaskView : populates
+
+        TaskView --> LectureText 
+        TaskView --> HintText
+        TaskView --> AssignmentText
+
+        LectureEditor <--> Firepad : collaboration
+
+        Firepad <-- LectureEditor : initial text
+        terminal <-- LectureTerminal : initial command
+        streamingTerminal <-- LectureTerminal : pulling initial data
+        streamingTerminal <--> Firebase : constant content/event forwarding
+        codePreview <-- LecturePreview : builds iframe and returns URL
+        executeCode <-- LecturePreview : executes code and returns output
+
+        TaskOverView --> LectureManifest : selects for display
+    end package 
+
+    package Courses
+        CourseView --> "Owned Courses" : checks for integrity and lists
+        CourseView --> "Recommended Courses" : allows for gut-based import
+        "Recommended Courses" --> "Owned Courses" : imports
+    end package
+
+    package Course
+        "Owned Courses" --> CourseManifest : has many
+        CourseManifest --> LectureManifest : has many
+        CourseManifest --> TaskOverView : populates
+    end package
+    
+    package Session
+        
+        sessionKey <--> Firebase : syncs all data
+        sessionKey <--> ChatView : passes messages and join/leave events
+        
+    end package
+
+   MainView --> sessionKey : instantiates and joins 
+   MainView --|> FirePad
+   MainView --> Firebase
+   MainView --|> PreviewView
+   FirePad --> Firebase
+
+   MainView --|> ChatView
+   MainView --|> "File IO"
+end package
