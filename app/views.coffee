@@ -444,13 +444,20 @@ class KodeLectures.Views.MainView extends JView
             forms                 :      
               'Streaming'         :
                 fields            :
+                  AllowStreamingExp:
+                    itemClass : KDCustomHTMLView
+                    partial : 'Turning on Terminal streaming will allow everyone who joins your session to see your terminal, input and output.'
+                    cssClass : 'modal-info'
                   'Allow Streaming' : 
                     itemClass     : KDOnOffSwitch
                     defaultValue  : if @liveViewer.terminalPreview then @liveViewer.terminalPreview.allowStreaming else on
                     callback:(state)=>
                       @liveViewer.terminalPreview?.allowStreaming = state
                       @emit 'OwnTerminalSettingsChanged'
-                      
+                  AllowStreamingINputExp:
+                    itemClass : KDCustomHTMLView
+                    partial : 'Turning on Terminal Input streaming will allow everyone who joins your session interact with your terminal. Make sure the users connected to your terminal are aware of the potential harm they can cause.'
+                    cssClass : 'modal-warning'                      
                   'Allow remote input':
                     itemClass     : KDOnOffSwitch
                     defaultValue  : if @liveViewer.terminalPreview then @liveViewer.terminalPreview.allowStreamingInput else on
