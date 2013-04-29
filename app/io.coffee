@@ -16,6 +16,7 @@ class KodeLectures.Controllers.FileIOController extends KDController
     @basePath     = "#{@appPath}/#{@name}.kdapp"
     
     @isInstructor = yes
+    @isBroadcasting = no
     @allowBroadcast = yes
     
     @attachListeners()

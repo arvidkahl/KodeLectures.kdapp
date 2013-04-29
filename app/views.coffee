@@ -706,6 +706,8 @@ class KodeLectures.Views.MainView extends JView
     
     @ioController.on 'UserJoined', (user)=>
       @chatView.show()
+      @ioController.isBroadcasting = yes
+      @emit 'OwnTerminalSettingsChanged'
       console.log 'FIREBASE: User Joined:',user
       unless KD.whoami().profile.nickname is user
         if @ioController.isInstructor
@@ -739,7 +741,7 @@ class KodeLectures.Views.MainView extends JView
           nickname  : KD.whoami().profile.nickname
 
     @on 'OwnTerminalSettingsChanged', =>
-      if @liveViewer.terminalPreview?.allowStreaming
+      if @liveViewer.terminalPreview?.allowStreaming and @ioController.isBroadcasting
         @ownTerminal.setClass 'streaming'
       else @ownTerminal.unsetClass 'streaming'
       
