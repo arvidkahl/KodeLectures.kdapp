@@ -9,6 +9,15 @@
 }
 
 
+.kodelectures .preview-buttons .terminal-buttons button.my-terminal-settings {
+  height: 15px;
+  width: 15px;
+  padding: 0;
+  margin: 0;
+  margin-top: -4px;
+  background-color: transparent;
+}
+
 .kodelectures .editor {
   background-color: #272822;
 }
@@ -116,6 +125,27 @@
   padding:2px;
 }
 
+@-webkit-keyframes streaming {
+  0% { background-color : rgba(219, 126, 44, 1);}
+  50% { background-color: rgba(22, 140, 170, 1);}
+}
+
+@-moz-keyframes streaming {
+  0% { background-color : rgba(219, 126, 44, 1);}
+  50% { background-color: rgba(22, 140, 170, 1);}
+}
+
+@keyframes streaming {
+  0% { background-color : rgba(219, 126, 44, 1);}
+  50% { background-color: rgba(22, 140, 170, 1);}
+}
+
+.kodelectures .preview-buttons .terminal-buttons button.my-terminal.streaming {
+  animation: streaming 1.5s infinite;
+  -webkit-animation: streaming 1.5s infinite;
+  -moz-animation: streaming 1.5s infinite;
+}
+
 .kodelectures .preview-buttons .terminal-buttons button.host-terminal:hover {
   background-color:rgba(22, 140, 170, 0.8);  
 }
@@ -123,11 +153,12 @@
 
   background-color:rgba(22, 140, 170, 1);
 }
+
 .kodelectures .preview-buttons .terminal-buttons button {
   
   background-color:#db7e2c;
   background-image:none;
-  font-family: 'Raleway', Arial, Helvetica, sans-serif!important;
+  //font-family: 'Raleway', Arial, Helvetica, sans-serif!important;
   border:none;
   box-shadow:none;
   text-shadow:none;

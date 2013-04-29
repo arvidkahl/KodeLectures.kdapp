@@ -425,6 +425,39 @@ class KodeLectures.Views.MainView extends JView
         @liveViewer.terminalPreview?.show()
         @liveViewer.terminalStreamPreview?.hide()
     
+    @ownTerminal.addSubView @ownTerminalSettings = new KDButtonView
+      icon : yes
+      iconOnly : yes
+      iconClass : 'cog'
+      cssClass : 'my-terminal-settings'
+      callback:=>
+        modal = new KDModalViewWithForms
+          title                   : "My Terminal Settings"
+          content                 : ""
+          overlay                 : yes
+          cssClass                : "new-kdmodal"
+          width                   : 500
+          height                  : "auto"
+          tabs                    : 
+            navigable             : yes 
+            goToNextFormOnSubmit  : no              
+            forms                 :      
+              'Streaming'         :
+                fields            :
+                  'Allow Streaming' : 
+                    itemClass     : KDOnOffSwitch
+                    defaultValue  : if @liveViewer.terminalPreview then @liveViewer.terminalPreview.allowStreaming else on
+                    callback:(state)=>
+                      @liveViewer.terminalPreview?.allowStreaming = state
+                      @emit 'OwnTerminalSettingsChanged'
+                      
+                  'Allow remote input':
+                    itemClass     : KDOnOffSwitch
+                    defaultValue  : if @liveViewer.terminalPreview then @liveViewer.terminalPreview.allowStreamingInput else on
+                    callback      : (state)=>
+                      @liveViewer.terminalPreview?.allowStreamingInput = state    
+                      @emit 'OwnTerminalSettingsChanged'
+    
     @hostTerminal = new KDButtonView
       title         : 'Host Terminal'
       tooltip       :  
@@ -705,6 +738,14 @@ class KodeLectures.Views.MainView extends JView
           message   : message
           nickname  : KD.whoami().profile.nickname
 
+    @on 'OwnTerminalSettingsChanged', =>
+      if @liveViewer.terminalPreview?.allowStreaming
+        @ownTerminal.setClass 'streaming'
+      else @ownTerminal.unsetClass 'streaming'
+      
+      
+      
+      
     # -----------------.
     # Shutdown cleanup |
     # ________________/
