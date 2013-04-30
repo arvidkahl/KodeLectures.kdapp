@@ -59,9 +59,9 @@
     "./resources/images/iconbook.white.64.png"
   ],
   "screenshots": [
-    "./resources/screenshots/screenshotCourseHeader.png",
-    "./resources/screenshots/screenshotTerminalLecture1020.png",
-    "./resources/screenshots/screenshotCourses.png"
+    "./resources/screenshots/screenshotCollaborative.jpg",
+    "./resources/screenshots/screenshotStreamingTerminal.jpg",
+    "./resources/screenshots/screenshotCoursePage.jpg"
   ],
   "authorNick": "arvidkahl"
 }
