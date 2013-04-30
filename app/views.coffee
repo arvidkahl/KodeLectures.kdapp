@@ -50,15 +50,15 @@ class KodeLectures.Views.MainView extends JView
     @listenWindowResize()
     
     @autoScroll         = yes
-    @currentLecture     = 0
-    @currentFile        = ''
-    @lastSelectedCourse = 0
-    @viewState          = 'courses'
-    @courses            = []
+    @currentLecture     = 0           # Index of the current lecture in the current course
+    @currentFile        = ''          # current file to be displayed in the editor, base path is the course directory
+    @lastSelectedCourse = 0           # Index of the current course (in the @courses array)
+    @viewState          = 'courses'   # State of the window, showing either courses or lectures
+    @courses            = []          # Will be populated with imported courses / courses found in /courses directory
 
-    @ioController = new KodeLectures.Controllers.FileIOController
+    @ioController = new KodeLectures.Controllers.FileIOController  # handles all file/firebase interaction
 
-    @delegateElements() 
+    @delegateElements()               # attach views to the mainView
 
     @ioController.emit 'CourseImportRequested'
     
@@ -622,6 +622,62 @@ class KodeLectures.Views.MainView extends JView
       @currentLang = language
       @codeMirrorEditor.setOption 'mode', @getModeFromLanguage language
     
+    
+    @on 'JoinSessionFromQuery', (sessionKey)=>
+        
+      @ioController.parseSessionKey sessionKey, (err,account)=>
+        if err then new KDNotificationView title : 'There is a problem with the host of the requested session. Try manually joining that session.'
+        else modal = new KDModalViewWithForms
+          title                   : "Join a KodeLecture session"
+          content                 : ""
+          overlay                 : yes
+          cssClass                : "new-kdmodal session-request-modal"
+          width                   : 500
+          height                  : "auto"
+          tabs                    : 
+            navigable             : yes 
+            goToNextFormOnSubmit  : no              
+            forms                 :
+              "Join Session"      :
+                fields            :                      
+                  "Notice"        :
+                    itemClass     : KDCustomHTMLView
+                    tagName       : 'span'
+                    partial       : "You are about to join a KodeLecture session.<br /><br />This session belongs to <strong>#{account.profile.firstName} #{account.profile.lastName}</strong>. <br /> <br />You can collaborate on any lecture the host activates. If you don't have these lectures installed, they will be automatically imported when they are needed."
+                    cssClass      : 'modal-info'  
+                  "sessionKey"    :
+                    label         : 'Session Key'
+                    itemClass     : KDInputView
+                    defaultValue  : sessionKey
+                    disabled      : yes
+                    name          : 'sessionKey'
+                buttons           :  
+                  'Join Session'  :
+                    title         : 'Join this Session!'
+                    style         : 'modal-clean-green'
+                    loader        :
+                      color       : "#ffffff"
+                      diameter    : 12
+                    callback      : =>
+                      console.log 'Session Join Button clicked'
+                      if modal.modalTabs.forms['Join Session'].inputs['sessionKey'].getValue() 
+                        @ioController.attachFirebase modal.modalTabs.forms['Join Session'].inputs['sessionKey'].getValue(), (sessionKey)=>
+                          @sessionShareButton.hide()   
+                          @sessionStatus.show()
+                          console.log 'FIREBASE: Joined ',sessionKey
+                          new KDNotificationView
+                            title : 'You joined a KodeLecture session'
+                            content : 'Now, you will be able to collaborate with everyone else in this session.'
+                            duration : 5000
+                          @editorContainer.$().html ''
+                          @buildCodeMirror()
+                          @firepad = Firepad.fromCodeMirror @ioController.firebaseRef, @codeMirrorEditor, userId: KD.whoami().profile.nickname
+                          modal.destroy()
+                  Cancel          :
+                    title         : 'Cancel'
+                    type          : 'modal-cancel'
+                    callback      : =>
+                      modal.destroy()      
     
     # ------------------------------------.
     # ioController event bindings         |

@@ -53,6 +53,7 @@
   },
   "images": [
     "./resources/images/chatbg.png",
+    "./resources/images/session.png",
     "./resources/images/hr.png",
     "./resources/images/iconbook.white.png",
     "./resources/images/ico.128.book.transparent.png",

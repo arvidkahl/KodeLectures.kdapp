@@ -21,6 +21,12 @@ class KodeLectures.Controllers.FileIOController extends KDController
     
     @attachListeners()
   
+  parseSessionKey:(key,callback=->)->
+    if /^kl:[^:]+:[^:]+$/.test key
+      nickname = key.split(':')[1]
+      
+      KD.remote.cacheable nickname, callback
+  
   broadcastMessage:(message,callback=->)->
     #console.log 'FIREBASE: Broadcasting:',message
     if @firebaseRef and @allowBroadcast
