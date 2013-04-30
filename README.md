@@ -10,6 +10,6 @@ If you are interested in adding your own lectures to this app, please check out 
 
 ## Screenshots
 
-![terminal](https://raw.github.com/arvidkahl/KodeLectures.kdapp/master/resources/screenshots/sceenshotStreamingTerminal.jpg)
+![terminal](https://raw.github.com/arvidkahl/KodeLectures.kdapp/master/resources/screenshots/screenshotStreamingTerminal.jpg)
 ![header](https://raw.github.com/arvidkahl/KodeLectures.kdapp/master/resources/screenshots/screenshotCoursePage.jpg)
 ![courses](https://raw.github.com/arvidkahl/KodeLectures.kdapp/master/resources/screenshots/screenshotCollaborative.jpg)
