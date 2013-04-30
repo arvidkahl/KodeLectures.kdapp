@@ -56,7 +56,7 @@ class KodeLectures.Core.LiveViewer
       
       eventObj = if document.createEventObject then document.createEventObject() else document.createEvent("Events")
 
-      if type is 'keydown'
+      if type is 'keydown' and event.which isnt 13
     
         if eventObj.initEvent
           eventObj.initEvent("keydown", true, true)
