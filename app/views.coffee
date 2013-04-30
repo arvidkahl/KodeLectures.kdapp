@@ -440,7 +440,7 @@ class KodeLectures.Views.MainView extends JView
           title                   : "My Terminal Settings"
           content                 : ""
           overlay                 : yes
-          cssClass                : "new-kdmodal"
+          cssClass                : "new-kdmodal own-terminal-settings-modal"
           width                   : 500
           height                  : "auto"
           tabs                    : 
