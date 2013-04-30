@@ -57,6 +57,9 @@ class KodeLectures.Views.MainView extends JView
     @courses            = []
 
     @ioController = new KodeLectures.Controllers.FileIOController
+
+    @delegateElements() 
+
     @ioController.emit 'CourseImportRequested'
     
     @ioController.on 'NewCourseImported', (course)=>
@@ -69,11 +72,12 @@ class KodeLectures.Views.MainView extends JView
     @ioController.attachFirebase null, (sessionKey,state)=>
       if state is 'fresh'
         console.log 'Firebase successfully attached and instantiated. Session key is',sessionKey
-        @sessionStatus.emit 'FirebaseAttached'
+        @sessionStatus?.emit 'FirebaseAttached'
 
-    
+  
   save:->
     @ioController.saveFile @courses,@lastSelectedCourse,@lastSelectedItem, @currentFile, @codeMirrorEditor.getValue()  
+  
   
   buildCodeMirror:->
     @codeMirrorEditor = CodeMirror @editorContainer.$()[0],
@@ -95,6 +99,7 @@ class KodeLectures.Views.MainView extends JView
           @save()
           @runButton.options.callback()
   
+
   delegateElements:->
 
     @splitViewWrapper = new KDView
@@ -790,5 +795,5 @@ class KodeLectures.Views.MainView extends JView
     """
     
   viewAppended:->
-    @delegateElements()
+
     @setTemplate do @pistachio
