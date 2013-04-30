@@ -9,7 +9,7 @@ do ->
 
   # Checking for query parameters -> TBI
   
-  useFakeQuery = yes
+  useFakeQuery = no # yes
   
   if useFakeQuery 
     query = 'kl:arvidkahl:md5'
