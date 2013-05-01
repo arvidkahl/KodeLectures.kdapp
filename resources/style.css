@@ -2,6 +2,30 @@
   background: #fff;
 }
 
+.session-request-modal .session-request-avatar {
+  position:absolute;
+  top:10px;
+  left:20px;
+  padding:2px;
+  border:1px solid #e8e8e8;
+  border-radius:4px;
+}
+.session-request-modal .session-request-info {
+  min-height:140px;
+  display:block;
+  padding:10px;
+}
+.session-request-modal .session-request-image {
+  float:left;
+  //background-image:url(images/session.png);
+  background-size:cover;
+  background-position:center;
+  width:128px;
+  height:128px;
+  border-bottom:none;
+  margin:10px;
+}
+
 .own-terminal-settings-modal .kdinput.on-off span {
   width:44%;
   display: inline-block;
