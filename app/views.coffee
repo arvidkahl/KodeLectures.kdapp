@@ -450,19 +450,19 @@ class KodeLectures.Views.MainView extends JView
               'Streaming'         :
                 fields            :
                   AllowStreamingExp:
-                    itemClass : KDCustomHTMLView
-                    partial : 'Turning on Terminal Streaming will allow everyone who joins your session to see your terminal, input and output.'
-                    cssClass : 'modal-info'
+                    itemClass     : KDCustomHTMLView
+                    partial       : 'Turning on Terminal Streaming will allow everyone who joins your session to see your terminal, input and output.'
+                    cssClass      : 'modal-info'
                   'Terminal Streaming' : 
                     itemClass     : KDOnOffSwitch
                     defaultValue  : if @liveViewer.terminalPreview then @liveViewer.terminalPreview.allowStreaming else on
-                    callback:(state)=>
+                    callback      : (state)=>
                       @liveViewer.terminalPreview?.allowStreaming = state
                       @emit 'OwnTerminalSettingsChanged'
                   AllowStreamingINputExp:
-                    itemClass : KDCustomHTMLView
-                    partial : 'Turning on Terminal Input streaming will allow everyone who joins your session interact with your terminal. Make sure the users connected to your terminal are aware of the potential harm they can cause.'
-                    cssClass : 'modal-warning'                      
+                    itemClass     : KDCustomHTMLView
+                    partial       : 'Turning on Terminal Input streaming will allow everyone who joins your session interact with your terminal. Make sure the users connected to your terminal are aware of the potential harm they can cause.'
+                    cssClass      : 'modal-warning'                      
                   'Terminal Remote Input':
                     itemClass     : KDOnOffSwitch
                     defaultValue  : if @liveViewer.terminalPreview then @liveViewer.terminalPreview.allowStreamingInput else on

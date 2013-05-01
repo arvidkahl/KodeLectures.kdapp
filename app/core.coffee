@@ -986,33 +986,60 @@ class KodeLectures.Views.CourseSelectionView extends JView
     """
     
 class KodeLectures.Views.SessionStatusView extends JView
-  constructor:->
-    super
+  constructor:(options={},data)->
+    
+    options.tooltip = 
+      title : ''
+      
+    options.bind = 'mouseenter mouseleave'
+    
+    super options, data
     @text = new KDView
       partial : 'Initializing…'
     
+    @on 'mouseenter', (event)=>
+      @updateUserTooltip()
+      @updateInterval = KD.utils.repeat 1000, =>
+        @updateUserTooltip()
+        @updateTooltip?() # this will likely change with new tooltip implementations
+    
+    @on 'mouseleave', (event)=>
+      KD.utils.killRepeat @updateInterval
+    
     @userCount = 0
+    @users = []
     
     @on "UserJoinedHost", (user)=>
       @setClass 'host'
       @text.updatePartial "#{++@userCount} people connected to your lecture. Last join: #{user}"
-    
+      @users.push 
+        user : user
+        timestamp : new Date().getTime()
+      @updateUserTooltip()
+
     @on "UserJoinedSelf", (key)=>
       @setClass 'join'
       @text.updatePartial "You are connected to session #{key} (#{++@userCount})"
     
     @on "UserJoined", (user)=>
       @setClass 'join'
-      @text.updatePartial "#{++@userCount} people connected to this session Last join: #{user}"    
+      @text.updatePartial "#{++@userCount} people connected to this session Last join: #{user}"  
+      @users.push 
+        user : user
+        timestamp : new Date().getTime()
+      @updateUserTooltip()
     
     @on "UserLeft", (user)=>
       if --@userCount is 0
         @unsetClass 'join'
         @unsetClass 'host'
         @text.updatePartial "Everyone has left this session"
+        @users = []
+        @updateUserTooltip()
       else 
         @text.updatePartial "#{@userCount} people connected to this session Last join: #{user}"
-      
+        @users.splice(@users.indexOf(connectedUser),1) for connectedUser in @users when connectedUser.user is user
+        @updateUserTooltip()
       @utils.defer => if @userCount < 0 then @userCount = 0
     
     @on "FirebaseAttached", =>
@@ -1020,6 +1047,13 @@ class KodeLectures.Views.SessionStatusView extends JView
       @userCount = 0
       @text.updatePartial "You can now share your Session"
       
+  
+  updateUserTooltip:()->
+    options = @getOptions()
+    time = new Date().getTime()
+    options?.tooltip?.title = ("#{user.user}, connected for #{ Math.floor((time - user.timestamp) / 1000)} seconds" for user in @users).join '<br />'
+    
+    @setOptions options if options
   pistachio:->  
     """
     <span class="icon"></span>
