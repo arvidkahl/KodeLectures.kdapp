@@ -1053,7 +1053,7 @@ class KodeLectures.Views.SessionStatusView extends JView
     time = new Date().getTime()
     options?.tooltip?.title = 
       if @users.length  
-        "<strong>Connected users:</strong><hr />"+("#{user.user}, connected for #{ Math.floor((time - user.timestamp) / 1000)} seconds" for user in @users).join('<br />')
+        "<strong>Connected users: #{@users.length}</strong><hr />"+("#{user.user}, connected for #{ Math.floor((time - user.timestamp) / 1000)} seconds" for user in @users).join('<br />')
       else 'No users connected.'
     @setOptions options if options
   pistachio:->  
